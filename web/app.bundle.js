@@ -68,15 +68,22 @@ const storage = {
 // A native liblng adapter can pass ISO language codes when available.
 const rulesByLanguage = {
     es: [
-        ["sueño", /dorm|acost|despert|siesta|levant/i],
-        ["alimentación", /com[ií]|desayun|almorz|cen[ée]|merend/i],
-        ["hidratación", /agua|hidrat|beb[ií]/i],
-        ["salida", /sal[ií]|camin|pase|calle|viaj|compr/i],
-        ["higiene", /duch|bañ|lav|dient/i],
-        ["social", /habl|llam|charl|visit|mensaje|amig/i],
-        ["descanso", /descans|pausa|relaj/i],
-    ],
-};
+        // Precise actions first: visiting the toilet is not taking a shower.
+        ["Vapeo", /\b(vapear|vapeo|vapeador|vaper|vapeando|vape[eéó]|cigarrillo\s+electr[oó]nico)(?=$|[\s.,;!?])/i],
+        ["Ir al baño", /\b(baño|pis|orinar|orin[eéó]|orinado|micci[oó]n|defecar|defequ[eé]|defecaci[oó]n|evacu[eéó]|evacuaci[oó]n|caca|me[eé])(?=$|[\s.,;!?])/i],
+        ["Tabaco", /\b(tabaco|cigarrillos?|cigarros?|puchos?|fum[eéó]|fumar|fumando)(?=$|[\s.,;!?])/i],
+        ["Alcohol", /\b(alcohol|cervezas?|birras?|vinos?|fernet|whisk(?:e)?y|vodka|ginebra|gin|sidra|champ[aá]n|tragos?|ron)(?=$|[\s.,;!?])/i],
+        ["Medicación", /\b(medicaci[oó]n|medicamentos?|medicinas?|pastillas?|remedios?|dosis)(?=$|[\s.,;!?])/i],
+        ["Cafeína", /\b(caf[eé]|cafecito|mate|energizante|cafe[ií]na)(?=$|[\s.,;!?])/i],
+        ["Sueño", /dorm|acost|despert|siesta|levant/i],
+        ["Alimentación", /com[ií]|comida|desayun|almorz|cen[ée]|merend/i],
+        ["Hidratación", /agua|hidrat|beb[ií]/i],
+        ["Actividad física", /camin(?:ar|ando|é|o|ata|ó|amos)|ejercic|entren|corr[ií]|trot[eé]|biciclet/i],
+        ["Salida", /sal[ií]|camin|pase|calle|viaj|compr/i],
+        ["Higiene", /duch|bañ[aeé]|lav|dient/i],
+        ["Social", /habl|llam|charl|visit|mensaje|amig/i],
+        ["Descanso", /descans|pausa|relaj/i],
+    ],};
 const words = s => new Set((s.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []).filter(x => x.length > 2));
 
 function suggestCategory(text, entries, language = null) {
@@ -92,10 +99,11 @@ function suggestCategory(text, entries, language = null) {
         const score = overlap / Math.max(tokens.size, other.size, 1) + (entry.categorySource === "manual" ? 0.15 : 0);
         if (score > best) { best = score; winner = entry.category; }
     }
-    if (best >= 0.35) return { category: winner, source: "precedent", confidence: Math.min(best, 1), language };
-    // Spanish is the default UI language until native detection is connected.
+    if (best >= 0.8) return { category: winner, source: "precedent", confidence: Math.min(best, 1), language };
+    // Specific rules beat weak lexical overlap with a prior record.
     const rule = (rulesByLanguage[language || "es"] || []).find(([, test]) => test.test(text));
-    return rule ? { category: rule[0], source: "rule", confidence: 0.3, language: language || "es" } : null;
+    if (rule) return { category: rule[0], source: "rule", confidence: 0.6, language: language || "es" };
+    return best >= 0.35 ? { category: winner, source: "precedent", confidence: Math.min(best, 1), language } : null;
 }
 
 // Local persistent reminder definitions; Android alarms are independent of WebView lifetime.
@@ -184,8 +192,9 @@ const reminderStore={
 };
 
 const $=id=>document.getElementById(id);
-const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"]];
-const byCategory=name=>preset.find(p=>p[0].toLowerCase()===String(name||"").toLowerCase())||[name||"Personal","✦","grey"];
+const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Higiene","✦","blue"],["Ir al baño","🚻","blue"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Medicación","✚","blue"],["Cafeína","☕","orange"]];
+const canonicalCategory=name=>{const raw=String(name||"").trim();return preset.find(p=>p[0].toLowerCase()===raw.toLowerCase())?.[0]||raw};
+const byCategory=name=>preset.find(p=>p[0]===canonicalCategory(name))||[name||"Personal","✦","grey"];
 const unique=a=>[...new Set(a.filter(Boolean))];
 const localTime=d=>{const date=new Date(d);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const formatTime=v=>new Date(v).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
@@ -204,29 +213,44 @@ function show(page){
     window.scrollTo(0,0);
 }
 function iconFor(category){
- const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart"};
+ const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart","Ir al baño":"toilet","Tabaco":"smoke","Vapeo":"vape","Alcohol":"glass","Medicación":"pill","Cafeína":"coffee","Higiene":"shower"};
  const box=el("span","entry-icon "+(p[2]||""));const name=icons[p[0]]||"leaf";
  box.innerHTML='<svg class="icon"><use href="#i-'+name+'"></use></svg>';return box;
 }
 function categoryOptions(){
- const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>e.category),...customCategories()]);
+ const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>canonicalCategory(e.category)),...customCategories().map(canonicalCategory)]);
  const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
 }
 function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categories")||"[]")}catch{return []}}
 function saveCategory(name){localStorage.setItem("rh-categories",JSON.stringify(unique([...customCategories(),name])))}
 function suggestions(){
  const root=$("suggestions");root.replaceChildren();
- for(const [title,emoji] of [["Caminata","🚶"],["Hidratación","💧"],["Comida","🍴"],["Descanso","☾"],["Terapia","♥"],["Trabajo","▣"]]){
-  const btn=el("button","suggestion",emoji+" "+title);
-  btn.onclick=()=>{const textarea=$("capture-text");if(textarea.value.trim())textarea.value+=" · ";textarea.value+=title;textarea.focus();};
-  root.append(btn);
+ // Never show more than six actions; prioritize what gets logged often.
+ const uses=new Map();
+ for(const record of entries){const name=canonicalCategory(record.category);if(name)uses.set(name,(uses.get(name)||0)+1);}
+ const frequent=[...uses.keys()].sort((a,b)=>uses.get(b)-uses.get(a));
+ const picks=unique([...frequent,"Ir al baño","Caminata","Hidratación","Comida","Descanso","Terapia"]).slice(0,6);
+ const phrases={
+  "Ir al baño":["Baño","Fui al baño","🚻"],
+  "Tabaco":["Tabaco","Fumé tabaco","♨"],
+  "Vapeo":["Vapeo","Vapeé","≈"],
+  "Alcohol":["Alcohol","Tomé alcohol","◌"],
+  "Hidratación":["Hidratación","Tomé agua","💧"],
+  "Comida":["Comida","Comí","🍴"],
+  "Caminata":["Caminata","Caminata","🚶"]
+ };
+ for(const category of picks){
+  const [label,description,icon]=phrases[category]||[category,category,byCategory(category)[1]];
+  const button=el("button","suggestion",icon+" "+label);
+  button.onclick=()=>{const field=$("capture-text");if(field.value.trim())field.value+=" · ";field.value+=description;field.focus();};
+  root.append(button);
  }
 }
-async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();}
+async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();suggestions();}
 function openEdit(e){
  current=e;selectedCategory=e.category||"";mood=e.mood??null;
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
- categoryOptions();$("edit-category").value=e.category||"";
+ categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
@@ -235,21 +259,21 @@ function openEdit(e){
 function drawHistory(){
  const q=$("search").value.trim().toLocaleLowerCase("es-AR");
  const root=$("history-list");root.replaceChildren();
- const matches=entries.filter(e=>(!categoryFilter||e.category===categoryFilter)&&(!q||[e.description,e.notes,e.category].join(" ").toLocaleLowerCase("es-AR").includes(q)));
+ const matches=entries.filter(e=>(!categoryFilter||canonicalCategory(e.category)===categoryFilter)&&(!q||[e.description,e.notes,e.category].join(" ").toLocaleLowerCase("es-AR").includes(q)));
  if(!matches.length){root.append(el("p","muted","Todavía no hay registros para mostrar."));return;}
  for(const e of matches){
   const row=el("button","history-item");row.append(iconFor(e.category));
   const body=el("span","item-main");body.append(el("strong","",e.description));
   const small=el("small","",(dayKey(e.occurredAt)===dayKey(Date.now())?"Hoy ":"")+formatTime(e.occurredAt));
-  if(e.category){small.append(el("span","pill",e.category));}
+  if(e.category){small.append(el("span","pill",canonicalCategory(e.category)));}
   body.append(small);row.append(body);if(e.mood!=null)row.append(el("span","face",e.mood>=7?"●":e.mood<=3?"☹":"●"));
   row.append(el("span","muted","⋮"));row.onclick=()=>openEdit(e);root.append(row);
  }
 }
 function drawCategories(){
  const root=$("category-list");root.replaceChildren();
- const names=unique([...preset.slice(0,10).map(x=>x[0]),...customCategories(),...entries.map(e=>e.category)]);
- for(const cat of names){const count=entries.filter(e=>e.category===cat).length;const row=el("button","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));row.onclick=()=>{categoryFilter=cat;$("search").value="";show("history")};root.append(row);}
+ const names=unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
+ for(const cat of names){const count=entries.filter(e=>canonicalCategory(e.category)===cat).length;const row=el("button","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));row.onclick=()=>{categoryFilter=cat;$("search").value="";show("history")};root.append(row);}
 }
 function drawSummary(){
  const now=new Date(),start=new Date(now),buckets=period==="week"?7:period==="month"?30:12;
@@ -261,13 +285,13 @@ function drawSummary(){
  }
  const max=Math.max(1,...counts);const chart=$("chart");chart.replaceChildren();
  for(let i=0;i<buckets;i++){const cell=el("div","bar-cell");const bar=el("div","bar");bar.style.height=(counts[i]/max*130)+"px";bar.title=counts[i]+" registros";cell.append(bar,el("span","",period==="week"?["L","M","X","J","V","S","D"][(now.getDay()+1+i)%7]:period==="month"?(i%5===0?String(i+1):""):String((i+now.getMonth()+1)%12+1)));chart.append(cell);}
- const countsCat=new Map();entries.forEach(e=>countsCat.set(e.category||"Sin categoría",(countsCat.get(e.category||"Sin categoría")||0)+1));
+ const countsCat=new Map();entries.forEach(e=>{const cat=canonicalCategory(e.category)||"Sin categoría";countsCat.set(cat,(countsCat.get(cat)||0)+1)});
  const root=$("summary-categories");root.replaceChildren();for(const [cat,count] of [...countsCat].sort((a,b)=>b[1]-a[1])){const row=el("div","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));root.append(row);}
  $("summary-count").textContent=entries.length+" registros en total";
 }
 async function saveCapture(){
  const description=$("capture-text").value.trim();if(!description){$("capture-text").focus();return;}
- const choice=suggestCategory(description,entries);const category=selectedCategory||choice?.category||null;
+ const choice=suggestCategory(description,entries);const category=canonicalCategory(selectedCategory||choice?.category)||null;
  try{await storage.save({description,occurredAt:quickDate||new Date().toISOString(),category,categorySource:selectedCategory?"manual":choice?"suggested":null,energy:null,mood:null,notes:"",duration:null});
   $("capture-text").value="";selectedCategory="";quickDate=null;toast("Registro guardado.");await reload();show("history");
  }catch(e){toast("Error al guardar: "+e.message)}
@@ -424,7 +448,7 @@ document.querySelectorAll("#moods button").forEach(b=>b.onclick=()=>{mood=Number
 $("edit-save").onclick=async()=>{
  if(!current)return;const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
  const date=$("edit-date").value,time=$("edit-time").value;if(!date||!time)return;
- try{await storage.save({...current,description,occurredAt:new Date(date+"T"+time+":00").toISOString(),category:$("edit-category").value||null,categorySource:"manual",mood,energy:$("energy-enabled").checked?Number($("edit-energy").value):null,duration:$("edit-duration").value===""?null:Number($("edit-duration").value),notes:$("edit-notes").value});await reload();show("history")}catch(e){alert(e.message)}
+ try{await storage.save({...current,description,occurredAt:new Date(date+"T"+time+":00").toISOString(),category:canonicalCategory($("edit-category").value)||null,categorySource:"manual",mood,energy:$("energy-enabled").checked?Number($("edit-energy").value):null,duration:$("edit-duration").value===""?null:Number($("edit-duration").value),notes:$("edit-notes").value});await reload();show("history")}catch(e){alert(e.message)}
 };
 $("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
