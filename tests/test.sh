@@ -49,5 +49,20 @@ if command -v node >/dev/null 2>&1; then
     # Check the generated application script rather than separately checking
     # modules that deliberately contain import/export declarations.
     node --check "$ROOT/build/web/app.bundle.js"
+    node - "$ROOT" <<'NODE'
+const fs=require("fs"), root=process.argv[2];
+const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
+const categorize=new Function(file+"; return suggestCategory")();
+const examples=[
+ ["Fui al baño","Ir al baño"],["Hice pis","Ir al baño"],["Evacué","Ir al baño"],
+ ["Me bañé","Higiene"],["Me duché","Higiene"],
+ ["Fumé un cigarrillo","Tabaco"],["Vapeé","Vapeo"],["Usé el cigarrillo electrónico","Vapeo"],
+ ["Tomé una cerveza","Alcohol"],["Tomé agua","Hidratación"],["Tomé café","Cafeína"],["Tomé una pastilla","Medicación"]
+];
+for(const [sentence,expected] of examples){
+ const actual=categorize(sentence,[])?.category;
+ if(actual!==expected)throw Error(sentence+": expected "+expected+", got "+actual);
+}
+NODE
 fi
 echo 'Packaged WebView HTML smoke test passed'
