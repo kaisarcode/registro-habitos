@@ -544,6 +544,11 @@ async function importBackup(file){
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
+ if(backup.preferences && typeof backup.preferences.reducedMotion==="boolean"){
+  $("reduced-motion").checked=backup.preferences.reducedMotion;
+  document.documentElement.classList.toggle("reduce-motion",backup.preferences.reducedMotion);
+  try{localStorage.setItem("registro-habitos-reduced-motion",String(backup.preferences.reducedMotion));}catch(error){console.warn(error);}
+ }
  if(backup.categoryProfiles)categoryStore.merge(backup.categoryProfiles);
  if(Array.isArray(backup.categories))for(const cat of backup.categories){if(typeof cat==="string"&&cat.trim())saveCategory(cat.trim());}
  await reload();
