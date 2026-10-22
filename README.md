@@ -4,7 +4,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Abrir `web/index.html` en un navegador moderno. `build-app.sh` genera `build/web/index.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
+Abrir `web/index.html` en un navegador moderno. `build-app.sh` genera `build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
@@ -14,7 +14,15 @@ El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador
 KCAPK_DIR=../kcapk ./build-app.sh
 ```
 
-`build-app.sh` delega la generación de Android a KCAPK; no copia, modifica ni incorpora sus fuentes. KCAPK debe estar instalado con su cadena de compilación Android.
+`build-app.sh` usa la instalación externa de KCAPK. Copia temporalmente sus templates a `build/kcapk-voice/` y aplica allí un parche específico para el micrófono y los recursos locales; **no modifica el repositorio de KCAPK**. KCAPK debe estar instalado con su cadena de compilación Android. `python3` es necesario solamente al compilar para aplicar ese parche.
+
+## Voz del navegador y migración de datos
+
+KCAPK original no instala un `WebChromeClient` con `onPermissionRequest`, por lo que Android WebView puede denegar el micrófono aun después de autorizar `RECORD_AUDIO` para la aplicación. Esta app configura un `AppWebChromeClient` que concede exclusivamente `RESOURCE_AUDIO_CAPTURE` a la página empaquetada y sólo cuando Android ya concedió `RECORD_AUDIO`. No concede permisos adicionales ni a otros orígenes.
+
+Para que `SpeechRecognition` no opere desde `file://`, la página real se carga bajo `https://appassets.androidplatform.net/app.html`, un **origen HTTPS local servido desde los assets del APK**, sin solicitud de red para HTML/CSS/JS/MP3. El primer arranque sigue usando `file:///android_asset/index.html` a fin de migrar registros anteriores desde IndexedDB a la nueva ubicación mediante mensajes entre las dos páginas internas. Si la migración falla, no borra los datos antiguos y muestra una opción para continuar. Se conserva el mismo package Android.
+
+Este cambio corrige la configuración de permisos y origen del WebView. La disponibilidad efectiva del reconocimiento sigue dependiendo de la implementación de Web Speech y del servicio de voz del dispositivo. **No se ha verificado en un teléfono real**.
 
 ## Arquitectura
 
