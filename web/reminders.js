@@ -12,6 +12,10 @@ const reminderStore = {
             const granted=await window.NativeBridge.Android.permissions.request("notifications");
             if (!granted) throw new Error("Permiso de notificaciones denegado.");
         }
+        const native=window.NativeBridge.Android;
+        if (native.notifications) native.notifications.createChannel({
+            id:"registro-discreto",name:"Recordatorios discretos",importance:"low",sound:"none",showBadge:false
+        });
         const base=Math.floor(Math.random()*1500000)*32;
         const item={id:String(base),base,title,time,daily};
         const [hour,minute]=time.split(":").map(Number);
