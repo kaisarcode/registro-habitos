@@ -90,7 +90,7 @@ async function saveCapture(){
  }catch(e){toast("Error al guardar: "+e.message)}
 }
 function csv(){const cols=["id","occurredAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
-function download(name,text,type){const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function drawReminders(){
  const root=$("reminder-list");root.replaceChildren();const items=reminderStore.list();
  for(const item of items){const row=el("div","reminder-item");row.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
@@ -166,7 +166,13 @@ $("reminder-confirm").onclick=async e=>{e.preventDefault();const title=$("remind
 };
 $("export-json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list(),categories:customCategories()},null,2),"application/json");
 $("export-csv").onclick=()=>download("registro-habitos.csv",csv(),"text/csv;charset=utf-8");
-$("import-json").onclick=()=>$("import-file").click();
+$("import-json").onclick=()=>{if(window.NativeBridge?.Android?.clipboard){const copied=window.NativeBridge.Android.clipboard.get();if(copied?.trim().startsWith("{")){$("import-text").value=copied;$("import-dialog").showModal();return;}}$("import-file").click();};
+$("import-text-btn").onclick=()=>{$("import-dialog").showModal();};
+$("import-cancel").onclick=()=>$("import-dialog").close();
+$("import-confirm").onclick=async()=>{
+ try{const content=$("import-text").value;await importBackup({text:async()=>content});$("import-dialog").close();$("import-text").value="";}
+ catch(e){alert("No se pudo importar: "+e.message);}
+};
 $("import-file").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{await importBackup(file)}catch(err){alert("No se pudo importar: "+err.message)}finally{e.target.value=""}};
 $("reduced-motion").onchange=e=>{document.documentElement.classList.toggle("reduce-motion",e.target.checked)};
 suggestions();reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));try{reminderStore.refresh()}catch(e){console.warn(e)}
