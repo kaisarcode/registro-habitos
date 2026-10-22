@@ -104,7 +104,23 @@ async function importBackup(file){
  const backup=JSON.parse(await file.text());if(backup.version!==1||!Array.isArray(backup.entries))throw Error("Formato JSON incompatible");
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!confirm("Importar "+backup.entries.length+" entradas? No se sobrescribirán las actuales."))return;
- const n=await storage.importEntries(backup.entries);await reload();alert("Importadas "+n.imported+" entradas. "+n.skipped+" ya existían.");
+ const n=await storage.importEntries(backup.entries);
+ if(Array.isArray(backup.categories))for(const cat of backup.categories){if(typeof cat==="string"&&cat.trim())saveCategory(cat.trim());}
+ await reload();
+ let notice="Importadas "+n.imported+" entradas. "+n.skipped+" ya existían.";
+ if(Array.isArray(backup.reminders)&&backup.reminders.length){
+  const existing=new Set(reminderStore.list().map(r=>r.title+"|"+r.time+"|"+r.repeat));
+  const add=backup.reminders.filter(r=>r&&typeof r.title==="string"&&/^\\d{2}:\\d{2}$/.test(r.time)&&!existing.has(r.title+"|"+r.time+"|"+r.repeat));
+  if(add.length&&confirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?")){
+   let done=0;
+   for(const r of add){
+    try{const item=await reminderStore.add(r.title,r.time,r.repeat!=="once",r.repeat||"daily",r.sound||"none");if(r.enabled===false)await reminderStore.setEnabled(item.id,false);done++;}
+    catch(err){notice+=" Algunos recordatorios no pudieron programarse: "+err.message;break;}
+   }
+   notice+=" Recordatorios restaurados: "+done+".";
+  }
+ }
+ alert(notice);
 }
 function startVoice(){
  const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -143,4 +159,4 @@ $("export-csv").onclick=()=>download("registro-habitos.csv",csv(),"text/csv;char
 $("import-json").onclick=()=>$("import-file").click();
 $("import-file").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{await importBackup(file)}catch(err){alert("No se pudo importar: "+err.message)}finally{e.target.value=""}};
 $("reduced-motion").onchange=e=>{document.documentElement.classList.toggle("reduce-motion",e.target.checked)};
-suggestions();reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
+suggestions();reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));try{reminderStore.refresh()}catch(e){console.warn(e)}
