@@ -105,7 +105,21 @@ fi
 grep -q 'id="edit-save"' "$PAGE"
 grep -q 'class="edit-modal-footer"' "$PAGE"
 grep -q 'id="edit-save" class="main-button">Guardar</button>' "$PAGE"
-grep -q 'id="edit-delete" class="edit-delete-action">Eliminar</button>' "$PAGE"
+grep -q 'id="edit-delete" class="edit-delete-action"' "$PAGE"
+for prefix in entry edit; do
+    grep -q "id=\"$prefix-moods\"" "$PAGE"
+    grep -q "id=\"$prefix-energy-enabled\" type=\"checkbox\" role=\"switch\"" "$PAGE"
+    grep -q "id=\"$prefix-energy-value\"" "$PAGE"
+    grep -q "id=\"$prefix-energy\" type=\"range\"" "$PAGE"
+done
+grep -q 'function renderEnergy(prefix)' "$PAGE"
+grep -q 'function setMood(prefix,value)' "$PAGE"
+grep -q 'mood:readMood("entry")' "$PAGE"
+grep -q 'mood:readMood("edit")' "$PAGE"
+if grep -q 'id="entry-mood"\|id="energy-enabled"\|id="energy-number"' "$PAGE"; then
+    echo 'Old mood or energy controls remain' >&2
+    exit 1
+fi
 if grep -q 'Guardar cambios' "$PAGE"; then
     echo "Edit action must be labeled Guardar" >&2
     exit 1
