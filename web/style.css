@@ -125,3 +125,31 @@
 
 .category-item .category-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;text-align:left;background:transparent;border-radius:8px}
 .category-item .category-open:focus-visible{outline:2px solid var(--accent)}
+
+/* Quiet sensory preference: one accessible switch aligned with its label. */
+.sensory-preferences .sensory-setting{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ margin:12px 0 8px;min-height:48px;font-size:15px;color:#dce7e7;
+ cursor:pointer;
+}
+.sensory-preferences #reduced-motion{
+ position:absolute;width:1px;height:1px;margin:0;padding:0;
+ opacity:0;overflow:hidden;pointer-events:none;
+}
+.sensory-switch-track{
+ flex:0 0 50px;width:50px;height:30px;border-radius:999px;
+ background:#33464e;border:1px solid #53666c;position:relative;
+}
+.sensory-switch-track::after{
+ content:"";position:absolute;top:3px;left:3px;
+ width:22px;height:22px;border-radius:50%;background:#c6d1d3;
+}
+.sensory-preferences #reduced-motion:checked + .sensory-switch-track{
+ background:#55cfaa;border-color:#55cfaa;
+}
+.sensory-preferences #reduced-motion:checked + .sensory-switch-track::after{
+ left:23px;background:#102b29;
+}
+.sensory-preferences #reduced-motion:focus-visible + .sensory-switch-track{
+ outline:2px solid #a6e9ce;outline-offset:3px;
+}

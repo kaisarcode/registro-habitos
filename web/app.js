@@ -748,7 +748,18 @@ $("import-file").onchange=async e=>{
  catch(error){await appInfo("No se pudo importar: "+error.message,"Error de importación")}
  finally{e.target.value=""}
 };
-$("reduced-motion").onchange=e=>{document.documentElement.classList.toggle("reduce-motion",e.target.checked)};
+const reducedMotionInput=$("reduced-motion");
+const reducedMotionKey="registro-habitos-reduced-motion";
+try{
+ const stored=localStorage.getItem(reducedMotionKey);
+ if(stored!==null)reducedMotionInput.checked=stored==="true";
+}catch(error){console.warn("Sensory preference unavailable",error);}
+document.documentElement.classList.toggle("reduce-motion",reducedMotionInput.checked);
+reducedMotionInput.onchange=()=>{
+ document.documentElement.classList.toggle("reduce-motion",reducedMotionInput.checked);
+ try{localStorage.setItem(reducedMotionKey,String(reducedMotionInput.checked));}
+ catch(error){console.warn("Unable to save sensory preference",error);}
+};
 // A one-time, same-APK migration preserves records from the old file:// origin
 // when switching to the synthetic HTTPS origin required for Web Speech.
 if (window.top !== window && location.search === "?migration=1") {
