@@ -117,3 +117,7 @@ El botón físico Volver se maneja desde el WebView a través de `registroHabito
 ## Diagnóstico de instalación de APK
 
 El APK no descarga dependencias ni recursos de CDN. El script elimina los archivos generados de `build/web/` antes de empaquetar, comprueba la integridad ZIP del APK y muestra el tamaño final. Cada commit posterior al 45101558 incrementa automáticamente el `versionCode`, de modo que una actualización nueva no tenga el mismo identificador de versión que la anterior. `kcapk` firma con `~/.android/debug.keystore`: si se cambia de computadora, cuenta o keystore, Android puede rechazar la actualización sobre la instalación anterior por incompatibilidad de firma. **No desinstales la app sin exportar primero el respaldo JSON**, ya que los datos están guardados localmente. Si el instalador permanece en «Instalando», un log de PackageInstaller o una prueba con `adb install -r` permite obtener la causa concreta; el código web por sí solo no puede determinarla.
+
+## Acerca de y navegación de configuración
+
+El menú **Más** incorpora **Acerca de**, con versión y `versionCode` del APK, revisión de compilación, autor **KaisarCode** y enlace externo a `https://kaisarcode.com`. Los metadatos se sustituyen durante `build.sh`, que también usa la misma versión para el APK de Android. No requiere conectividad para ver esta información. En Categorías, Resumen, Importar/Exportar y Acerca de, tanto la flecha superior como Volver de Android regresan a **Más**; desde Más regresan a Mi día, y únicamente Mi día solicita confirmación para salir.

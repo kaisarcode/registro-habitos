@@ -18,7 +18,17 @@ test -s "$MIGRATOR"
 grep -q "appassets.androidplatform.net/app.html" "$MIGRATOR"
 test -s "$PAGE"
 grep -q 'name="app-build"' "$PAGE"
-grep -q 'id="build-version"' "$PAGE"
+grep -q 'id="about-version"' "$PAGE"
+grep -q 'id="about-build"' "$PAGE"
+grep -q 'data-page="about"' "$PAGE"
+grep -q 'href="https://kaisarcode.com"' "$PAGE"
+grep -q 'meta name="app-version"' "$PAGE"
+grep -q 'meta name="app-version-code"' "$PAGE"
+grep -Fq 'APP_VERSION="0.2.8"' "$ROOT/build.sh"
+grep -Fq 's/@APP_VERSION@/$APP_VERSION/g' "$ROOT/build.sh"
+grep -Fq -- '--version-name "$APP_VERSION"' "$ROOT/build.sh"
+grep -Fq '["categories","summary","data","about"].includes(page)' "$PAGE"
+grep -Fq '$("back").onclick=handleDeviceBack' "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="quick-categories"' "$PAGE"
@@ -206,6 +216,14 @@ const back=new Function("$","document","window","show","showAppDialog","closeEnt
 );
 if(back()!==true||activePage!=="capture"||lastConfirm!==null)
  throw Error("Back from secondary screen must go home");
+for(const settingsPage of ["categories","summary","data","about"]){
+ activePage=settingsPage;lastConfirm=null;
+ if(back()!==true||activePage!=="more"||lastConfirm!==null)
+  throw Error("Back from "+settingsPage+" must return to Más");
+}
+if(back()!==true||activePage!=="capture"||lastConfirm!==null)
+ throw Error("Back from Más must return to Mi día");
+
 const editDialog={id:"edit-dialog",open:true,close(){this.open=false}};
 activeDialogs=[editDialog];
 if(!back()||editDialog.open||lastConfirm!==null)throw Error("Back must close edit modal first");

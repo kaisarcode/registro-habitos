@@ -14,8 +14,8 @@ function el(tag,className,text){const n=document.createElement(tag);if(className
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
     
-    ["capture","history","categories","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
+    ["capture","history","categories","summary","reminders","data","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
+    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más",about:"Acerca de"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
     // Always render the same bundled SVG icons. Assigning textContent here
     // replaces the initial settings SVG with a font-dependent Unicode gear.
@@ -33,7 +33,7 @@ function show(page){
         topAction.replaceChildren(svg);
     }else topAction.replaceChildren();
     $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Más opciones":page==="history"?"Opciones del historial":"Opciones");
-    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
+    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data","about"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
@@ -599,6 +599,10 @@ function handleDeviceBack(){
   return true;
  }
  const page=document.querySelector(".screen.active")?.id;
+ if(["categories","summary","data","about"].includes(page)){
+  show("more");
+  return true;
+ }
  if(page!=="capture"){
   show("capture");
   return true;
@@ -614,7 +618,7 @@ function handleDeviceBack(){
 }
 window.registroHabitosBack=handleDeviceBack;
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
-$("back").onclick=()=>show("capture");
+$("back").onclick=handleDeviceBack;
 $("top-action").onclick=()=>{
  const page=document.querySelector(".screen.active").id;
  if(page==="categories")openCategoryEditor();
@@ -799,7 +803,11 @@ if (window.top !== window && location.search === "?migration=1") {
  });
  window.parent.postMessage({type:"rh-ready"}, "*");
 } else {
- $("build-version").textContent="Versión de interfaz: "+(document.querySelector('meta[name="app-build"]')?.content || "desarrollo");
+ const buildMeta=document.querySelector('meta[name="app-build"]')?.content || "desarrollo";
+ const versionMeta=document.querySelector('meta[name="app-version"]')?.content || "desarrollo";
+ const codeMeta=document.querySelector('meta[name="app-version-code"]')?.content || "";
+ $("about-version").textContent=versionMeta.startsWith("@")?"desarrollo":versionMeta+(codeMeta&&!codeMeta.startsWith("@")?" ("+codeMeta+")":"");
+ $("about-build").textContent=buildMeta.startsWith("@")?"desarrollo":buildMeta;
  reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
  try{reminderStore.refresh()}catch(e){console.warn(e)}
 }

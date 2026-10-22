@@ -47,6 +47,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
 # difficult and can result in stale copies being installed. The version code is
 # independent of timestamps and increases with commits on slave.
 APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
+APP_VERSION="0.2.8"
 VERSION_CODE=20261027
 VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4
 if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then
@@ -54,7 +55,7 @@ if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then
     VERSION_CODE=$((20261026 + VERSION_INCREMENT))
 fi
 printf 'APK versionCode: %s (source %s)\n' "$VERSION_CODE" "$APP_BUILD"
-sed "s/@APP_BUILD@/$APP_BUILD/g" "$WEB_OUT/app.html" > "$WEB_OUT/app.versioned.html"
+sed -e "s/@APP_BUILD@/$APP_BUILD/g" -e "s/@APP_VERSION_CODE@/$VERSION_CODE/g" -e "s/@APP_VERSION@/$APP_VERSION/g" "$WEB_OUT/app.html" > "$WEB_OUT/app.versioned.html"
 mv "$WEB_OUT/app.versioned.html" "$WEB_OUT/app.html"
 printf 'Bundled app revision: %s\n' "$APP_BUILD"
 # The original file:///android_asset/index.html can read older IndexedDB.
@@ -93,7 +94,7 @@ sh ./build.sh \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
     --version-code "$VERSION_CODE" \
-    --version-name "0.2.7" \
+    --version-name "$APP_VERSION" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \

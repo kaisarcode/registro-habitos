@@ -152,3 +152,13 @@
 .sensory-preferences #reduced-motion:focus-visible + .sensory-switch-track{
  outline:2px solid #a6e9ce;outline-offset:3px;
 }
+
+/* About / Acerca de: quiet, legible app information in the existing dark UI. */
+.about-panel{padding:20px}
+.about-panel h2{font-size:21px;margin:0 0 20px}
+.about-details{margin:0}
+.about-details>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid #2b3d46}
+.about-details dt{font-size:14px;color:var(--muted)}
+.about-details dd{font-size:14px;margin:0;text-align:right;color:#e6f1ee;overflow-wrap:anywhere}
+.about-website{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding:14px 15px;border-radius:12px;background:#213b39;color:#94e5c8;text-decoration:none;font-size:14px}
+.about-website:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
