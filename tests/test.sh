@@ -62,6 +62,16 @@ if grep -q 'id="suggestions"' "$PAGE"; then
     exit 1
 fi
 grep -q 'id="edit-save"' "$PAGE"
+grep -q 'class="edit-modal-footer"' "$PAGE"
+grep -q 'id="edit-save" class="main-button">Guardar</button>' "$PAGE"
+grep -q 'id="edit-delete" class="edit-delete-action">Eliminar</button>' "$PAGE"
+if grep -q 'Guardar cambios' "$PAGE"; then
+    echo "Edit action must be labeled Guardar" >&2
+    exit 1
+fi
+grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/web/style.css"
+grep -Fq '#edit-dialog .edit-modal-actions>button' "$ROOT/web/style.css"
+
 grep -q 'id="reminder-confirm"' "$PAGE"
 grep -q 'id="app-action-dialog"' "$PAGE"
 grep -q 'id="test-notification"' "$PAGE"

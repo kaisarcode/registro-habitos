@@ -116,8 +116,12 @@
 #edit-dialog{width:min(calc(100vw - 26px),520px);max-height:88dvh;overflow-y:auto}
 .edit-modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .edit-modal-title h2{font-size:20px;margin:0}
-.edit-modal-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
-.edit-modal-actions>button{width:100%;min-height:52px;height:52px;margin:0;display:grid;place-items:center}
+.edit-modal-footer{display:flex;flex-direction:column;gap:12px;margin-top:18px;width:100%;clear:both}
+#edit-dialog .edit-modal-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:12px;width:100%;margin:0;padding:0}
+#edit-dialog .edit-modal-actions>button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-width:0;height:52px;min-height:52px;margin:0;padding:0 10px;border-radius:25px;line-height:1.2;white-space:nowrap}
+#edit-dialog #edit-cancel{background:#2b3942;color:#e2edf0;font-weight:500}
+#edit-dialog #edit-save{background:var(--accent);color:#072823;font-weight:750}
+#edit-dialog .edit-delete-action{box-sizing:border-box;display:block;align-self:flex-start;margin:0;padding:9px 12px;border-radius:10px;color:#e8a6a6;font-size:14px;background:transparent}
 
 .category-item .category-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;text-align:left;background:transparent;border-radius:8px}
 .category-item .category-open:focus-visible{outline:2px solid var(--accent)}
