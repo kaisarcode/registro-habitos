@@ -96,6 +96,7 @@ async function saveQuickCategory(category){
 }
 function resetEntryOptions(){
  $("capture-text").value="";
+ $("entry-status").textContent="";
  $("entry-when").value=localTime(new Date());
  const cats=categoryNames();
  $("entry-category").replaceChildren(new Option("Automática",""),...cats.map(c=>new Option(c,c)));
@@ -118,7 +119,7 @@ function closeEntryDialog(){
 }
 async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawDashboard();}
 function openEdit(e){
- current=e;selectedCategory=e.category||"";mood=e.mood??null;
+ current=e;mood=e.mood??null;
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
  categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
@@ -165,14 +166,14 @@ async function saveCapture(){
  if(quickSaving)return;
  const date=$("entry-when").value,occurredAt=new Date(date||Date.now());
  if(!Number.isFinite(occurredAt.getTime())){
-  $("capture-status").textContent="Ingresá una fecha válida.";return;
+  $("entry-status").textContent="Ingresá una fecha válida.";return;
  }
  const manual=canonicalCategory($("entry-category").value);
  const suggested=manual?null:suggestCategory(description,entries);
  const category=manual||canonicalCategory(suggested?.category)||null;
  const durationText=$("entry-duration").value.trim(),duration=durationText===""?null:Number(durationText);
  if(duration!=null&&(!Number.isFinite(duration)||duration<0)){
-  $("capture-status").textContent="La duración debe ser positiva.";return;
+  $("entry-status").textContent="La duración debe ser positiva.";return;
  }
  quickSaving=true;
  $("capture-save").disabled=true;
@@ -186,7 +187,7 @@ async function saveCapture(){
   }));
   closeEntryDialog();await reload();
   showCaptureFeedback("Entrada guardada · "+formatTime(record.occurredAt),record);
- }catch(error){$("capture-status").textContent="No se pudo guardar: "+error.message;}
+ }catch(error){$("entry-status").textContent="No se pudo guardar: "+error.message;}
  finally{quickSaving=false;$("capture-save").disabled=false;}
 }
 function csv(){const cols=["id","occurredAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
@@ -238,7 +239,7 @@ async function importBackup(file){
 // unavailable; the app itself does not upload or store the microphone audio.
 let voicePending = false;
 function voiceFeedback(targetId, message) {
- const status = $(targetId === "edit-text" ? "edit-voice-status" : "capture-status");
+ const status = $(targetId === "edit-text" ? "edit-voice-status" : "entry-status");
  if (status) status.textContent = message;
 }
 function voiceButtons(active) {
@@ -306,7 +307,7 @@ async function startVoice(targetId = "capture-text") {
   r.onend = () => {
    if (recognition === r) recognition = null;
    voiceButtons(false);
-   const status = $(targetId === "edit-text" ? "edit-voice-status" : "capture-status");
+   const status = $(targetId === "edit-text" ? "edit-voice-status" : "entry-status");
    if (status?.textContent.startsWith("Escuchando")) status.textContent = field.value.trim() ? "Dictado terminado." : "No se registró texto.";
   };
   recognition = r;
@@ -331,6 +332,7 @@ $("top-action").onclick=()=>{const page=document.querySelector(".screen.active")
 $("add-entry").onclick=openEntryDialog;
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
+$("entry-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});
 $("capture-save").onclick=saveCapture;
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
