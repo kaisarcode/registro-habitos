@@ -76,3 +76,7 @@ Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina
 ## Registro corporal y consumo
 
 Categorías disponibles: **Ir al baño**, **Tabaco**, **Vapeo**, **Alcohol**, **Higiene**, **Medicación** y **Cafeína**, además de las actividades habituales. El clasificador local reconoce frases naturales como “fui al baño”, “hice pis”, “fumé un cigarrillo”, “vapeé” o “tomé cerveza”. Guardar sigue siendo inmediato; ninguna medición adicional es obligatoria. Las categorías se pueden corregir desde Editar y los datos se exportan con las categorías elegidas. El registro rápido mantiene un máximo de seis sugerencias que se adaptan al historial.
+
+## Inicio: registro por categorías y botón flotante
+
+La vista **Mi día** presenta las categorías como botones permanentes. Tocar una guarda inmediatamente una entrada con esa categoría y la hora actual; **Deshacer** permite revertir la última entrada creada. El botón flotante `+` abre un diálogo con texto, dictado del navegador y detalles opcionales (fecha, hora, categoría, energía, bienestar, duración, notas). Cerrar el diálogo no guarda nada. Los registros, clasificaciones, filtros y exportaciones existentes se mantienen sin migraciones de esquema.

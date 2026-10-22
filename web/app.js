@@ -8,17 +8,18 @@ const unique=a=>[...new Set(a.filter(Boolean))];
 const localTime=d=>{const date=new Date(d);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const formatTime=v=>new Date(v).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
 const dayKey=v=>localTime(v).slice(0,10);
-let entries=[],current=null,mood=null,selectedCategory="",period="week",previous="capture",recognition=null,quickDate=null,categoryFilter="",editingReminderId=null;
+let entries=[],current=null,mood=null,period="week",previous="capture",recognition=null,categoryFilter="",editingReminderId=null,quickSaving=false,lastQuickEntryId=null;
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!=null)n.textContent=text;return n;}
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
     if(page==="edit")previous="history";
     ["capture","history","categories","edit","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Nuevo registro",history:"Historial",categories:"Categorías",edit:"Editar registro",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
+    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",edit:"Editar registro",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
     $("top-action").textContent=page==="capture"?"⚙":page==="history"?"⋮":page==="reminders"?"＋":"";
     document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (page==="edit"&&b.dataset.page==="history") || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
-    if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
+    $("add-entry").classList.toggle("hidden",page!=="capture");
+    if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
 }
 function iconFor(category){
@@ -32,30 +33,90 @@ function categoryOptions(){
 }
 function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categories")||"[]")}catch{return []}}
 function saveCategory(name){localStorage.setItem("rh-categories",JSON.stringify(unique([...customCategories(),name])))}
-function suggestions(){
- const root=$("suggestions");root.replaceChildren();
- // Never show more than six actions; prioritize what gets logged often.
- const uses=new Map();
- for(const record of entries){const name=canonicalCategory(record.category);if(name)uses.set(name,(uses.get(name)||0)+1);}
- const frequent=[...uses.keys()].sort((a,b)=>uses.get(b)-uses.get(a));
- const picks=unique([...frequent,"Ir al baño","Caminata","Hidratación","Comida","Descanso","Terapia"]).slice(0,6);
+function quickDescription(category){
  const phrases={
-  "Ir al baño":["Baño","Fui al baño","🚻"],
-  "Tabaco":["Tabaco","Fumé tabaco","♨"],
-  "Vapeo":["Vapeo","Vapeé","≈"],
-  "Alcohol":["Alcohol","Tomé alcohol","◌"],
-  "Hidratación":["Hidratación","Tomé agua","💧"],
-  "Comida":["Comida","Comí","🍴"],
-  "Caminata":["Caminata","Caminata","🚶"]
+  "Ir al baño":"Fui al baño","Tabaco":"Fumé tabaco","Vapeo":"Vapeé",
+  "Alcohol":"Tomé alcohol","Hidratación":"Tomé agua","Cafeína":"Tomé café",
+  "Medicación":"Tomé medicación","Sueño":"Dormí","Higiene":"Higiene personal",
+  "Descanso":"Descansé","Actividad física":"Hice actividad física"
  };
- for(const category of picks){
-  const [label,description,icon]=phrases[category]||[category,category,byCategory(category)[1]];
-  const button=el("button","suggestion",icon+" "+label);
-  button.onclick=()=>{const field=$("capture-text");if(field.value.trim())field.value+=" · ";field.value+=description;field.focus();};
-  root.append(button);
+ return phrases[category]||category;
+}
+function categoryNames(){
+ return unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
+}
+function drawDashboard(){
+ const grid=$("quick-categories");grid.replaceChildren();
+ const names=categoryNames();
+ for(const category of names){
+  const button=el("button","quick-category");
+  button.type="button";button.setAttribute("aria-label","Registrar "+category);
+  const badge=iconFor(category);badge.setAttribute("aria-hidden","true");
+  button.append(badge,el("span","quick-name",category));
+  button.onclick=()=>saveQuickCategory(category);
+  grid.append(button);
+ }
+ const today=entries.filter(e=>dayKey(e.occurredAt)===dayKey(Date.now()));
+ $("today-count").textContent=today.length+" "+(today.length===1?"registro":"registros");
+ const recent=$("today-entries");recent.replaceChildren();
+ if(!today.length){recent.append(el("p","muted","Todavía no registraste nada hoy."));return;}
+ for(const entry of today.slice(0,5)){
+  const button=el("button","history-item");
+  button.append(iconFor(entry.category));
+  const body=el("span","item-main");
+  body.append(el("strong","",entry.description),el("small","",formatTime(entry.occurredAt)));
+  button.append(body);button.onclick=()=>openEdit(entry);recent.append(button);
  }
 }
-async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();suggestions();}
+function showCaptureFeedback(message,entry=null){
+ $("capture-status").textContent=message;
+ lastQuickEntryId=entry?.id||null;
+ $("undo-quick").classList.toggle("hidden",!entry);
+}
+function createEntry(details){
+ return {
+  description:details.description,occurredAt:details.occurredAt,
+  category:details.category||null,categorySource:details.categorySource||null,
+  energy:details.energy??null,mood:details.mood??null,
+  duration:details.duration??null,notes:details.notes||""
+ };
+}
+async function saveQuickCategory(category){
+ if(quickSaving)return;
+ quickSaving=true;
+ try{
+  const record=await storage.save(createEntry({
+   description:quickDescription(category),occurredAt:new Date().toISOString(),
+   category,categorySource:"manual"
+  }));
+  await reload();
+  showCaptureFeedback("Guardado: "+category+" · "+formatTime(record.occurredAt),record);
+ }catch(error){showCaptureFeedback("No se pudo guardar: "+error.message);}
+ finally{quickSaving=false;}
+}
+function resetEntryOptions(){
+ $("capture-text").value="";
+ $("entry-when").value=localTime(new Date());
+ const cats=categoryNames();
+ $("entry-category").replaceChildren(new Option("Automática",""),...cats.map(c=>new Option(c,c)));
+ $("entry-category").value="";
+ for(const name of ["energy","mood"]){
+  $("entry-"+name).value=5;
+  $("entry-"+name+"-enabled").checked=false;
+  $("entry-"+name+"-value").textContent="—";
+ }
+ $("entry-duration").value="";$("entry-notes").value="";
+ $("entry-options").open=false;
+}
+function openEntryDialog(){
+ resetEntryOptions();
+ $("entry-dialog").showModal();
+}
+function closeEntryDialog(){
+ if(recognition){try{recognition.stop()}catch(_){}}
+ $("entry-dialog").close();
+}
+async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawDashboard();}
 function openEdit(e){
  current=e;selectedCategory=e.category||"";mood=e.mood??null;
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
@@ -99,11 +160,34 @@ function drawSummary(){
  $("summary-count").textContent=entries.length+" registros en total";
 }
 async function saveCapture(){
- const description=$("capture-text").value.trim();if(!description){$("capture-text").focus();return;}
- const choice=suggestCategory(description,entries);const category=canonicalCategory(selectedCategory||choice?.category)||null;
- try{await storage.save({description,occurredAt:quickDate||new Date().toISOString(),category,categorySource:selectedCategory?"manual":choice?"suggested":null,energy:null,mood:null,notes:"",duration:null});
-  $("capture-text").value="";selectedCategory="";quickDate=null;toast("Registro guardado.");await reload();show("history");
- }catch(e){toast("Error al guardar: "+e.message)}
+ const description=$("capture-text").value.trim();
+ if(!description){$("capture-text").focus();return;}
+ if(quickSaving)return;
+ const date=$("entry-when").value,occurredAt=new Date(date||Date.now());
+ if(!Number.isFinite(occurredAt.getTime())){
+  $("capture-status").textContent="Ingresá una fecha válida.";return;
+ }
+ const manual=canonicalCategory($("entry-category").value);
+ const suggested=manual?null:suggestCategory(description,entries);
+ const category=manual||canonicalCategory(suggested?.category)||null;
+ const durationText=$("entry-duration").value.trim(),duration=durationText===""?null:Number(durationText);
+ if(duration!=null&&(!Number.isFinite(duration)||duration<0)){
+  $("capture-status").textContent="La duración debe ser positiva.";return;
+ }
+ quickSaving=true;
+ $("capture-save").disabled=true;
+ try{
+  const record=await storage.save(createEntry({
+   description,occurredAt:occurredAt.toISOString(),category,
+   categorySource:manual?"manual":suggested?.source||null,
+   energy:$("entry-energy-enabled").checked?Number($("entry-energy").value):null,
+   mood:$("entry-mood-enabled").checked?Number($("entry-mood").value):null,
+   duration,notes:$("entry-notes").value.trim()
+  }));
+  closeEntryDialog();await reload();
+  showCaptureFeedback("Entrada guardada · "+formatTime(record.occurredAt),record);
+ }catch(error){$("capture-status").textContent="No se pudo guardar: "+error.message;}
+ finally{quickSaving=false;$("capture-save").disabled=false;}
 }
 function csv(){const cols=["id","occurredAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
@@ -244,10 +328,28 @@ async function startVoice(targetId = "capture-text") {
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
 $("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
-$("capture-save").onclick=saveCapture;$("mic").onclick=()=>startVoice("capture-text");$("edit-dictate").onclick=()=>startVoice("edit-text");
-$("today").onclick=()=>{quickDate=new Date().toISOString();toast("Fecha de hoy seleccionada.")};
-$("now").onclick=()=>{quickDate=new Date().toISOString();toast("Hora actual seleccionada.")};
-$("notes").onclick=()=>{$("capture-text").focus();toast("Escribí tu nota libremente.")};
+$("add-entry").onclick=openEntryDialog;
+$("entry-close").onclick=closeEntryDialog;
+$("entry-cancel").onclick=closeEntryDialog;
+$("capture-save").onclick=saveCapture;
+$("mic").onclick=()=>startVoice("capture-text");
+$("edit-dictate").onclick=()=>startVoice("edit-text");
+$("undo-quick").onclick=async()=>{
+ if(!lastQuickEntryId)return;
+ const id=lastQuickEntryId;lastQuickEntryId=null;
+ $("undo-quick").classList.add("hidden");
+ try{await storage.remove(id);await reload();showCaptureFeedback("Entrada deshecha.");}
+ catch(error){showCaptureFeedback("No se pudo deshacer: "+error.message);}
+};
+for(const name of ["energy","mood"]){
+ $("entry-"+name).oninput=()=>{
+  $("entry-"+name+"-enabled").checked=true;
+  $("entry-"+name+"-value").textContent=$("entry-"+name).value+"/10";
+ };
+ $("entry-"+name+"-enabled").onchange=()=>{
+  $("entry-"+name+"-value").textContent=$("entry-"+name+"-enabled").checked?$("entry-"+name).value+"/10":"—";
+ };
+}
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
 $("category-add").onclick=()=>{const cat=prompt("Nombre de la categoría");if(cat?.trim()){saveCategory(cat.trim());drawCategories()}};
 $("search").oninput=drawHistory;
@@ -324,7 +426,6 @@ if (window.top !== window && location.search === "?migration=1") {
  window.parent.postMessage({type:"rh-ready"}, "*");
 } else {
  $("build-version").textContent="Versión de interfaz: "+(document.querySelector('meta[name="app-build"]')?.content || "desarrollo");
- suggestions();
  reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
  try{reminderStore.refresh()}catch(e){console.warn(e)}
 }

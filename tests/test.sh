@@ -12,6 +12,15 @@ grep -q 'name="app-build"' "$PAGE"
 grep -q 'id="build-version"' "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
+grep -q 'id="quick-categories"' "$PAGE"
+grep -q 'id="entry-dialog"' "$PAGE"
+grep -q 'id="add-entry"' "$PAGE"
+grep -q 'id="undo-quick"' "$PAGE"
+grep -q 'function saveQuickCategory(category)' "$PAGE"
+if grep -q 'id="suggestions"' "$PAGE"; then
+    echo 'Old suggestions menu is still packaged' >&2
+    exit 1
+fi
 grep -q 'id="edit-save"' "$PAGE"
 grep -q 'id="reminder-confirm"' "$PAGE"
 grep -q 'id="reminder-delete"' "$PAGE"

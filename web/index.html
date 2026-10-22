@@ -27,10 +27,11 @@
 <header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Nuevo registro</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-gear"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
- <textarea id="capture-text" placeholder="¿Qué hiciste o cómo te sentís?" aria-label="Descripción del registro"></textarea>
- <div class="quick-row"><button id="mic" class="mic-button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><button id="today" class="chip">☼ Hoy</button><button id="now" class="chip">◷ Ahora</button><button id="notes" class="chip">▤ Nota</button></div>
- <p class="section-label">Sugerencias</p><div id="suggestions" class="suggestions"></div>
- <p id="capture-status" class="muted" role="status"></p><button id="capture-save" class="main-button">Registrar</button>
+ <div class="dashboard-heading"><h2>Registrar con un toque</h2><p>Elegí una categoría para guardar una entrada ahora.</p></div>
+ <div id="quick-categories" class="category-grid" aria-label="Registrar por categoría"></div>
+ <div class="today-heading"><h2>Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
+ <div id="today-entries" class="history-list"></div>
+ <div class="save-feedback" id="quick-feedback" role="status" aria-live="polite"><span id="capture-status"></span><button type="button" id="undo-quick" class="undo-button hidden">Deshacer</button></div>
 </section>
 <section id="history" class="screen">
  <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros"><button id="history-filter" class="icon-button" aria-label="Categorías">☷</button></div>
@@ -43,5 +44,24 @@
 <section id="data" class="screen"><article class="panel"><h2>Exportar datos</h2><p>Guardá todos tus registros en un archivo para respaldo o análisis externo.</p><button id="export-json" class="utility-button">↧ &nbsp; Exportar JSON</button><button id="export-csv" class="utility-button">▦ &nbsp; Exportar CSV</button></article><article class="panel"><h2>Importar datos</h2><p>Restaurá registros desde un archivo anterior. No sobrescribe tus datos.</p><button id="import-json" class="utility-button accent">⇧ &nbsp; Importar JSON</button><button id="import-text-btn" class="utility-button">▣ &nbsp; Importar texto JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden><dialog id="import-dialog"><h2>Importar respaldo JSON</h2><p>Pegá aquí el contenido JSON exportado desde la aplicación.</p><textarea id="import-text" rows="9" placeholder="{ ... }"></textarea><div class="dialog-actions"><button id="import-cancel" class="secondary">Cancelar</button><button id="import-confirm" class="main-button">Importar</button></div></dialog></article><article class="panel"><h2>Información</h2><p>JSON: respaldo completo con todos los datos originales.<br>CSV: tabla simple para análisis en otras herramientas.</p></article></section>
 <section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="data">Importar / Exportar <span>›</span></button><article class="panel"><h2>Preferencias sensoriales</h2><label><input id="reduced-motion" type="checkbox" checked> Sin animaciones</label><p>Modo oscuro predeterminado. Sin avisos anticipados.</p></article><p id="build-version" class="muted"></p></section>
 </main>
+<button id="add-entry" class="add-entry-fab" type="button" aria-label="Nueva entrada" title="Nueva entrada">＋</button>
+<dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title">
+ <div class="entry-modal-header"><h2 id="entry-dialog-title">Nueva entrada</h2><button id="entry-close" type="button" class="icon-button" aria-label="Cerrar sin guardar">×</button></div>
+ <label for="capture-text">¿Qué hiciste o cómo te sentís?</label>
+ <textarea id="capture-text" rows="4" placeholder="Escribí o dictá lo que hiciste…"></textarea>
+ <div class="modal-voice"><button id="mic" class="mic-button" type="button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Tocá para dictar</span></div>
+ <details id="entry-options" class="entry-options">
+  <summary>Detalles opcionales</summary>
+  <label for="entry-when">Fecha y hora</label><input id="entry-when" type="datetime-local">
+  <label for="entry-category">Categoría</label><select id="entry-category"></select>
+  <label class="option-check"><input id="entry-energy-enabled" type="checkbox"> Registrar energía <output id="entry-energy-value">—</output></label>
+  <input id="entry-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía">
+  <label class="option-check"><input id="entry-mood-enabled" type="checkbox"> Registrar cómo me sentí <output id="entry-mood-value">—</output></label>
+  <input id="entry-mood" type="range" min="0" max="10" value="5" aria-label="Cómo me sentí">
+  <label for="entry-duration">Duración (minutos)</label><input id="entry-duration" type="number" min="0" placeholder="Opcional">
+  <label for="entry-notes">Notas</label><textarea id="entry-notes" rows="2" placeholder="Opcional"></textarea>
+ </details>
+ <div class="entry-modal-actions"><button type="button" id="entry-cancel" class="secondary">Cancelar</button><button type="button" id="capture-save" class="main-button">Guardar</button></div>
+</dialog>
 <nav class="tabs"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="more"><span>•••</span>Más</button></nav>
 </div><script defer src="./app.bundle.js"></script></body></html>
