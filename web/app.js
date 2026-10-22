@@ -151,6 +151,16 @@ $("edit-save").onclick=async()=>{
 $("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
 $("reminder-new").onclick=()=>$("reminder-dialog").showModal();
+let previewAudio=null;
+$("preview-sound").onclick=()=>{
+ const name=$("reminder-sound").value;
+ if(previewAudio){previewAudio.pause();previewAudio=null;}
+ if(name==="none")return;
+ previewAudio=new Audio(name==="glock"?"./sounds/glock.mp3":"./sounds/alert.mp3");
+ previewAudio.volume=Number($("preview-volume").value)/100;
+ previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
+};
+$("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
 $("reminder-confirm").onclick=async e=>{e.preventDefault();const title=$("reminder-name").value.trim(),time=$("reminder-time").value,repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;if(!title||!time)return;
  try{await reminderStore.add(title,time,repeat!=="once",repeat,sound);$("reminder-dialog").close();$("reminder-name").value="";drawReminders();$("reminder-status").textContent="Recordatorio guardado."}catch(err){$("reminder-status").textContent=err.message}
 };
