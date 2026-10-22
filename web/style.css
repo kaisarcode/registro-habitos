@@ -2,3 +2,7 @@
 .svg-defs{position:absolute;width:0;height:0;overflow:hidden}.icon{display:block;width:24px;height:24px;fill:currentColor}.entry-icon .icon{width:26px;height:26px}.entry-icon.green{color:#65e6a9}.entry-icon.orange{color:#ffae62}.entry-icon.purple{color:#c69cff}.entry-icon.blue{color:#8ed2ff}.entry-icon.grey{color:#afc1d8}.mic-button .icon{width:29px;height:29px;margin:auto}.topbar .icon{width:23px;height:23px}.tabs .icon{width:23px;height:23px}.tabs button span{display:block}
 \n.sound-preview{display:flex;align-items:end;gap:10px;margin:14px 0}.sound-preview button{white-space:nowrap}.sound-preview label{margin:0;flex:1}.reduce-motion *{animation:none!important;transition:none!important}\n
 .edit-voice-wrap{position:relative}.edit-voice-wrap textarea{padding-right:58px}.edit-mic{position:absolute;right:10px;bottom:14px;border-radius:12px;background:#214a47;color:#88e1c5;width:42px;height:42px;display:grid;place-items:center}
+
+/* Voice is controlled by the browser; no new sound or animation. */
+.mic-button.listening,.edit-mic.listening{outline:2px solid #b5eedc;outline-offset:3px;background:#4fae94;color:#061a17}
+#edit-voice-status{min-height:1.1em;margin:6px 0 12px}

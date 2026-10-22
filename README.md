@@ -6,7 +6,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 Abrir `web/index.html` en un navegador moderno. `build-app.sh` genera `build/web/index.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
-El dictado solo se habilita si el motor del WebView expone reconocimiento local (`processLocally`). No se utiliza reconocimiento remoto ni una API web externa; si no hay motor local, escribir sigue funcionando.
+El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
 ## Comprobación rápida\n\n```sh\nsh ./tests/test.sh\n```\n\nEsto genera la misma página HTML local que se empaquetará y comprueba sus controles y JavaScript (también su sintaxis cuando Node está instalado). No sustituye una prueba manual del APK en Android.\n\n## Construir con KCAPK externo
 
@@ -48,7 +48,7 @@ Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN n
 
 ## Límites de integración Android
 
-- La app no carga librerías, CDN ni recursos externos. El reconocimiento de voz sólo se habilita donde exista un motor local compatible; el registro escrito está siempre disponible.
+- La app no carga librerías, CDN ni recursos externos. El dictado depende del motor del navegador y puede requerir conexión externa; el registro escrito y el resto de la aplicación siguen disponibles offline.
 - Los dos MP3 suministrados están empaquetados localmente y se pueden escuchar al elegir un recordatorio. Las notificaciones nativas todavía son silenciosas, aun cuando se haya elegido un audio, hasta contar con un proveedor nativo seguro de sonidos personalizados.
 - En Android, `kcapk` ofrece `intents.share` y `clipboard`: los botones de exportación permiten compartir texto JSON/CSV. El importador soporta JSON pegado o tomado del portapapeles. La selección directa de archivo puede depender del soporte del WebView.
 - La interfaz se aproxima a la referencia gráfica; las fuentes y el renderizado varían con el dispositivo. No se ha validado aquí en un Android físico.
