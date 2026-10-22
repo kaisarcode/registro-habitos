@@ -64,3 +64,18 @@
 #capture-status{flex:1;min-width:0;overflow-wrap:anywhere}
 .dismiss-feedback{width:38px;height:38px;min-width:38px;border-radius:10px;font-size:27px;font-weight:400;line-height:1;color:#b8e4d4;display:grid;place-items:center}
 .dismiss-feedback:focus-visible{outline:2px solid #a7ddc8;outline-offset:2px}
+
+/* App-owned dialogs replace Android WebView's bright alert/confirm/prompt UI. */
+.app-action-dialog{width:min(calc(100vw - 32px),440px);max-height:82dvh;overflow-y:auto;background:#182830;color:#ecf0f1;border:1px solid #3a5056;border-radius:18px;padding:20px;box-shadow:0 16px 48px #000a}
+.app-action-dialog::backdrop{background:#000b}
+.app-action-dialog h2{font-size:19px;margin:0 0 13px;font-weight:650}
+.app-action-dialog p{font-size:14px;line-height:1.5;color:#b5c7cb;margin:0 0 14px;overflow-wrap:anywhere}
+.app-action-dialog label{color:#bbcdd1;font-size:13px}
+.app-action-dialog input{width:100%;margin:8px 0 16px}
+.app-action-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.app-action-buttons button{height:48px;min-width:0;width:100%;display:flex;align-items:center;justify-content:center;border-radius:22px;padding:8px 12px}
+.app-action-buttons button.destructive{background:#6c373c;color:#ffe5e5}
+.app-action-buttons button.hidden + button{grid-column:1 / -1}
+#test-notification{font-size:13px;margin-top:12px}
+#test-notification:disabled{opacity:.5}
+#reminder-dialog-status{min-height:1.2em}
