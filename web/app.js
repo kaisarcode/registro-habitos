@@ -90,7 +90,7 @@ function drawDashboard(){
   const button=el("button","history-item");
   button.append(iconFor(entry.category));
   const body=el("span","item-main");
-  body.append(el("strong","",entry.description),el("small","",formatTime(entry.occurredAt)));
+  body.append(el("strong","",entry.description),el("small","",formatTime(entry.occurredAt)+(entry.duration!=null?" · "+durationLabel(entry.duration):"")));
   button.append(body);button.onclick=()=>openEdit(entry);recent.append(button);
  }
 }
@@ -100,12 +100,73 @@ function showCaptureFeedback(message,entry=null){
  lastQuickEntryId=entry?.id||null;
  $("undo-quick").classList.toggle("hidden",!entry);
 }
+// Canonical duration is stored in minutes. Explicit intervals also retain
+// both endpoints for later analysis; neither requires a database migration.
+function durationLabel(minutes){
+ const total=Number(minutes);
+ if(!Number.isFinite(total))return "";
+ const hours=Math.floor(total/60),mins=Math.round(total-hours*60);
+ return hours?(hours+" h"+(mins?" "+mins+" min":"")):(mins+" min");
+}
+function durationFromInterval(prefix){
+ const startValue=$(prefix+"-start").value,endValue=$(prefix+"-end").value;
+ if(!startValue||!endValue)throw Error("Indicá la fecha y hora de inicio y fin.");
+ const start=new Date(startValue),end=new Date(endValue);
+ if(!Number.isFinite(start.getTime())||!Number.isFinite(end.getTime()))throw Error("Inicio o fin no válidos.");
+ if(end<=start)throw Error("El fin debe ser posterior al inicio.");
+ return {
+  occurredAt:start.toISOString(),startedAt:start.toISOString(),endedAt:end.toISOString(),
+  duration:Math.round((end.getTime()-start.getTime())/60000)
+ };
+}
+function durationDetails(prefix){
+ if($(prefix+"-duration-mode").value==="interval")return durationFromInterval(prefix);
+ const text=$(prefix+"-duration").value.trim();
+ const duration=text===""?null:Number(text);
+ if(duration!=null&&(!Number.isFinite(duration)||duration<0)){
+  throw Error("La duración debe ser un número de minutos válido.");
+ }
+ const source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
+ if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresá una fecha y hora válidas.");
+ return {occurredAt:new Date(source).toISOString(),duration,startedAt:null,endedAt:null};
+}
+function updateDurationUI(prefix){
+ const isInterval=$(prefix+"-duration-mode").value==="interval";
+ $(prefix+"-duration-minutes").classList.toggle("hidden",isInterval);
+ $(prefix+"-duration-interval").classList.toggle("hidden",!isInterval);
+ $(prefix+"-event-time").classList.toggle("hidden",isInterval);
+ if(!isInterval)return;
+ const label=$(prefix+"-duration-preview");
+ if(!$(prefix+"-start").value||!$(prefix+"-end").value){label.textContent="Elegí inicio y fin, incluso si son de días distintos.";return;}
+ try{label.textContent="Duración calculada: "+durationLabel(durationFromInterval(prefix).duration);}
+ catch(error){label.textContent=error.message;}
+}
+function changeDurationMode(prefix){
+ const interval=$(prefix+"-duration-mode").value==="interval";
+ if(interval){
+  let source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
+  if(!$(prefix+"-start").value&&source&&Number.isFinite(new Date(source).getTime())){
+   $(prefix+"-start").value=source;
+  }
+  const minutes=Number($(prefix+"-duration").value);
+  if(!$(prefix+"-end").value&&$(prefix+"-duration").value!==""&&Number.isFinite(minutes)&&minutes>0&&$(prefix+"-start").value){
+   $(prefix+"-end").value=localTime(new Date(new Date($(prefix+"-start").value).getTime()+minutes*60000));
+  }
+ }else if($(prefix+"-start").value){
+  // Retain the chosen start even if switching back to minutes.
+  const startValue=$(prefix+"-start").value;
+  if(prefix==="entry")$("entry-when").value=startValue;
+  else {$("edit-date").value=startValue.slice(0,10);$("edit-time").value=startValue.slice(11);}
+  try{$(prefix+"-duration").value=String(durationFromInterval(prefix).duration);}catch(_){}
+ }
+ updateDurationUI(prefix);
+}
 function createEntry(details){
  return {
   description:details.description,occurredAt:details.occurredAt,
   category:details.category||null,categorySource:details.categorySource||null,
   energy:details.energy??null,mood:details.mood??null,
-  duration:details.duration??null,notes:details.notes||""
+  duration:details.duration??null,startedAt:details.startedAt||null,endedAt:details.endedAt||null,notes:details.notes||""
  };
 }
 function resetEntryOptions(){
@@ -121,6 +182,10 @@ function resetEntryOptions(){
   $("entry-"+name+"-value").textContent="—";
  }
  $("entry-duration").value="";$("entry-notes").value="";
+ $("entry-duration-mode").value="minutes";
+ $("entry-start").value="";$("entry-end").value="";
+ $("entry-duration-preview").textContent="";
+ updateDurationUI("entry");
  $("entry-options").open=false;
 }
 function openEntryDialog(category=null){
@@ -146,6 +211,10 @@ function openEdit(e){
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
  categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
+ $("edit-duration-mode").value=e.startedAt&&e.endedAt?"interval":"minutes";
+ $("edit-start").value=e.startedAt?localTime(e.startedAt):"";
+ $("edit-end").value=e.endedAt?localTime(e.endedAt):"";
+ updateDurationUI("edit");
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
  show("edit");
@@ -160,6 +229,7 @@ function drawHistory(){
   const body=el("span","item-main");body.append(el("strong","",e.description));
   const small=el("small","",(dayKey(e.occurredAt)===dayKey(Date.now())?"Hoy ":"")+formatTime(e.occurredAt));
   if(e.category){small.append(el("span","pill",canonicalCategory(e.category)));}
+  if(e.duration!=null)small.append(document.createTextNode(" · "+durationLabel(e.duration)));
   body.append(small);row.append(body);if(e.mood!=null)row.append(el("span","face",e.mood>=7?"●":e.mood<=3?"☹":"●"));
   row.append(el("span","muted","⋮"));row.onclick=()=>openEdit(e);root.append(row);
  }
@@ -187,33 +257,28 @@ async function saveCapture(){
  const description=$("capture-text").value.trim();
  if(!description){$("capture-text").focus();return;}
  if(quickSaving)return;
- const date=$("entry-when").value,occurredAt=new Date(date||Date.now());
- if(!Number.isFinite(occurredAt.getTime())){
-  $("entry-status").textContent="Ingresá una fecha válida.";return;
- }
+ let timing;
+ try{timing=durationDetails("entry");}
+ catch(error){$("entry-status").textContent=error.message;return;}
  const manual=canonicalCategory($("entry-category").value);
  const suggested=manual?null:suggestCategory(description,entries);
  const category=manual||canonicalCategory(suggested?.category)||null;
- const durationText=$("entry-duration").value.trim(),duration=durationText===""?null:Number(durationText);
- if(duration!=null&&(!Number.isFinite(duration)||duration<0)){
-  $("entry-status").textContent="La duración debe ser positiva.";return;
- }
  quickSaving=true;
  $("capture-save").disabled=true;
  try{
   const record=await storage.save(createEntry({
-   description,occurredAt:occurredAt.toISOString(),category,
+   description,...timing,category,
    categorySource:manual?"manual":suggested?.source||null,
    energy:$("entry-energy-enabled").checked?Number($("entry-energy").value):null,
    mood:$("entry-mood-enabled").checked?Number($("entry-mood").value):null,
-   duration,notes:$("entry-notes").value.trim()
+   notes:$("entry-notes").value.trim()
   }));
   closeEntryDialog();await reload();
   showCaptureFeedback("Entrada guardada · "+formatTime(record.occurredAt),record);
  }catch(error){$("entry-status").textContent="No se pudo guardar: "+error.message;}
  finally{quickSaving=false;$("capture-save").disabled=false;}
 }
-function csv(){const cols=["id","occurredAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
+function csv(){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function openReminderDialog(item=null){
  editingReminderId=item?.id||null;
@@ -379,13 +444,29 @@ for(const name of ["energy","mood"]){
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
 $("category-add").onclick=()=>{const cat=prompt("Nombre de la categoría");if(cat?.trim()){saveCategory(cat.trim());drawCategories()}};
 $("search").oninput=drawHistory;
+for(const prefix of ["entry","edit"]){
+ $(prefix+"-duration-mode").addEventListener("change",()=>changeDurationMode(prefix));
+ for(const field of ["start","end"]){
+  $(prefix+"-"+field).addEventListener("input",()=>updateDurationUI(prefix));
+ }
+}
 $("edit-energy").oninput=()=>{$("energy-enabled").checked=true;$("energy-number").textContent=$("edit-energy").value};
 $("energy-enabled").onchange=()=>{$("energy-number").textContent=$("energy-enabled").checked?$("edit-energy").value:"—"};
 document.querySelectorAll("#moods button").forEach(b=>b.onclick=()=>{mood=Number(b.dataset.mood);document.querySelectorAll("#moods button").forEach(a=>a.classList.toggle("selected",a===b))});
 $("edit-save").onclick=async()=>{
- if(!current)return;const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
- const date=$("edit-date").value,time=$("edit-time").value;if(!date||!time)return;
- try{await storage.save({...current,description,occurredAt:new Date(date+"T"+time+":00").toISOString(),category:canonicalCategory($("edit-category").value)||null,categorySource:"manual",mood,energy:$("energy-enabled").checked?Number($("edit-energy").value):null,duration:$("edit-duration").value===""?null:Number($("edit-duration").value),notes:$("edit-notes").value});await reload();show("history")}catch(e){alert(e.message)}
+ if(!current)return;
+ const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
+ try{
+  const timing=durationDetails("edit");
+  await storage.save({
+   ...current,...timing,description,
+   category:canonicalCategory($("edit-category").value)||null,
+   categorySource:"manual",mood,
+   energy:$("energy-enabled").checked?Number($("edit-energy").value):null,
+   notes:$("edit-notes").value
+  });
+  await reload();show("history");
+ }catch(error){alert(error.message);}
 };
 $("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
