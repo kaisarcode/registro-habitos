@@ -34,7 +34,9 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
     }
     { print }
     END { if (!found) exit 1 }
-' "$ROOT/web/index.html" > "$WEB_OUT/index.html"
+' "$ROOT/web/index.html" > "$WEB_OUT/app.html"
+# The original file:///android_asset/index.html can read older IndexedDB.
+cp "$ROOT/web/migrate.html" "$WEB_OUT/index.html"
 
 if [ "$PREPARE_ONLY" = true ]; then
     printf 'Prepared local WebView page: %s\n' "$WEB_OUT/index.html"

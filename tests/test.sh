@@ -3,7 +3,10 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 "$ROOT/build-app.sh" --prepare-only
-PAGE="$ROOT/build/web/index.html"
+PAGE="$ROOT/build/web/app.html"
+MIGRATOR="$ROOT/build/web/index.html"
+test -s "$MIGRATOR"
+grep -q "appassets.androidplatform.net/app.html" "$MIGRATOR"
 test -s "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"

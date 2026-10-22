@@ -19,7 +19,7 @@ def replace_once(path, before, after):
 
 replace_once(main_file,
     'private static final String WEBVIEW_URL = "@WEBVIEW_URL@";',
-    'private static final String WEBVIEW_URL = "file:///android_asset/migrate.html";')
+    'private static final String WEBVIEW_URL = "file:///android_asset/index.html";')
 replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
