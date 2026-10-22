@@ -20,7 +20,11 @@ function show(page){
     if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
 }
-function iconFor(category){const p=byCategory(category);return el("span","entry-icon "+(p[2]||""),p[1]);}
+function iconFor(category){
+ const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart"};
+ const box=el("span","entry-icon "+(p[2]||""));const name=icons[p[0]]||"leaf";
+ box.innerHTML='<svg class="icon"><use href="#i-'+name+'"></use></svg>';return box;
+}
 function categoryOptions(){
  const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>e.category),...customCategories()]);
  const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
