@@ -456,6 +456,7 @@ $("entry-dialog").addEventListener("close",()=>{if(recognition){try{recognition.
 $("capture-save").onclick=saveCapture;
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
+$("dismiss-feedback").onclick=()=>showCaptureFeedback("");
 $("undo-quick").onclick=async()=>{
  if(!lastQuickEntryId)return;
  const id=lastQuickEntryId;lastQuickEntryId=null;
