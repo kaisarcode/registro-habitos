@@ -7,6 +7,13 @@ if [ ! -f "$KCAPK_DIR/build.sh" ]; then
     printf '%s\n' "KCAPK not found: $KCAPK_DIR/build.sh (set KCAPK_DIR)" >&2
     exit 1
 fi
+# Rebuild the WebView-compatible script from source modules.
+{
+    printf '%s\n' '// Classic WebView bundle'
+    sed 's/^export const storage =/const storage =/' "$ROOT/web/storage.js"
+    sed 's/^export function suggestCategory/function suggestCategory/' "$ROOT/web/classifier.js"
+    sed '/^import /d' "$ROOT/web/app.js"
+} > "$ROOT/web/app.bundle.js"
 mkdir -p "$ROOT/build"
 cd "$KCAPK_DIR"
 exec sh ./build.sh \
