@@ -122,30 +122,97 @@ async function importBackup(file){
  }
  alert(notice);
 }
-function startVoice(targetId="capture-text"){
- const field=$(targetId);
- // Android WebView can expose SpeechRecognition but crash the host Activity
- // when start() reaches an unsupported platform recognition service.
- // Until there is a tested offline native recorder/transcriber, never invoke
- // Web Speech from the packaged KCAPK app. The keyboard remains usable.
- if(/Android/i.test(navigator.userAgent)||window.NativeBridge){
-  field.focus();
-  toast("Dictado desde el teclado: tocá el micrófono del teclado si tenés reconocimiento sin conexión instalado.");
+// Use the SpeechRecognition implementation supplied by the browser/WebView.
+// Browser speech engines may use a remote service when on-device recognition is
+// unavailable; the app itself does not upload or store the microphone audio.
+let voicePending = false;
+function voiceFeedback(targetId, message) {
+ const status = $(targetId === "edit-text" ? "edit-voice-status" : "capture-status");
+ if (status) status.textContent = message;
+}
+function voiceButtons(active) {
+ for (const id of ["mic", "edit-dictate"]) {
+  const button = $(id);
+  button.classList.toggle("listening", active);
+  button.setAttribute("aria-pressed", active ? "true" : "false");
+  button.setAttribute("aria-label", active ? "Detener dictado" : "Dictar");
+ }
+}
+async function startVoice(targetId = "capture-text") {
+ const field = $(targetId);
+ if (recognition) {
+  try { recognition.stop(); } catch (_) { /* Already stopping. */ }
   return;
  }
- const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Rec||!("processLocally" in Rec.prototype)){
-  field.focus();toast("No hay reconocimiento local disponible. Podés escribir.");return;
+ if (voicePending) return;
+ const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+ if (typeof Rec !== "function") {
+  voiceFeedback(targetId, "Este navegador no ofrece reconocimiento de voz.");
+  field.focus();
+  return;
  }
- try{
-  if(recognition){recognition.stop();recognition=null;return;}
-  const r=new Rec();r.lang="es-AR";r.interimResults=true;r.processLocally=true;
-  const original=field.value.trim();
-  r.onresult=event=>{let text="";for(let i=0;i<event.results.length;i++)text+=event.results[i][0].transcript+" ";field.value=[original,text.trim()].filter(Boolean).join(" ");field.dispatchEvent(new Event("input"))};
-  r.onerror=event=>{toast("No se pudo dictar: "+event.error);recognition=null;field.focus()};
-  r.onend=()=>{recognition=null};
-  recognition=r;r.start();toast("Escuchando…");
- }catch(error){recognition=null;toast("El dictado no está disponible: "+error.message);field.focus();}
+ voicePending = true;
+ try {
+  // KCAPK has RECORD_AUDIO in its Manifest; ask for the runtime permission
+  // through the tested Android bridge before invoking browser recognition.
+  const permissions = window.NativeBridge?.Android?.permissions;
+  if (permissions && !permissions.has("microphone")) {
+   voiceFeedback(targetId, "Solicitando permiso de micrófono…");
+   if (!await permissions.request("microphone")) {
+    voiceFeedback(targetId, "El permiso de micrófono no está habilitado.");
+    return;
+   }
+  }
+  const r = new Rec();
+  r.lang = "es-AR";
+  r.interimResults = true;
+  r.continuous = false;
+  r.maxAlternatives = 1;
+  // Use the browser's configured recognizer, including its online/offline
+  // preference. Requiring processLocally would disable voice on Android.
+  const original = field.value.trim();
+  r.onstart = () => { voiceButtons(true); voiceFeedback(targetId, "Escuchando… Tocá otra vez para terminar."); };
+  r.onresult = event => {
+   let transcript = "";
+   for (let i = 0; i < event.results.length; i++) {
+    if (event.results[i][0]) transcript += event.results[i][0].transcript + " ";
+   }
+   field.value = [original, transcript.trim()].filter(Boolean).join(" ");
+   field.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  r.onerror = event => {
+   const messages = {
+    "not-allowed": "Permití el micrófono para dictar.",
+    "service-not-allowed": "El servicio de voz está bloqueado en este navegador.",
+    "audio-capture": "No se pudo acceder al micrófono.",
+    "no-speech": "No se detectó voz. Podés intentarlo de nuevo.",
+    "network": "El motor de voz del navegador necesita conexión.",
+    "language-not-supported": "El motor de voz no admite español (Argentina)."
+   };
+   voiceFeedback(targetId, messages[event.error] || "Error de dictado: " + event.error);
+   voiceButtons(false);
+  };
+  r.onend = () => {
+   if (recognition === r) recognition = null;
+   voiceButtons(false);
+   const status = $(targetId === "edit-text" ? "edit-voice-status" : "capture-status");
+   if (status?.textContent.startsWith("Escuchando")) status.textContent = field.value.trim() ? "Dictado terminado." : "No se registró texto.";
+  };
+  recognition = r;
+  try {
+   r.start();
+  } catch (error) {
+   recognition = null;
+   voiceButtons(false);
+   voiceFeedback(targetId, "No se pudo iniciar el dictado: " + (error.message || error));
+   field.focus();
+  }
+ } catch (error) {
+  voiceFeedback(targetId, "No se pudo iniciar el micrófono: " + (error.message || error));
+  field.focus();
+ } finally {
+  voicePending = false;
+ }
 }
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
