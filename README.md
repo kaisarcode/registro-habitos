@@ -32,6 +32,12 @@ El siguiente incremento incorpora SQLite real detrás del adaptador, así como i
 
 Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c` permite medir similitud de textos; `libemb.c` genera embeddings locales (modelo BGE small **en inglés**), y `libhnsw.c` indexa vectores. Ninguno debe bloquear la creación de registros.
 
+### Clasificación por idioma
+
+`liblng.c` ofrece detección local sin estado y resultados ordenados por puntuación heurística (no probabilidades). La composición nativa prevista es: detectar idioma → consultar el perfil de ese idioma → sugerir categoría mediante precedentes/`libtpm.c` y, opcionalmente, `libemb.c` + `libhnsw.c`. Mantener índices y perfiles separados por idioma, versión de modelo y perfil de usuario. Si no se detecta idioma con seguridad, conservar el idioma como desconocido y guardar de todos modos. Los textos cortos son especialmente ambiguos.
+
+`web/classifier.js` ya acepta un código de idioma y evita mezclar precedentes con idiomas distintos cuando ambos están identificados. **La conexión real con `liblng.c` aún no está implementada**; por ahora las reglas locales corresponden a español. El modelo BGE disponible en `libemb.c` está entrenado para inglés: puede evaluarse sobre español, sin suponer resultados equivalentes ni traducir automáticamente datos sensibles.
+
 ## Privacidad
 
 La información puede contener datos sensibles: se mantiene local, sin telemetría ni backend. Una exportación genera un archivo legible por terceros; compartilo sólo cuando lo decidas.
