@@ -20,7 +20,28 @@ const rulesByLanguage = {
     ],};
 const words = s => new Set((s.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []).filter(x => x.length > 2));
 
-export function suggestCategory(text, entries, language = null) {
+export function suggestCategory(text, entries, language = null, profiles = []) {
+    // User-maintained category keywords have priority over generated rules.
+    // Accent-insensitive whole-token prefix matching supports e.g. "fum"
+    // without matching it in the middle of an unrelated word.
+    const normal = value => String(value||"").toLowerCase().normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
+    const normalized = " "+normal(text)+" ";
+    let keywordMatch = null, longest = 0;
+    for (const profile of profiles) {
+        if (!profile || profile.deleted || !profile.name || !Array.isArray(profile.keywords)) continue;
+        for (const keyword of profile.keywords) {
+            const term = normal(keyword);
+            if (!term || term.length < 2) continue;
+            const matched = normalized.includes(" "+term);
+            if (matched && term.length > longest) {
+                keywordMatch = profile.name; longest = term.length;
+            }
+        }
+    }
+    if (keywordMatch) return {
+        category: keywordMatch, source: "keyword", confidence: 0.95, language: language || "es"
+    };
     const tokens = words(text);
     if (!tokens.size) return null;
     let winner = null, best = 0;
