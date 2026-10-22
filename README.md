@@ -4,7 +4,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Abrir `web/index.html` en un navegador moderno. Es una primera versión funcional de captura, historial, edición, búsqueda, sugerencias de categorías y exportación CSV/JSON e importación de respaldos JSON. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
+Abrir `web/index.html` en un navegador moderno. `web/app.bundle.js` es el script clásico compatible con el origen `file:///android_asset/` de KCAPK; regenerarlo tras modificar cualquiera de los módulos de la aplicación. Es una primera versión funcional de captura, historial, edición, búsqueda, sugerencias de categorías y exportación CSV/JSON e importación de respaldos JSON. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado usa el motor de reconocimiento de voz disponible en el navegador/WebView; puede no estar disponible o requerir un servicio externo. Siempre es posible escribir.
 
