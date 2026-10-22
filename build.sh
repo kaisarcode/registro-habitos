@@ -62,6 +62,11 @@ rm -rf "$KCAPK_STAGE/src"
 cp -R "$KCAPK_DIR/src" "$KCAPK_STAGE/src"
 cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
 cp "$ROOT/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
+# Include the user's quiet sounds as native Android resources so an alarm
+# rings through a system notification even when the WebView is not running.
+mkdir -p "$KCAPK_STAGE/src/templates/res/raw"
+cp "$ROOT/web/sounds/glock.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_glock.mp3"
+cp "$ROOT/web/sounds/alert.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_alert.mp3"
 python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
 cd "$KCAPK_STAGE"
 sh ./build.sh \
@@ -71,8 +76,8 @@ sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
-    --version-code 20261022 \
-    --version-name "0.2.2" \
+    --version-code 20261023 \
+    --version-name "0.2.3" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \
