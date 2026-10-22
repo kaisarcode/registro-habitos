@@ -182,7 +182,7 @@ async function startVoice(targetId = "capture-text") {
   };
   r.onerror = event => {
    const messages = {
-    "not-allowed": "Permití el micrófono para dictar.",
+    "not-allowed": "El navegador rechazó el dictado. Si ya permitiste el micrófono en Android, comprobá el servicio de voz del dispositivo.",
     "service-not-allowed": "El servicio de voz está bloqueado en este navegador.",
     "audio-capture": "No se pudo acceder al micrófono.",
     "no-speech": "No se detectó voz. Podés intentarlo de nuevo.",
