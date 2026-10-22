@@ -28,7 +28,7 @@ Cada registro preserva fecha del evento, fecha de creación, texto original, cat
 
 ## Integración nativa prevista
 
-La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK también ofrece `--api alarms` y `--api notifications`, pero hay que verificar cómo entregar los sonidos MP3 personalizados en las notificaciones nativas.
+La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK también ofrece `--api alarms` y `--api notifications`, pero la reproducción de MP3 propios en notificaciones nativas todavía requiere una integración específica.
 
 Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c` permite medir similitud de textos; `libemb.c` genera embeddings locales (modelo BGE small **en inglés**), y `libhnsw.c` indexa vectores. Ninguno debe bloquear la creación de registros.
 
