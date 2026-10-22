@@ -6,7 +6,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 Abrir `web/index.html` en un navegador moderno. `build-app.sh` genera `build/web/index.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. Es una primera versión funcional de captura, historial, edición, búsqueda, sugerencias de categorías y exportación CSV/JSON e importación de respaldos JSON. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
-El dictado usa el motor de reconocimiento de voz disponible en el navegador/WebView; puede no estar disponible o requerir un servicio externo. Siempre es posible escribir.
+El dictado solo se habilita si el motor del WebView expone reconocimiento local (`processLocally`). No se utiliza reconocimiento remoto ni una API web externa; si no hay motor local, escribir sigue funcionando.
 
 ## Comprobación rápida\n\n```sh\nsh ./tests/test.sh\n```\n\nEsto genera la misma página HTML local que se empaquetará y comprueba sus controles y JavaScript (también su sintaxis cuando Node está instalado). No sustituye una prueba manual del APK en Android.\n\n## Construir con KCAPK externo
 
@@ -41,6 +41,10 @@ Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c
 ## Intercambio de datos
 
 El botón **Exportar JSON** produce un respaldo con `version`, `exportedAt` y `entries`. **Importar JSON** acepta ese mismo formato y combina las entradas por su ID, conservando las existentes sin reemplazarlas. La importación es transaccional: si falla, no confirma parcialmente la importación. **Exportar CSV** es una vista tabular para análisis y no se utiliza para restaurar, porque no representa necesariamente futuros campos anidados. La exportación no está filtrada por la búsqueda actual: incluye todos los registros.
+
+## Interfaz, recursos y modo sin conexión
+
+Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build-app.sh` configura `assets/icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo, pero importar el JSON **no** programa alarmas automáticamente. Las alarmas nativas necesitan permisos de notificación y, para recordatorios diarios, se programan con una ventana de 28 días.
 
 ## Privacidad
 
