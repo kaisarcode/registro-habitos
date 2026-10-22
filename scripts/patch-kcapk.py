@@ -29,7 +29,7 @@ replace_once(main_file,
     '        webView.clearCache(true);')
 replace_once(main_file,
     'private JSBridge bridge;',
-    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;')
+    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;\n    private AppNavigationBridge appNavigation;')
 replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
@@ -47,6 +47,20 @@ replace_once(main_file,
     '        if (appChromeClient != null) appChromeClient.cancelFileChooser();\n'
     '        if (webView != null) {\n'
     '            webView.removeJavascriptInterface(JS_INTERFACE_NAME);')
+# Hardware Back is always handled by the app UI; don't pop a WebView history
+# entry or finish the Activity until the home confirmation is accepted.
+replace_once(main_file,
+    'webView.addJavascriptInterface(bridge, JS_INTERFACE_NAME);',
+    'webView.addJavascriptInterface(bridge, JS_INTERFACE_NAME);\n'
+    '        appNavigation = new AppNavigationBridge(this, webView);\n'
+    '        webView.addJavascriptInterface(appNavigation, "AppNavigation");')
+replace_once(main_file,
+    'if (webView.canGoBack()) { webView.goBack(); } else { super.onBackPressed(); }',
+    '''if (webView == null) { super.onBackPressed(); return; }
+        webView.evaluateJavascript(
+            "(function(){return !!(window.registroHabitosBack && window.registroHabitosBack());})()",
+            result -> { }
+        );''')
 replace_once(client_file,
     'import android.webkit.WebViewClient;',
     'import android.webkit.WebViewClient;\n'
