@@ -1,8 +1,9 @@
 import { storage } from "./storage.js";
 import { suggestCategory } from "./classifier.js";
 const $=id=>document.getElementById(id);
-const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"]];
-const byCategory=name=>preset.find(p=>p[0].toLowerCase()===String(name||"").toLowerCase())||[name||"Personal","✦","grey"];
+const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Higiene","✦","blue"],["Ir al baño","🚻","blue"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Medicación","✚","blue"],["Cafeína","☕","orange"]];
+const canonicalCategory=name=>{const raw=String(name||"").trim();return preset.find(p=>p[0].toLowerCase()===raw.toLowerCase())?.[0]||raw};
+const byCategory=name=>preset.find(p=>p[0]===canonicalCategory(name))||[name||"Personal","✦","grey"];
 const unique=a=>[...new Set(a.filter(Boolean))];
 const localTime=d=>{const date=new Date(d);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const formatTime=v=>new Date(v).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
@@ -26,7 +27,7 @@ function iconFor(category){
  box.innerHTML='<svg class="icon"><use href="#i-'+name+'"></use></svg>';return box;
 }
 function categoryOptions(){
- const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>e.category),...customCategories()]);
+ const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>canonicalCategory(e.category)),...customCategories().map(canonicalCategory)]);
  const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
 }
 function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categories")||"[]")}catch{return []}}
@@ -43,7 +44,7 @@ async function reload(){entries=await storage.list();drawHistory();drawCategorie
 function openEdit(e){
  current=e;selectedCategory=e.category||"";mood=e.mood??null;
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
- categoryOptions();$("edit-category").value=e.category||"";
+ categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
@@ -52,21 +53,21 @@ function openEdit(e){
 function drawHistory(){
  const q=$("search").value.trim().toLocaleLowerCase("es-AR");
  const root=$("history-list");root.replaceChildren();
- const matches=entries.filter(e=>(!categoryFilter||e.category===categoryFilter)&&(!q||[e.description,e.notes,e.category].join(" ").toLocaleLowerCase("es-AR").includes(q)));
+ const matches=entries.filter(e=>(!categoryFilter||canonicalCategory(e.category)===categoryFilter)&&(!q||[e.description,e.notes,e.category].join(" ").toLocaleLowerCase("es-AR").includes(q)));
  if(!matches.length){root.append(el("p","muted","Todavía no hay registros para mostrar."));return;}
  for(const e of matches){
   const row=el("button","history-item");row.append(iconFor(e.category));
   const body=el("span","item-main");body.append(el("strong","",e.description));
   const small=el("small","",(dayKey(e.occurredAt)===dayKey(Date.now())?"Hoy ":"")+formatTime(e.occurredAt));
-  if(e.category){small.append(el("span","pill",e.category));}
+  if(e.category){small.append(el("span","pill",canonicalCategory(e.category)));}
   body.append(small);row.append(body);if(e.mood!=null)row.append(el("span","face",e.mood>=7?"●":e.mood<=3?"☹":"●"));
   row.append(el("span","muted","⋮"));row.onclick=()=>openEdit(e);root.append(row);
  }
 }
 function drawCategories(){
  const root=$("category-list");root.replaceChildren();
- const names=unique([...preset.slice(0,10).map(x=>x[0]),...customCategories(),...entries.map(e=>e.category)]);
- for(const cat of names){const count=entries.filter(e=>e.category===cat).length;const row=el("button","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));row.onclick=()=>{categoryFilter=cat;$("search").value="";show("history")};root.append(row);}
+ const names=unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
+ for(const cat of names){const count=entries.filter(e=>canonicalCategory(e.category)===cat).length;const row=el("button","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));row.onclick=()=>{categoryFilter=cat;$("search").value="";show("history")};root.append(row);}
 }
 function drawSummary(){
  const now=new Date(),start=new Date(now),buckets=period==="week"?7:period==="month"?30:12;
@@ -78,13 +79,13 @@ function drawSummary(){
  }
  const max=Math.max(1,...counts);const chart=$("chart");chart.replaceChildren();
  for(let i=0;i<buckets;i++){const cell=el("div","bar-cell");const bar=el("div","bar");bar.style.height=(counts[i]/max*130)+"px";bar.title=counts[i]+" registros";cell.append(bar,el("span","",period==="week"?["L","M","X","J","V","S","D"][(now.getDay()+1+i)%7]:period==="month"?(i%5===0?String(i+1):""):String((i+now.getMonth()+1)%12+1)));chart.append(cell);}
- const countsCat=new Map();entries.forEach(e=>countsCat.set(e.category||"Sin categoría",(countsCat.get(e.category||"Sin categoría")||0)+1));
+ const countsCat=new Map();entries.forEach(e=>{const cat=canonicalCategory(e.category)||"Sin categoría";countsCat.set(cat,(countsCat.get(cat)||0)+1)});
  const root=$("summary-categories");root.replaceChildren();for(const [cat,count] of [...countsCat].sort((a,b)=>b[1]-a[1])){const row=el("div","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));root.append(row);}
  $("summary-count").textContent=entries.length+" registros en total";
 }
 async function saveCapture(){
  const description=$("capture-text").value.trim();if(!description){$("capture-text").focus();return;}
- const choice=suggestCategory(description,entries);const category=selectedCategory||choice?.category||null;
+ const choice=suggestCategory(description,entries);const category=canonicalCategory(selectedCategory||choice?.category)||null;
  try{await storage.save({description,occurredAt:quickDate||new Date().toISOString(),category,categorySource:selectedCategory?"manual":choice?"suggested":null,energy:null,mood:null,notes:"",duration:null});
   $("capture-text").value="";selectedCategory="";quickDate=null;toast("Registro guardado.");await reload();show("history");
  }catch(e){toast("Error al guardar: "+e.message)}
@@ -241,7 +242,7 @@ document.querySelectorAll("#moods button").forEach(b=>b.onclick=()=>{mood=Number
 $("edit-save").onclick=async()=>{
  if(!current)return;const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
  const date=$("edit-date").value,time=$("edit-time").value;if(!date||!time)return;
- try{await storage.save({...current,description,occurredAt:new Date(date+"T"+time+":00").toISOString(),category:$("edit-category").value||null,categorySource:"manual",mood,energy:$("energy-enabled").checked?Number($("edit-energy").value):null,duration:$("edit-duration").value===""?null:Number($("edit-duration").value),notes:$("edit-notes").value});await reload();show("history")}catch(e){alert(e.message)}
+ try{await storage.save({...current,description,occurredAt:new Date(date+"T"+time+":00").toISOString(),category:canonicalCategory($("edit-category").value)||null,categorySource:"manual",mood,energy:$("energy-enabled").checked?Number($("edit-energy").value):null,duration:$("edit-duration").value===""?null:Number($("edit-duration").value),notes:$("edit-notes").value});await reload();show("history")}catch(e){alert(e.message)}
 };
 $("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
