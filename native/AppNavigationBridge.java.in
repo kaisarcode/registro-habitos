@@ -1,0 +1,33 @@
+package @PACKAGE_NAME@;
+
+import android.app.Activity;
+import android.net.Uri;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+
+/** Only exits after a confirmation from the bundled app page. */
+public final class AppNavigationBridge {
+    private final Activity activity;
+    private final WebView webView;
+
+    public AppNavigationBridge(Activity activity, WebView webView) {
+        this.activity = activity;
+        this.webView = webView;
+    }
+
+    @JavascriptInterface
+    public void exitApp() {
+        activity.runOnUiThread(() -> {
+            String current = webView.getUrl();
+            if (current == null) return;
+            Uri uri = Uri.parse(current);
+            // This interface is not a generic navigation / arbitrary URL bridge.
+            // Only the local HTTPS page can request Activity.finish().
+            if ("https".equals(uri.getScheme())
+                && "appassets.androidplatform.net".equals(uri.getHost())
+                && "/app.html".equals(uri.getPath())) {
+                activity.finish();
+            }
+        });
+    }
+}

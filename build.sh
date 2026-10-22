@@ -63,6 +63,7 @@ rm -rf "$KCAPK_STAGE/src"
 cp -R "$KCAPK_DIR/src" "$KCAPK_STAGE/src"
 cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
 cp "$ROOT/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
+cp "$ROOT/native/AppNavigationBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
 cp "$ROOT/native/AlarmReceiver.java.in" "$KCAPK_STAGE/src/templates/java/AlarmReceiver.java.in"
 # Include the user's quiet sounds as native Android resources so an alarm
 # rings through a system notification even when the WebView is not running.
@@ -78,8 +79,8 @@ sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
-    --version-code 20261025 \
-    --version-name "0.2.5" \
+    --version-code 20261026 \
+    --version-name "0.2.6" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \
