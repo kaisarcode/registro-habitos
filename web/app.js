@@ -31,6 +31,49 @@ function categoryOptions(){
  const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>canonicalCategory(e.category)),...customCategories().map(canonicalCategory)]);
  const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
 }
+// App-owned dialogs: WebView alert/confirm/prompt use disruptive Android UI.
+// Keep all confirmation and text-entry surfaces in the quiet dark theme.
+function showAppDialog({title,message,kind="confirm",ok="Aceptar",danger=false,value=""}){
+ return new Promise(resolve=>{
+  const dialog=$("app-action-dialog");
+  const input=$("app-action-input");
+  const isInput=kind==="input",isInfo=kind==="info";
+  $("app-action-title").textContent=title;
+  $("app-action-message").textContent=message||"";
+  $("app-action-message").classList.toggle("hidden",!message);
+  $("app-action-input-label").classList.toggle("hidden",!isInput);
+  input.value=value;
+  $("app-action-ok").textContent=ok;
+  $("app-action-ok").classList.toggle("destructive",danger);
+  $("app-action-cancel").classList.toggle("hidden",isInfo);
+  let settled=false;
+  const finish=result=>{
+   if(settled)return;
+   settled=true;
+   dialog.onclose=null;dialog.oncancel=null;
+   $("app-action-ok").onclick=null;
+   $("app-action-cancel").onclick=null;
+   if(dialog.open)dialog.close();
+   resolve(result);
+  };
+  const declined=()=>finish(isInput?null:false);
+  $("app-action-ok").onclick=()=>{
+   if(isInput&&!input.value.trim()){input.focus();return;}
+   finish(isInput?input.value.trim():true);
+  };
+  $("app-action-cancel").onclick=declined;
+  dialog.oncancel=event=>{event.preventDefault();declined();};
+  dialog.onclose=declined;
+  dialog.showModal();
+  if(isInput)input.focus();
+ });
+}
+const appConfirm=(message,title="Confirmar",ok="Aceptar")=>
+ showAppDialog({title,message,ok,danger:ok==="Eliminar"});
+const appPrompt=(title,value="")=>
+ showAppDialog({title,message:"",kind:"input",ok:"Guardar",value});
+const appInfo=(message,title="Información")=>
+ showAppDialog({title,message,kind:"info",ok:"Cerrar"});
 function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categories")||"[]")}catch{return []}}
 function saveCategory(name){localStorage.setItem("rh-categories",JSON.stringify(unique([...customCategories(),name])))}
 function quickDescription(category){
@@ -261,7 +304,8 @@ function openReminderDialog(item=null){
  $("reminder-name").value=item?.title||"";
  $("reminder-time").value=item?.time||"13:00";
  $("reminder-repeat").value=item?.repeat||(item?.daily?"daily":"once");
- $("reminder-sound").value=item?.sound||"none";
+ $("reminder-sound").value=item?.sound||"glock";
+ $("reminder-dialog-status").textContent="";
  $("reminder-confirm").textContent=item?"Guardar cambios":"Guardar";
  $("reminder-delete").classList.toggle("hidden",!item);
  $("reminder-dialog").showModal();
@@ -278,7 +322,7 @@ function drawReminders(){
 async function importBackup(file){
  const backup=JSON.parse(await file.text());if(backup.version!==1||!Array.isArray(backup.entries))throw Error("Formato JSON incompatible");
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
- if(!confirm("Importar "+backup.entries.length+" entradas? No se sobrescribirán las actuales."))return;
+ if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
  if(Array.isArray(backup.categories))for(const cat of backup.categories){if(typeof cat==="string"&&cat.trim())saveCategory(cat.trim());}
  await reload();
@@ -286,7 +330,7 @@ async function importBackup(file){
  if(Array.isArray(backup.reminders)&&backup.reminders.length){
   const existing=new Set(reminderStore.list().map(r=>r.title+"|"+r.time+"|"+r.repeat));
   const add=backup.reminders.filter(r=>r&&typeof r.title==="string"&&/^[0-2][0-9]:[0-5][0-9]$/.test(r.time)&&!existing.has(r.title+"|"+r.time+"|"+r.repeat));
-  if(add.length&&confirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?")){
+  if(add.length&&await appConfirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?","Restaurar recordatorios","Programar")){
    let done=0;
    for(const r of add){
     try{const item=await reminderStore.add(r.title,r.time,r.repeat!=="once",r.repeat||"daily",r.sound||"none");if(r.enabled===false)await reminderStore.setEnabled(item.id,false);done++;}
@@ -295,7 +339,7 @@ async function importBackup(file){
    notice+=" Recordatorios restaurados: "+done+".";
   }
  }
- alert(notice);
+ await appInfo(notice,"Importación completada");
 }
 // Use the SpeechRecognition implementation supplied by the browser/WebView.
 // Browser speech engines may use a remote service when on-device recognition is
@@ -418,7 +462,7 @@ for(const name of ["energy","mood"]){
  };
 }
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
-$("category-add").onclick=()=>{const cat=prompt("Nombre de la categoría");if(cat?.trim()){saveCategory(cat.trim());drawCategories()}};
+$("category-add").onclick=async()=>{const cat=await appPrompt("Nueva categoría");if(cat){saveCategory(cat);drawCategories()}};
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
  for(const field of ["hours","minutes"]){
@@ -447,9 +491,13 @@ $("edit-save").onclick=async()=>{
    notes:$("edit-notes").value
   });
   await reload();show("history");
- }catch(error){alert(error.message);}
+ }catch(error){await appInfo(error.message,"No se pudieron guardar los cambios");}
 };
-$("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
+$("edit-delete").onclick=async()=>{
+ if(!current||!await appConfirm("¿Eliminar este registro?","Eliminar registro","Eliminar"))return;
+ try{await storage.remove(current.id);await reload();show("history")}
+ catch(error){await appInfo(error.message,"No se pudo eliminar")}
+};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
 
 let previewAudio=null;
@@ -462,11 +510,22 @@ $("preview-sound").onclick=()=>{
  previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
 };
 $("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
+$("test-notification").onclick=async()=>{
+ const button=$("test-notification");
+ button.disabled=true;
+ $("reminder-dialog-status").textContent="";
+ try{
+  await reminderStore.test($("reminder-name").value.trim()||"Prueba de recordatorio",$("reminder-sound").value);
+  $("reminder-dialog-status").textContent="Notificación enviada a Android. Comprobá el volumen de notificaciones.";
+ }catch(error){$("reminder-dialog-status").textContent=error.message;}
+ finally{button.disabled=false;}
+};
+
 $("reminder-confirm").onclick=async e=>{
  e.preventDefault();
  const title=$("reminder-name").value.trim(),time=$("reminder-time").value,repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;
  if(!title||!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)){
-  $("reminder-status").textContent="Escribí un nombre y una hora válida.";return;
+  $("reminder-dialog-status").textContent="Escribí un nombre y una hora válida.";return;
  }
  try{
   if(editingReminderId)await reminderStore.update(editingReminderId,{title,time,repeat,daily:repeat!=="once",sound});
@@ -474,10 +533,10 @@ $("reminder-confirm").onclick=async e=>{
   $("reminder-dialog").close();
   $("reminder-status").textContent=editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.";
   editingReminderId=null;drawReminders();
- }catch(err){$("reminder-status").textContent=err.message}
+ }catch(err){$("reminder-dialog-status").textContent=err.message}
 };
-$("reminder-delete").onclick=()=>{
- if(!editingReminderId||!confirm("¿Eliminar este recordatorio?"))return;
+$("reminder-delete").onclick=async()=>{
+ if(!editingReminderId||!await appConfirm("¿Eliminar este recordatorio?","Eliminar recordatorio","Eliminar"))return;
  reminderStore.remove(editingReminderId);
  editingReminderId=null;$("reminder-dialog").close();drawReminders();
  $("reminder-status").textContent="Recordatorio eliminado.";
@@ -489,9 +548,14 @@ $("import-text-btn").onclick=()=>{$("import-dialog").showModal();};
 $("import-cancel").onclick=()=>$("import-dialog").close();
 $("import-confirm").onclick=async()=>{
  try{const content=$("import-text").value;await importBackup({text:async()=>content});$("import-dialog").close();$("import-text").value="";}
- catch(e){alert("No se pudo importar: "+e.message);}
+ catch(e){await appInfo("No se pudo importar: "+e.message,"Error de importación");}
 };
-$("import-file").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{await importBackup(file)}catch(err){alert("No se pudo importar: "+err.message)}finally{e.target.value=""}};
+$("import-file").onchange=async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{await importBackup(file)}
+ catch(error){await appInfo("No se pudo importar: "+error.message,"Error de importación")}
+ finally{e.target.value=""}
+};
 $("reduced-motion").onchange=e=>{document.documentElement.classList.toggle("reduce-motion",e.target.checked)};
 // A one-time, same-APK migration preserves records from the old file:// origin
 // when switching to the synthetic HTTPS origin required for Web Speech.
