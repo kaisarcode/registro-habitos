@@ -91,6 +91,22 @@ const reminderStore={
   if(!ok)throw Error("Android no pudo programar el recordatorio.");
   return true;
  },
+ async testClosed(title,sound){
+  await this.permission();
+  const selected=sound||"glock",channel=this.channel(selected);
+  const api=this.api(),exact=api.canScheduleExact?.()===true;
+  const ok=api.schedule({
+   id:19002027,at:Date.now()+90000,exact,allowWhileIdle:true,
+   action:{
+    type:"notification",id:19002027,channel,
+    title:title||"Prueba de recordatorio",text:"Prueba con la app cerrada",
+    sound:this.soundUri(selected),
+    importance:selected==="none"?"low":"default",onlyAlertOnce:false
+   }
+  });
+  if(!ok)throw Error("Android no pudo programar la prueba con la app cerrada.");
+  return exact;
+ },
  async test(title,sound){
   await this.permission();
   const selected=sound||"none",channel=this.channel(selected);

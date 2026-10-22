@@ -314,7 +314,7 @@ function drawReminders(){
  const root=$("reminder-list");root.replaceChildren();const items=reminderStore.list();
  for(const item of items){const row=el("div","reminder-item");row.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
   const body=el("span","item-main");body.append(el("strong","",item.title),el("small","",item.time+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));row.append(body);
-  const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders()}catch(e){$("reminder-status").textContent=e.message}};
+  const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders();$("reminder-status").textContent=reminderStore.status()}catch(e){$("reminder-status").textContent=e.message}};
   const edit=el("button","reminder-edit","✎");edit.setAttribute("aria-label","Editar "+item.title);edit.title="Editar recordatorio";edit.onclick=()=>openReminderDialog(item);row.append(toggle,edit);root.append(row);
  }
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
@@ -510,6 +510,18 @@ $("preview-sound").onclick=()=>{
  previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
 };
 $("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
+$("test-closed-notification").onclick=async()=>{
+ const button=$("test-closed-notification");
+ button.disabled=true;
+ $("reminder-dialog-status").textContent="";
+ try{
+  const exact=await reminderStore.testClosed($("reminder-name").value.trim(),$("reminder-sound").value);
+  $("reminder-dialog-status").textContent=exact
+   ?"Prueba programada. Cerrá la app normalmente; Android entregará una notificación."
+   :"Prueba programada con horario aproximado. Para mejorar la precisión, permití Alarmas y recordatorios en Android.";
+ }catch(error){$("reminder-dialog-status").textContent=error.message;}
+ finally{button.disabled=false;}
+};
 $("test-notification").onclick=async()=>{
  const button=$("test-notification");
  button.disabled=true;
@@ -531,7 +543,7 @@ $("reminder-confirm").onclick=async e=>{
   if(editingReminderId)await reminderStore.update(editingReminderId,{title,time,repeat,daily:repeat!=="once",sound});
   else await reminderStore.add(title,time,repeat!=="once",repeat,sound);
   $("reminder-dialog").close();
-  $("reminder-status").textContent=editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.";
+  $("reminder-status").textContent=(editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.")+(reminderStore.status()?" "+reminderStore.status():"");
   editingReminderId=null;drawReminders();
  }catch(err){$("reminder-dialog-status").textContent=err.message}
 };
