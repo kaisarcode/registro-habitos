@@ -17,7 +17,8 @@ function show(page){
     ["capture","history","categories","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
     const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
-    $("top-action").textContent=page==="capture"?"⚙":page==="history"?"⋮":page==="reminders"?"＋":"";
+    $("top-action").textContent=page==="capture"?"⚙":page==="history"?"⋮":["reminders","categories"].includes(page)?"＋":"";
+    $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Más opciones":page==="history"?"Opciones del historial":"Opciones");
     document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
@@ -600,7 +601,12 @@ function handleDeviceBack(){
 window.registroHabitosBack=handleDeviceBack;
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show("capture");
-$("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
+$("top-action").onclick=()=>{
+ const page=document.querySelector(".screen.active").id;
+ if(page==="categories")openCategoryEditor();
+ else if(page==="reminders")openReminderDialog();
+ else show(page==="capture"?"more":"data");
+};
 $("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=()=>openEntryDialog();
 $("edit-close").onclick=()=>$("edit-dialog").close();
@@ -630,7 +636,6 @@ for(const name of ["energy","mood"]){
  };
 }
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
-$("category-add").onclick=()=>openCategoryEditor();
 $("category-dialog-close").onclick=()=>$("category-dialog").close();
 $("cat-cancel").onclick=()=>$("category-dialog").close();
 $("cat-color").onchange=updateCategoryPreview;

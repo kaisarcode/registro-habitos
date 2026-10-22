@@ -24,6 +24,15 @@ grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="quick-categories"' "$PAGE"
 grep -q 'id="category-search"' "$PAGE"
 grep -q 'id="category-dialog"' "$PAGE"
+# Categories uses the global header action instead of an offset secondary +.
+if grep -q 'id="category-add"\|class="category-page-actions"' "$PAGE"; then
+    echo 'Category add control must be in the header' >&2
+    exit 1
+fi
+grep -q 'id="top-action"' "$PAGE"
+grep -Fq 'page==="categories"?"Crear categoría"' "$PAGE"
+grep -Fq 'if(page==="categories")openCategoryEditor()' "$PAGE"
+
 grep -q 'id="cat-name"' "$PAGE"
 grep -q 'id="cat-keywords"' "$PAGE"
 grep -q 'id="cat-icon-grid"' "$PAGE"
