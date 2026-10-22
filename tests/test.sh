@@ -24,7 +24,7 @@ grep -q 'data-page="about"' "$PAGE"
 grep -q 'href="https://kaisarcode.com"' "$PAGE"
 grep -q 'meta name="app-version"' "$PAGE"
 grep -q 'meta name="app-version-code"' "$PAGE"
-grep -Fq 'APP_VERSION="0.2.8"' "$ROOT/build.sh"
+grep -Fq 'APP_VERSION="0.2.9"' "$ROOT/build.sh"
 grep -Fq 's/@APP_VERSION@/$APP_VERSION/g' "$ROOT/build.sh"
 grep -Fq -- '--version-name "$APP_VERSION"' "$ROOT/build.sh"
 grep -Fq '["categories","summary","data","about"].includes(page)' "$PAGE"
@@ -130,6 +130,14 @@ if grep -Eq '(^|[^[:alnum:]_])(alert|confirm|prompt)[[:space:]]*\\(' "$ROOT/web/
 fi
 grep -q 'id="reminder-delete"' "$PAGE"
 grep -q 'id="reminder-dialog-title"' "$PAGE"
+grep -q 'id="reminder-times"' "$PAGE"
+grep -q 'id="reminder-add-time"' "$PAGE"
+grep -q 'function addReminderTimeRow(value="")' "$PAGE"
+grep -q 'function reminderFormTimes()' "$PAGE"
+if grep -q 'id="reminder-time"' "$PAGE"; then
+ echo 'Old single time control remains' >&2
+ exit 1
+fi
 grep -q 'async update(id,changes)' "$PAGE"
 grep -q 'function openReminderDialog(item=null)' "$PAGE"
 grep -q 'open.onclick=()=>openReminderDialog(item)' "$PAGE"
@@ -317,6 +325,56 @@ if(!remindersSource.includes('permissions.request("exactAlarm")'))
  throw Error("Exact alarm permission is never requested");
 if(!remindersSource.includes('async testClosed(title,sound)'))
  throw Error("No closed-app alarm test is available");
+// Multi-time reminders reserve a distinct Android alarm ID for every hour.
+const moreCalls=[],moreMem=new Map();
+const multiStore=new Function("window","localStorage",remindersSource+";return reminderStore")(
+ {NativeBridge:{Android:{
+  alarms:{canScheduleExact(){return true},cancel(id){moreCalls.push(["cancel",id]);return true},
+   schedule(options){moreCalls.push(["schedule",options]);return true}},
+  notifications:{canPost(){return true},createChannel(){return true},post(){return true}},
+  permissions:{request:async()=>true}
+ }}},
+ {getItem:k=>moreMem.get(k)||null,setItem:(k,value)=>moreMem.set(k,value)}
+);
+let repeated=false;try{multiStore.normalizeTimes(["09:00","09:00"])}catch{repeated=true}
+if(!repeated)throw Error("Duplicate reminder hours should be rejected");
+const multi=await multiStore.add("Agua",["18:00","09:00","13:00"],true,"daily","glock");
+const multiAlarms=moreCalls.filter(([op])=>op==="schedule").map(([,o])=>o);
+if(multiAlarms.length!==3||multi.times.join(",")!=="09:00,13:00,18:00"||
+ multiAlarms.some((alarm,i)=>alarm.id!==multi.base+i||alarm.action.id!==alarm.id||
+  alarm.recurrence?.mode!=="daily"))
+ throw Error("Multiple native reminder hours not scheduled independently");
+moreCalls.length=0;
+await multiStore.update(multi.id,{title:"Agua",times:["10:00","20:00"],repeat:"weekdays",sound:"glock"});
+if(moreCalls.filter(([op])=>op==="cancel").length!==29||
+ moreCalls.filter(([op])=>op==="schedule").length!==2||
+ moreCalls.filter(([op])=>op==="schedule").some(([,o])=>o.recurrence?.mode!=="weekdays"))
+ throw Error("Editing hours left stale alarms or lost weekday recurrence");
+moreCalls.length=0;await multiStore.setEnabled(multi.id,false);
+if(moreCalls.filter(([op])=>op==="cancel").length!==29)throw Error("Disabled multi-time reminder still active");
+moreCalls.length=0;await multiStore.setEnabled(multi.id,true);
+if(moreCalls.filter(([op])=>op==="schedule").length!==2)throw Error("Enabling must program every hour");
+moreCalls.length=0;multiStore.remove(multi.id);
+if(moreCalls.filter(([op])=>op==="cancel").length!==29)throw Error("Deleting must cancel all hours");
+const onceMulti=await multiStore.add("Descanso",["09:00","21:00"],false,"once","alert");
+if(!onceMulti.onceAts?.["09:00"]||!onceMulti.onceAts?.["21:00"])
+ throw Error("One-time reminder must retain the dates of every slot");
+const past=Date.now()-60000,future=Date.now()+600000;
+multiStore.persist([{...onceMulti,onceAts:{"09:00":past,"21:00":future}}]);
+moreCalls.length=0;multiStore.refresh();
+const futureOnly=moreCalls.filter(([op])=>op==="schedule").map(([,o])=>o);
+if(futureOnly.length!==1||futureOnly[0].id!==onceMulti.base+1)
+ throw Error("A fired one-time slot was scheduled again");
+multiStore.persist([{...onceMulti,onceAts:{"09:00":past,"21:00":past}}]);
+moreCalls.length=0;multiStore.refresh();
+if(multiStore.list()[0].enabled!==false||moreCalls.some(([op])=>op==="schedule"))
+ throw Error("A completed one-time reminder was rescheduled");
+multiStore.persist([{id:"200000",base:200000,title:"Anterior",time:"12:00",repeat:"daily",sound:"glock",enabled:true}]);
+moreCalls.length=0;multiStore.refresh();
+if(multiStore.list()[0].times?.[0]!=="12:00"||
+ moreCalls.filter(([op])=>op==="schedule").length!==1)
+ throw Error("Legacy single-time reminder was not migrated safely");
+
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[
