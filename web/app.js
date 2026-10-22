@@ -22,7 +22,7 @@ function show(page){
     window.scrollTo(0,0);
 }
 function iconFor(category){
- const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart"};
+ const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart","Ir al baño":"toilet","Tabaco":"smoke","Vapeo":"vape","Alcohol":"glass","Medicación":"pill","Cafeína":"coffee","Higiene":"shower"};
  const box=el("span","entry-icon "+(p[2]||""));const name=icons[p[0]]||"leaf";
  box.innerHTML='<svg class="icon"><use href="#i-'+name+'"></use></svg>';return box;
 }
@@ -34,13 +34,28 @@ function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categ
 function saveCategory(name){localStorage.setItem("rh-categories",JSON.stringify(unique([...customCategories(),name])))}
 function suggestions(){
  const root=$("suggestions");root.replaceChildren();
- for(const [title,emoji] of [["Caminata","🚶"],["Hidratación","💧"],["Comida","🍴"],["Descanso","☾"],["Terapia","♥"],["Trabajo","▣"]]){
-  const btn=el("button","suggestion",emoji+" "+title);
-  btn.onclick=()=>{const textarea=$("capture-text");if(textarea.value.trim())textarea.value+=" · ";textarea.value+=title;textarea.focus();};
-  root.append(btn);
+ // Never show more than six actions; prioritize what gets logged often.
+ const uses=new Map();
+ for(const record of entries){const name=canonicalCategory(record.category);if(name)uses.set(name,(uses.get(name)||0)+1);}
+ const frequent=[...uses.keys()].sort((a,b)=>uses.get(b)-uses.get(a));
+ const picks=unique([...frequent,"Ir al baño","Caminata","Hidratación","Comida","Descanso","Terapia"]).slice(0,6);
+ const phrases={
+  "Ir al baño":["Baño","Fui al baño","🚻"],
+  "Tabaco":["Tabaco","Fumé tabaco","♨"],
+  "Vapeo":["Vapeo","Vapeé","≈"],
+  "Alcohol":["Alcohol","Tomé alcohol","◌"],
+  "Hidratación":["Hidratación","Tomé agua","💧"],
+  "Comida":["Comida","Comí","🍴"],
+  "Caminata":["Caminata","Caminata","🚶"]
+ };
+ for(const category of picks){
+  const [label,description,icon]=phrases[category]||[category,category,byCategory(category)[1]];
+  const button=el("button","suggestion",icon+" "+label);
+  button.onclick=()=>{const field=$("capture-text");if(field.value.trim())field.value+=" · ";field.value+=description;field.focus();};
+  root.append(button);
  }
 }
-async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();}
+async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();suggestions();}
 function openEdit(e){
  current=e;selectedCategory=e.category||"";mood=e.mood??null;
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
