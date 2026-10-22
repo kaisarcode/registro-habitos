@@ -69,6 +69,7 @@ function drawDashboard(){
  }
 }
 function showCaptureFeedback(message,entry=null){
+ $("quick-feedback").classList.toggle("has-message",Boolean(message));
  $("capture-status").textContent=message;
  lastQuickEntryId=entry?.id||null;
  $("undo-quick").classList.toggle("hidden",!entry);
