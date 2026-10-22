@@ -307,6 +307,7 @@ if (window.top !== window && location.search === "?migration=1") {
  });
  window.parent.postMessage({type:"rh-ready"}, "*");
 } else {
+ $("build-version").textContent="Versión de interfaz: "+(document.querySelector('meta[name="app-build"]')?.content || "desarrollo");
  suggestions();
  reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
  try{reminderStore.refresh()}catch(e){console.warn(e)}

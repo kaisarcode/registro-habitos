@@ -20,6 +20,13 @@ def replace_once(path, before, after):
 replace_once(main_file,
     'private static final String WEBVIEW_URL = "@WEBVIEW_URL@";',
     'private static final String WEBVIEW_URL = "file:///android_asset/index.html";')
+# Do not permit WebView's HTTP cache to serve an older app after an APK update.
+# clearCache() leaves IndexedDB/localStorage untouched.
+replace_once(main_file,
+    'webView.getSettings().setDomStorageEnabled(true);',
+    'webView.getSettings().setDomStorageEnabled(true);\n'
+    '        webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);\n'
+    '        webView.clearCache(true);')
 replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
@@ -59,8 +66,12 @@ intercept = '''
         else if (name.endsWith(".jpg") || name.endsWith(".jpeg")) mime = "image/jpeg";
         else if (name.endsWith(".json")) mime = "application/json";
         try {
-            return new WebResourceResponse(mime, mime.startsWith("text/") ? "UTF-8" : null,
-                context.getAssets().open(name));
+            return new WebResourceResponse(
+                mime, mime.startsWith("text/") ? "UTF-8" : null,
+                200, "OK",
+                Collections.singletonMap("Cache-Control", "no-store, no-cache, must-revalidate"),
+                context.getAssets().open(name)
+            );
         } catch (IOException ignored) {
             return missingAsset();
         }

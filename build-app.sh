@@ -14,13 +14,16 @@ mkdir -p "$WEB_OUT"
 cp -R "$ROOT/web/." "$WEB_OUT/"
 # The KCAPK integration test uses classic, inline JavaScript in a local HTML
 # page. Match that tested loading pattern instead of using ES modules from file:.
+# Regenerate the source bundle as well: direct KCAPK builds pointing at
+# web/index.html must never package a stale JavaScript file.
 {
-    printf '%s\n' '// Classic WebView bundle'
+    printf '%s\n' '// Generated bundle from storage, classifier, reminders and app modules.'
     sed 's/^export const storage =/const storage =/' "$ROOT/web/storage.js"
     sed 's/^export function suggestCategory/function suggestCategory/' "$ROOT/web/classifier.js"
     cat "$ROOT/web/reminders.js"
     sed '/^import /d' "$ROOT/web/app.js"
-} > "$WEB_OUT/app.bundle.js"
+} > "$ROOT/web/app.bundle.js"
+cp "$ROOT/web/app.bundle.js" "$WEB_OUT/app.bundle.js"
 # Keep the source template useful in browsers, but package a single inline
 # script in the APK so startup cannot depend on a secondary JS file load.
 awk -v bundle="$WEB_OUT/app.bundle.js" '
@@ -35,6 +38,11 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
     { print }
     END { if (!found) exit 1 }
 ' "$ROOT/web/index.html" > "$WEB_OUT/app.html"
+# Embed a reproducible source revision in the packaged UI. It appears in Más.
+APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
+sed "s/@APP_BUILD@/$APP_BUILD/g" "$WEB_OUT/app.html" > "$WEB_OUT/app.versioned.html"
+mv "$WEB_OUT/app.versioned.html" "$WEB_OUT/app.html"
+printf 'Bundled app revision: %s\n' "$APP_BUILD"
 # The original file:///android_asset/index.html can read older IndexedDB.
 cp "$ROOT/web/migrate.html" "$WEB_OUT/index.html"
 
@@ -63,6 +71,8 @@ exec sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
+    --version-code 20261022 \
+    --version-name "0.2.2" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \

@@ -8,6 +8,8 @@ MIGRATOR="$ROOT/build/web/index.html"
 test -s "$MIGRATOR"
 grep -q "appassets.androidplatform.net/app.html" "$MIGRATOR"
 test -s "$PAGE"
+grep -q 'name="app-build"' "$PAGE"
+grep -q 'id="build-version"' "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="edit-save"' "$PAGE"
@@ -15,6 +17,14 @@ grep -q 'id="reminder-confirm"' "$PAGE"
 grep -q 'id="reminder-delete"' "$PAGE"
 grep -q 'id="reminder-dialog-title"' "$PAGE"
 grep -q 'async update(id,changes)' "$PAGE"
+grep -q 'function openReminderDialog(item=null)' "$PAGE"
+grep -q 'edit.onclick=()=>openReminderDialog(item)' "$PAGE"
+# Verify the direct KCAPK entry point uses the same newly generated bundle.
+cmp "$ROOT/web/app.bundle.js" "$ROOT/build/web/app.bundle.js"
+if grep -q 'id="reminder-new"' "$PAGE"; then
+    echo 'Duplicate header detected in packaged UI' >&2
+    exit 1
+fi
 if grep -q 'id="reminder-new"' "$PAGE"; then
     echo 'Duplicate reminder add control was generated' >&2
     exit 1
