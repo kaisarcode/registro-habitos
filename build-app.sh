@@ -59,6 +59,7 @@ exec sh ./build.sh \
     --api permissions \
     --api files \
     --api intents \
+    --api clipboard \
     --permission notifications \
     --permission microphone \
     "$@"
