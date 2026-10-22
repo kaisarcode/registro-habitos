@@ -123,12 +123,29 @@ async function importBackup(file){
  alert(notice);
 }
 function startVoice(targetId="capture-text"){
+ const field=$(targetId);
+ // Android WebView can expose SpeechRecognition but crash the host Activity
+ // when start() reaches an unsupported platform recognition service.
+ // Until there is a tested offline native recorder/transcriber, never invoke
+ // Web Speech from the packaged KCAPK app. The keyboard remains usable.
+ if(/Android/i.test(navigator.userAgent)||window.NativeBridge){
+  field.focus();
+  toast("Dictado desde el teclado: tocá el micrófono del teclado si tenés reconocimiento sin conexión instalado.");
+  return;
+ }
  const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Rec||!("processLocally" in Rec.prototype)){toast("No hay reconocimiento de voz local. Podés escribir.");$("capture-text").focus();return;}
- if(recognition){recognition.stop();recognition=null;return;}
- const r=new Rec();r.lang="es-AR";r.interimResults=true;r.processLocally=true;const existing=$(targetId).value.trim();
- r.onresult=event=>{let t="";for(let i=0;i<event.results.length;i++)t+=event.results[i][0].transcript+" ";$(targetId).value=[existing,t.trim()].filter(Boolean).join(" ")};
- r.onerror=e=>toast("Micrófono: "+e.error);r.onend=()=>{recognition=null};recognition=r;r.start();toast("Escuchando…");
+ if(!Rec||!("processLocally" in Rec.prototype)){
+  field.focus();toast("No hay reconocimiento local disponible. Podés escribir.");return;
+ }
+ try{
+  if(recognition){recognition.stop();recognition=null;return;}
+  const r=new Rec();r.lang="es-AR";r.interimResults=true;r.processLocally=true;
+  const original=field.value.trim();
+  r.onresult=event=>{let text="";for(let i=0;i<event.results.length;i++)text+=event.results[i][0].transcript+" ";field.value=[original,text.trim()].filter(Boolean).join(" ");field.dispatchEvent(new Event("input"))};
+  r.onerror=event=>{toast("No se pudo dictar: "+event.error);recognition=null;field.focus()};
+  r.onend=()=>{recognition=null};
+  recognition=r;r.start();toast("Escuchando…");
+ }catch(error){recognition=null;toast("El dictado no está disponible: "+error.message);field.focus();}
 }
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
