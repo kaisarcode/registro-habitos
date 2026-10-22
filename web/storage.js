@@ -37,7 +37,7 @@ export const storage = {
     },
     async save(entry) {
         const now = new Date().toISOString();
-        const record = { ...entry, id: entry.id || crypto.randomUUID(), createdAt: entry.createdAt || now, updatedAt: now };
+        const record = { ...entry, id: entry.id || (globalThis.crypto && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : "entry-" + Date.now() + "-" + Math.random().toString(36).slice(2)), createdAt: entry.createdAt || now, updatedAt: now };
         await transact("readwrite", store => store.put(record));
         return record;
     },
