@@ -110,7 +110,7 @@ async function importBackup(file){
  let notice="Importadas "+n.imported+" entradas. "+n.skipped+" ya existían.";
  if(Array.isArray(backup.reminders)&&backup.reminders.length){
   const existing=new Set(reminderStore.list().map(r=>r.title+"|"+r.time+"|"+r.repeat));
-  const add=backup.reminders.filter(r=>r&&typeof r.title==="string"&&/^\\d{2}:\\d{2}$/.test(r.time)&&!existing.has(r.title+"|"+r.time+"|"+r.repeat));
+  const add=backup.reminders.filter(r=>r&&typeof r.title==="string"&&/^[0-2][0-9]:[0-5][0-9]$/.test(r.time)&&!existing.has(r.title+"|"+r.time+"|"+r.repeat));
   if(add.length&&confirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?")){
    let done=0;
    for(const r of add){
