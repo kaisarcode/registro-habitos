@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#102a30"/><circle cx="256" cy="256" r="132" fill="#173d40"/><path d="M252 367Q185 334 170 267Q154 216 144 207Q137 299 221 350Q240 362 252 367Z" fill="#68bdbc"/><path d="M261 365Q315 326 327 273Q333 232 362 209Q371 297 292 352Z" fill="#9edaba"/><path d="M258 359Q249 294 223 244" stroke="#d5eee0" stroke-width="15" stroke-linecap="round" fill="none"/><path d="M239 257Q190 215 195 164Q251 172 265 219Q270 241 239 257Z" fill="#76c9c1"/><path d="M264 262Q269 197 329 171Q347 228 299 255Q281 266 264 262Z" fill="#a6dfbe"/><circle cx="338" cy="142" r="14" fill="#dedfc8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#286168"/><stop offset=".5" stop-color="#102e36"/><stop offset="1" stop-color="#06262c"/></linearGradient>
+ <linearGradient id="left" x1=".1" y1=".1" x2=".9" y2=".9"><stop stop-color="#a7f5ef"/><stop offset="1" stop-color="#36bdbb"/></linearGradient>
+ <linearGradient id="right" x1="0" y1="0" x2="1" y2=".9"><stop stop-color="#def0bf"/><stop offset="1" stop-color="#6cdb9e"/></linearGradient>
+ <linearGradient id="stem" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#80eed0"/><stop offset="1" stop-color="#3bcea8"/></linearGradient>
+</defs>
+<rect width="512" height="512" rx="120" fill="url(#bg)"/>
+<rect x="4" y="4" width="504" height="504" rx="116" fill="none" stroke="#6ea8a3" stroke-opacity=".25" stroke-width="7"/>
+<circle cx="259" cy="274" r="152" fill="#092a30" opacity=".64"/>
+<circle cx="352" cy="159" r="30" fill="#fcf5d9"/>
+<path d="M242 327C190 303 167 249 175 179c65 9 104 49 103 111-2 22-13 36-36 37Z" fill="url(#left)"/>
+<path d="M280 332c77-7 132-68 130-151-83 4-136 43-148 110-4 19 2 32 18 41Z" fill="url(#right)"/>
+<path d="M256 392c-1-64 22-115 87-159M256 392c-1-48-18-77-52-111" stroke="#062f31" stroke-width="12" fill="none" stroke-linecap="round"/>
+<path d="M121 317c58 45 116 73 135 76 27-3 85-34 133-76" fill="none" stroke="url(#stem)" stroke-linecap="round" stroke-width="23"/>
+</svg>
