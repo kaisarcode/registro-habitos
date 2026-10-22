@@ -38,7 +38,7 @@ Cada registro preserva fecha del evento, fecha de creación, texto original, cat
 
 ## Integración nativa prevista
 
-La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK también ofrece `--api alarms` y `--api notifications`, pero la reproducción de MP3 propios en notificaciones nativas todavía requiere una integración específica.
+La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK ofrece `--api alarms` y `--api notifications`, usados para entregar alertas nativas y sus audios empaquetados.
 
 Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c` permite medir similitud de textos; `libemb.c` genera embeddings locales (modelo BGE small **en inglés**), y `libhnsw.c` indexa vectores. Ninguno debe bloquear la creación de registros.
 
@@ -59,7 +59,7 @@ Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN n
 ## Límites de integración Android
 
 - La app no carga librerías, CDN ni recursos externos. El dictado depende del motor del navegador y puede requerir conexión externa; el registro escrito y el resto de la aplicación siguen disponibles offline.
-- Los dos MP3 suministrados están empaquetados localmente y se pueden escuchar al elegir un recordatorio. Las notificaciones nativas todavía son silenciosas, aun cuando se haya elegido un audio, hasta contar con un proveedor nativo seguro de sonidos personalizados.
+- Los dos MP3 suministrados se incluyen como archivos web para vista previa y como recursos `res/raw` de Android para las **notificaciones del sistema**; la alarma se entrega desde `AlarmReceiver`, aunque el WebView esté cerrado. Se usan canales separados con importancia predeterminada para cada sonido, evitando canales silenciosos de versiones anteriores. El volumen final depende del canal de notificaciones y los ajustes de Android. El botón **Probar notificación del sistema** permite comprobar el permiso, el canal y el sonido en el dispositivo; el botón **Escuchar audio** solo prueba el archivo web.
 - En Android, `kcapk` ofrece `intents.share` y `clipboard`: los botones de exportación permiten compartir texto JSON/CSV. El importador soporta JSON pegado o tomado del portapapeles. La selección directa de archivo puede depender del soporte del WebView.
 - La interfaz se aproxima a la referencia gráfica; las fuentes y el renderizado varían con el dispositivo. No se ha validado aquí en un Android físico.
 
@@ -88,3 +88,11 @@ Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, 
 ## Botones del formulario
 
 Los botones Cerrar y Guardar comparten dos columnas iguales y altura de 52 px. El margen superior antiguo de Guardar se eliminó.
+
+## Diálogos de confirmación
+
+Los mensajes de eliminación, creación de categorías, importación y errores utilizan un único diálogo propio, de colores oscuros y botones consistentes. No se emplean `window.alert`, `window.confirm` ni `window.prompt`. Los cambios destructivos siempre requieren confirmación. Los permisos nativos de Android siguen siendo ventanas del sistema operativo, no diálogos HTML.
+
+## Recordatorios del sistema
+
+Al compilar, `build.sh` incorpora `glock.mp3` y `alert.mp3` como recursos Android. El sonido de notificación se configura por canal independiente; se recomienda usar **Probar notificación del sistema** al instalar el nuevo APK y comprobar que Android permita las notificaciones y que el volumen esté activo. Los recordatorios elegidos como «Silencioso» siguen siendo silenciosos. Las alarmas usan exactitud cuando el dispositivo la autoriza, y de lo contrario una alarma compatible con reposo de Android que puede retrasarse. Los recordatorios futuros existentes se reprograman al abrir la app. No se garantiza entrega después de forzar la detención de la aplicación desde Ajustes.

@@ -50,6 +50,14 @@ if grep -q 'id="suggestions"' "$PAGE"; then
 fi
 grep -q 'id="edit-save"' "$PAGE"
 grep -q 'id="reminder-confirm"' "$PAGE"
+grep -q 'id="app-action-dialog"' "$PAGE"
+grep -q 'id="test-notification"' "$PAGE"
+grep -q 'id="reminder-dialog-status"' "$PAGE"
+grep -q 'function showAppDialog({' "$PAGE"
+if grep -Eq '(^|[^[:alnum:]_])(alert|confirm|prompt)[[:space:]]*\\(' "$ROOT/web/app.js"; then
+    echo 'Native JavaScript dialogs are not allowed in the app' >&2
+    exit 1
+fi
 grep -q 'id="reminder-delete"' "$PAGE"
 grep -q 'id="reminder-dialog-title"' "$PAGE"
 grep -q 'async update(id,changes)' "$PAGE"
@@ -124,6 +132,29 @@ if(!invalid)throw Error("Minutes must be 0–59");
 duration.populateDurationParts("edit",245);
 if(get("edit-hours").value!=="4"||get("edit-minutes").value!=="5")throw Error("Historical duration not displayed");
 if(!source.includes('"startedAt","endedAt"'))throw Error("Existing historical fields no longer export");
+// Native alarm delivery must use audible Android channels, not WebView audio.
+const remindersSource=fs.readFileSync(root+"/web/reminders.js","utf8");
+const channels=[],alarms=[],notifications=[];
+const prefs=new Map();
+const store=new Function("window","localStorage",remindersSource+";return reminderStore")(
+ {NativeBridge:{Android:{
+  alarms:{canScheduleExact(){return false},cancel(){return true},schedule(o){alarms.push(o);return true}},
+  notifications:{canPost(){return true},createChannel(o){channels.push(o);return true},post(o){notifications.push(o);return true}},
+  permissions:{request:async()=>true}
+ }}},
+ {getItem:k=>prefs.get(k)||null,setItem:(k,v)=>prefs.set(k,v)}
+);
+store.schedule({id:"550000",base:550000,title:"Siesta",time:"12:00",repeat:"daily",sound:"glock",enabled:true});
+const channel=channels.at(-1),first=alarms[0];
+if(!channel||channel.importance!=="default"||!channel.sound.endsWith("/registro_glock"))
+ throw Error("Audible reminder channel not configured");
+if(!first||first.allowWhileIdle!==true||first.action.channel!==channel.id||
+ first.action.sound!==channel.sound||first.action.type!=="notification")
+ throw Error("Background alarm does not deliver an audible native notification");
+if(channel.id==="registro-soft")throw Error("Reused permanently silent Android channel");
+store.schedule({id:"550100",base:550100,title:"Descanso",time:"16:00",repeat:"once",sound:"none",enabled:true});
+if(channels.at(-1).sound!=="none"||channels.at(-1).importance!=="low")
+ throw Error("Explicitly silent reminders must remain silent");
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[
