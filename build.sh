@@ -78,8 +78,8 @@ sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
-    --version-code 20261024 \
-    --version-name "0.2.4" \
+    --version-code 20261025 \
+    --version-name "0.2.5" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \

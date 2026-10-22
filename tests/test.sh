@@ -14,6 +14,19 @@ grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="quick-categories"' "$PAGE"
 grep -q 'id="category-search"' "$PAGE"
+grep -q 'id="category-dialog"' "$PAGE"
+grep -q 'id="cat-name"' "$PAGE"
+grep -q 'id="cat-keywords"' "$PAGE"
+grep -q 'id="cat-icon-grid"' "$PAGE"
+grep -q 'id="cat-image"' "$PAGE"
+grep -q 'id="cat-save"' "$PAGE"
+grep -q 'id="li-cigarette"' "$PAGE"
+grep -q 'id="li-toilet"' "$PAGE"
+grep -q 'const categoryStore =' "$PAGE"
+grep -q 'function saveCategoryEditor()' "$PAGE"
+grep -q 'function deleteCategory(name,count)' "$PAGE"
+grep -q 'onShowFileChooser' "$ROOT/native/AppWebChromeClient.java.in"
+grep -q 'onActivityResult(requestCode, resultCode, data)' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
 grep -q 'id="entry-status"' "$PAGE"
@@ -103,7 +116,10 @@ if command -v node >/dev/null 2>&1; then
 const fs=require("fs"), root=process.argv[2];
 const source=fs.readFileSync(root+"/web/app.js","utf8");
 const searchHelpers=source.slice(source.indexOf("function quickDescription("),source.indexOf("function drawDashboard(){"));
-const matching=new Function(searchHelpers+"; return matchesCategorySearch")();
+const matching=new Function("categoryStore",searchHelpers+"; return matchesCategorySearch")({get:name=>({keywords:{
+ "Tabaco":["fumar","fume","cigarrillo"],"Vapeo":["vapear","vaper"],
+ "Ir al baño":["pis"],"Cafeína":["cafe"],"Alcohol":["cerveza"],"Actividad física":["caminar"]
+ }[name]||[]})});
 const examplesSearch=[
  ["fum","Tabaco",true],["cigarrillo","Tabaco",true],
  ["vap","Vapeo",true],["pis","Ir al baño",true],
@@ -113,6 +129,30 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
+// Profiles must survive local storage, allow renaming, archiving and imports.
+const categorySource=fs.readFileSync(root+"/web/categories.js","utf8")
+  .replace(/^export const /gm,"const ");
+const profileStore=new Map();
+const local={getItem:key=>profileStore.get(key)||null,setItem:(key,value)=>profileStore.set(key,value)};
+const preset=[["Tabaco","♨","orange"],["Vapeo","≈","purple"]];
+const categoryAliases={"Tabaco":["fumar","fume"]};
+const categories=new Function("localStorage","preset","categoryAliases",
+ categorySource+";return {categoryStore,ICON_NAMES}")(local,preset,categoryAliases);
+let profile=categories.categoryStore.get("Tabaco");
+if(profile.icon!=="cigarette"||profile.color!=="orange")throw Error("Lucide default invalid");
+categories.categoryStore.save({name:"Tabaco",keywords:["fum","pucho"],icon:"cigarette",color:"blue"});
+if(!categories.categoryStore.get("Tabaco").keywords.includes("fum"))throw Error("Edited keywords not saved");
+categories.categoryStore.save({name:"Cigarrillos",keywords:["fum"],icon:"cigarette",color:"blue"},"Tabaco");
+if(categories.categoryStore.names().includes("Tabaco")||!categories.categoryStore.names().includes("Cigarrillos"))
+ throw Error("Renaming a category did not archive previous label");
+categories.categoryStore.remove("Cigarrillos");
+if(categories.categoryStore.names().includes("Cigarrillos"))throw Error("Removed category still selectable");
+categories.categoryStore.merge({"Mate":{"keywords":["cebando"],"icon":"coffee","color":"green"}});
+if(!categories.categoryStore.get("Mate").keywords.includes("cebando"))throw Error("Category profile import failed");
+const sourceClassifier=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
+const guess=new Function(sourceClassifier+";return suggestCategory")();
+if(guess("Estuve cebando mate",[],null,[categories.categoryStore.get("Mate")])?.category!=="Mate")
+ throw Error("Custom keyword does not drive automatic categorization");
 // Check only the visible hours/minutes and the hidden total.
 const durationSource=source.slice(source.indexOf("function durationLabel("),source.indexOf("function createEntry(details)"));
 const controls=new Map();
