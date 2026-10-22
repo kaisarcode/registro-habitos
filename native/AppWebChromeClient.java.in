@@ -1,0 +1,48 @@
+package @PACKAGE_NAME@;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
+
+// Browser permission is independent of the Android RECORD_AUDIO permission.
+public final class AppWebChromeClient extends WebChromeClient {
+    private final Activity activity;
+
+    public AppWebChromeClient(Activity activity) {
+        this.activity = activity;
+    }
+
+    @Override
+    public void onPermissionRequest(PermissionRequest request) {
+        activity.runOnUiThread(() -> {
+            Uri origin = request.getOrigin();
+            boolean local = "https".equals(origin.getScheme())
+                && "appassets.androidplatform.net".equals(origin.getHost())
+                && origin.getPort() == -1;
+            boolean androidGranted = activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED;
+            boolean asksForAudio = false;
+            boolean asksForOther = false;
+            for (String resource : request.getResources()) {
+                if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)) {
+                    asksForAudio = true;
+                } else {
+                    asksForOther = true;
+                }
+            }
+            if (local && androidGranted && asksForAudio && !asksForOther) {
+                request.grant(new String[] {PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+            } else {
+                request.deny();
+            }
+        });
+    }
+
+    @Override
+    public void onPermissionRequestCanceled(PermissionRequest request) {
+        // No pending Android runtime permission flow is held here.
+    }
+}
