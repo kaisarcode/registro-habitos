@@ -5,18 +5,34 @@ const reminderStore={
  persist(items){localStorage.setItem(REMINDER_KEY,JSON.stringify(items))},
  api(){return window.NativeBridge?.Android?.alarms},
  channel(sound){
-  // Sound channels are stable Android settings; custom packaged MP3 needs native resource mapping.
-  const key=sound==="none"?"silent":"soft";
-  const id="registro-"+key;
+  // Every sound has its own Android notification channel. Channels are
+  // immutable once created: v3 avoids the legacy low-importance silent channel.
+  const names={none:"Silencioso",glock:"Glockenspiel",alert:"Notificación suave"};
+  const key=Object.prototype.hasOwnProperty.call(names,sound)?sound:"none";
+  const channel="registro-habitos-"+key+"-v3";
+  const uri=this.soundUri(key);
   const notifications=window.NativeBridge?.Android?.notifications;
-  if(notifications)notifications.createChannel({id,name:"Registro Hábitos",importance:"low",sound:"none",showBadge:false});
-  return id;
+  if(!notifications)throw Error("Notificaciones nativas no disponibles en este APK.");
+  const ok=notifications.createChannel({
+   id:channel,name:"Registro Hábitos · "+names[key],
+   importance:key==="none"?"low":"default",
+   sound:uri,showBadge:false
+  });
+  if(!ok)throw Error("Android no pudo configurar el canal de notificaciones.");
+  return channel;
+ },
+ soundUri(sound){
+  const names={glock:"registro_glock",alert:"registro_alert"};
+  const name=names[sound];
+  return name?"android.resource://com.kaisarcode.registrohabitos/raw/"+name:"none";
  },
  async permission(){
   const a=window.NativeBridge?.Android;
-  if(!a?.alarms)throw Error("Recordatorios nativos disponibles al instalar el APK de KCAPK.");
-  if(a.notifications&&a.permissions&&!a.notifications.canPost()){
-   if(!await a.permissions.request("notifications"))throw Error("El permiso de notificaciones está desactivado.");
+  if(!a?.alarms||!a?.notifications)throw Error("Alarmas y notificaciones nativas no disponibles en este APK.");
+  if(!a.notifications.canPost()){
+   if(!a.permissions||!await a.permissions.request("notifications")||!a.notifications.canPost()){
+    throw Error("Activá las notificaciones de Registro Hábitos en los ajustes de Android.");
+   }
   }
  },
  occurrences(item){
@@ -32,15 +48,36 @@ const reminderStore={
  },
  schedule(item){
   const api=this.api();if(!api)throw Error("Alarmas nativas no disponibles.");
-  const channel=this.channel(item.sound||"none");
-  // Idempotent scheduling: clear the whole reserved ID block first.
+  const selected=item.sound||"none";
+  const channel=this.channel(selected);
+  const sound=this.soundUri(selected);
+  // Exact when authorized, otherwise an idle-capable inexact alarm.
+  // All notifications are delivered natively, even without a running WebView.
+  const exact=typeof api.canScheduleExact==="function"&&api.canScheduleExact();
   for(let i=0;i<29;i++)api.cancel(item.base+i);
   const moments=this.occurrences(item);
   for(let i=0;i<moments.length;i++){
-   const ok=api.schedule({id:item.base+i,at:moments[i],exact:false,
-    action:{type:"notification",id:item.base+i,channel,title:item.title,text:"Recordatorio",onlyAlertOnce:true,sound:"none"}});
-   if(!ok)throw Error("No se pudo programar el aviso en Android.");
+   const ok=api.schedule({
+    id:item.base+i,at:moments[i],exact,allowWhileIdle:true,
+    action:{
+     type:"notification",id:item.base+i,channel,title:item.title,
+     text:"Recordatorio",importance:selected==="none"?"low":"default",
+     onlyAlertOnce:true,sound
+    }
+   });
+   if(!ok)throw Error("Android no pudo programar el recordatorio.");
   }
+ },
+ async test(title,sound){
+  await this.permission();
+  const selected=sound||"none",channel=this.channel(selected);
+  const notifications=window.NativeBridge.Android.notifications;
+  const ok=notifications.post({
+   id:19002026,channel,title:title||"Prueba de recordatorio",
+   text:"Prueba de notificación",importance:selected==="none"?"low":"default",
+   sound:this.soundUri(selected),onlyAlertOnce:false
+  });
+  if(!ok)throw Error("Android rechazó la notificación de prueba.");
  },
  async add(title,time,daily,repeat,sound){
   await this.permission();const entries=this.list();
