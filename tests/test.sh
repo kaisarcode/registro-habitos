@@ -140,7 +140,7 @@ const categories=new Function("localStorage","preset","categoryAliases",
  categorySource+";return {categoryStore,ICON_NAMES}")(local,preset,categoryAliases);
 let profile=categories.categoryStore.get("Tabaco");
 if(profile.icon!=="cigarette"||profile.color!=="orange")throw Error("Lucide default invalid");
-categories.categoryStore.save({name:"Tabaco",keywords:["fum","pucho"],icon:"cigarette",color:"blue"});
+categories.categoryStore.save({name:"Tabaco",keywords:["fum","pucho"],icon:"cigarette",color:"blue"},"Tabaco");
 if(!categories.categoryStore.get("Tabaco").keywords.includes("fum"))throw Error("Edited keywords not saved");
 categories.categoryStore.save({name:"Cigarrillos",keywords:["fum"],icon:"cigarette",color:"blue"},"Tabaco");
 if(categories.categoryStore.names().includes("Tabaco")||!categories.categoryStore.names().includes("Cigarrillos"))
