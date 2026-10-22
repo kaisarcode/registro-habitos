@@ -7,7 +7,7 @@ const unique=a=>[...new Set(a.filter(Boolean))];
 const localTime=d=>{const date=new Date(d);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const formatTime=v=>new Date(v).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
 const dayKey=v=>localTime(v).slice(0,10);
-let entries=[],current=null,mood=null,selectedCategory="",period="week",previous="capture",recognition=null,quickDate=null,categoryFilter="";
+let entries=[],current=null,mood=null,selectedCategory="",period="week",previous="capture",recognition=null,quickDate=null,categoryFilter="",editingReminderId=null;
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!=null)n.textContent=text;return n;}
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
@@ -91,12 +91,23 @@ async function saveCapture(){
 }
 function csv(){const cols=["id","occurredAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function openReminderDialog(item=null){
+ editingReminderId=item?.id||null;
+ $("reminder-dialog-title").textContent=item?"Editar recordatorio":"Nuevo recordatorio";
+ $("reminder-name").value=item?.title||"";
+ $("reminder-time").value=item?.time||"13:00";
+ $("reminder-repeat").value=item?.repeat||(item?.daily?"daily":"once");
+ $("reminder-sound").value=item?.sound||"none";
+ $("reminder-confirm").textContent=item?"Guardar cambios":"Guardar";
+ $("reminder-delete").classList.toggle("hidden",!item);
+ $("reminder-dialog").showModal();
+}
 function drawReminders(){
  const root=$("reminder-list");root.replaceChildren();const items=reminderStore.list();
  for(const item of items){const row=el("div","reminder-item");row.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
   const body=el("span","item-main");body.append(el("strong","",item.title),el("small","",item.time+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));row.append(body);
   const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders()}catch(e){$("reminder-status").textContent=e.message}};
-  const remove=el("button","","⋮");remove.onclick=()=>{if(confirm("¿Eliminar este recordatorio?")){reminderStore.remove(item.id);drawReminders()}};row.append(toggle,remove);root.append(row);
+  const edit=el("button","reminder-edit","✎");edit.setAttribute("aria-label","Editar "+item.title);edit.title="Editar recordatorio";edit.onclick=()=>openReminderDialog(item);row.append(toggle,edit);root.append(row);
  }
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
@@ -216,7 +227,7 @@ async function startVoice(targetId = "capture-text") {
 }
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
-$("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")$("reminder-dialog").showModal();else show(page==="capture"?"more":"data")};
+$("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
 $("capture-save").onclick=saveCapture;$("mic").onclick=()=>startVoice("capture-text");$("edit-dictate").onclick=()=>startVoice("edit-text");
 $("today").onclick=()=>{quickDate=new Date().toISOString();toast("Fecha de hoy seleccionada.")};
 $("now").onclick=()=>{quickDate=new Date().toISOString();toast("Hora actual seleccionada.")};
@@ -234,7 +245,7 @@ $("edit-save").onclick=async()=>{
 };
 $("edit-delete").onclick=async()=>{if(!current||!confirm("¿Eliminar este registro?"))return;await storage.remove(current.id);await reload();show("history")};
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
-$("reminder-new").onclick=()=>$("reminder-dialog").showModal();
+
 let previewAudio=null;
 $("preview-sound").onclick=()=>{
  const name=$("reminder-sound").value;
@@ -245,8 +256,25 @@ $("preview-sound").onclick=()=>{
  previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
 };
 $("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
-$("reminder-confirm").onclick=async e=>{e.preventDefault();const title=$("reminder-name").value.trim(),time=$("reminder-time").value,repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;if(!title||!time)return;
- try{await reminderStore.add(title,time,repeat!=="once",repeat,sound);$("reminder-dialog").close();$("reminder-name").value="";drawReminders();$("reminder-status").textContent="Recordatorio guardado."}catch(err){$("reminder-status").textContent=err.message}
+$("reminder-confirm").onclick=async e=>{
+ e.preventDefault();
+ const title=$("reminder-name").value.trim(),time=$("reminder-time").value,repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;
+ if(!title||!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)){
+  $("reminder-status").textContent="Escribí un nombre y una hora válida.";return;
+ }
+ try{
+  if(editingReminderId)await reminderStore.update(editingReminderId,{title,time,repeat,daily:repeat!=="once",sound});
+  else await reminderStore.add(title,time,repeat!=="once",repeat,sound);
+  $("reminder-dialog").close();
+  $("reminder-status").textContent=editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.";
+  editingReminderId=null;drawReminders();
+ }catch(err){$("reminder-status").textContent=err.message}
+};
+$("reminder-delete").onclick=()=>{
+ if(!editingReminderId||!confirm("¿Eliminar este recordatorio?"))return;
+ reminderStore.remove(editingReminderId);
+ editingReminderId=null;$("reminder-dialog").close();drawReminders();
+ $("reminder-status").textContent="Recordatorio eliminado.";
 };
 $("export-json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list(),categories:customCategories()},null,2),"application/json");
 $("export-csv").onclick=()=>download("registro-habitos.csv",csv(),"text/csv;charset=utf-8");

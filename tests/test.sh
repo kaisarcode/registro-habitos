@@ -12,6 +12,13 @@ grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="edit-save"' "$PAGE"
 grep -q 'id="reminder-confirm"' "$PAGE"
+grep -q 'id="reminder-delete"' "$PAGE"
+grep -q 'id="reminder-dialog-title"' "$PAGE"
+grep -q 'async update(id,changes)' "$PAGE"
+if grep -q 'id="reminder-new"' "$PAGE"; then
+    echo 'Duplicate reminder add control was generated' >&2
+    exit 1
+fi
 grep -q 'const reminderStore =' "$PAGE"
 grep -q 'id="summary"' "$PAGE"
 grep -q 'id="categories"' "$PAGE"

@@ -48,6 +48,24 @@ const reminderStore={
   const item={id:String(base),base,title,time,daily:!!daily,repeat:repeat|| (daily?"daily":"once"),sound:sound||"none",enabled:true};
   this.schedule(item);entries.push(item);this.persist(entries);return item;
  },
+ async update(id,changes){
+  const items=this.list(),index=items.findIndex(item=>item.id===id);
+  if(index<0)throw Error("El recordatorio ya no existe.");
+  const current=items[index];
+  const updated={...current,title:changes.title,time:changes.time,repeat:changes.repeat,daily:changes.daily,sound:changes.sound};
+  if(!updated.title||!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(updated.time))
+   throw Error("El nombre o la hora del recordatorio no son válidos.");
+  if(updated.enabled!==false){
+   await this.permission();
+   try{this.schedule(updated)}
+   catch(error){try{this.schedule(current)}catch(rollback){console.warn("Unable to restore reminder alarms",rollback)}throw error}
+  }else if(this.api()){
+   for(let i=0;i<29;i++)this.api().cancel(updated.base+i);
+  }
+  items[index]=updated;
+  this.persist(items);
+  return updated;
+ },
  async setEnabled(id,enabled){
   const list=this.list(),item=list.find(x=>x.id===id);if(!item)return;
   if(enabled){await this.permission();this.schedule({...item,enabled:true});}

@@ -6,3 +6,8 @@
 /* Voice is controlled by the browser; no new sound or animation. */
 .mic-button.listening,.edit-mic.listening{outline:2px solid #b5eedc;outline-offset:3px;background:#4fae94;color:#061a17}
 #edit-voice-status{min-height:1.1em;margin:6px 0 12px}
+
+/* Reminder editing is distinct from deleting. The topbar owns the page title. */
+.reminder-edit{color:#a6dace;font-size:22px;min-width:38px;min-height:38px}
+#reminder-dialog .dialog-actions{align-items:center;flex-wrap:wrap}
+#reminder-delete{margin:0 auto 0 0;padding:10px 4px}
