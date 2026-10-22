@@ -1,14 +1,15 @@
 import { storage } from "./storage.js";
 import { suggestCategory } from "./classifier.js";
+import { categoryStore, ICON_NAMES } from "./categories.js";
 const $=id=>document.getElementById(id);
 const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Higiene","✦","blue"],["Ir al baño","🚻","blue"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Medicación","✚","blue"],["Cafeína","☕","orange"]];
 const canonicalCategory=name=>{const raw=String(name||"").trim();return preset.find(p=>p[0].toLowerCase()===raw.toLowerCase())?.[0]||raw};
-const byCategory=name=>preset.find(p=>p[0]===canonicalCategory(name))||[name||"Personal","✦","grey"];
+const byCategory=name=>{const p=categoryStore.get(canonicalCategory(name));return [p.name,"",p.color]};
 const unique=a=>[...new Set(a.filter(Boolean))];
 const localTime=d=>{const date=new Date(d);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16)};
 const formatTime=v=>new Date(v).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
 const dayKey=v=>localTime(v).slice(0,10);
-let entries=[],current=null,mood=null,period="week",previous="capture",recognition=null,categoryFilter="",editingReminderId=null,quickSaving=false,lastQuickEntryId=null;
+let entries=[],current=null,mood=null,period="week",previous="capture",recognition=null,categoryFilter="",editingReminderId=null,quickSaving=false,lastQuickEntryId=null,editingCategory=null,categoryImage=null,categoryIcon="leaf";
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!=null)n.textContent=text;return n;}
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
@@ -22,13 +23,26 @@ function show(page){
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
 }
+function drawLucideIcon(name){
+ const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ icon.setAttribute("class","icon lucide-icon");
+ icon.setAttribute("viewBox","0 0 24 24");
+ const use=document.createElementNS("http://www.w3.org/2000/svg","use");
+ use.setAttribute("href","#li-"+(ICON_NAMES.includes(name)?name:"leaf"));
+ icon.append(use);
+ return icon;
+}
 function iconFor(category){
- const p=byCategory(category), icons={"Actividad física":"walk","Alimentación":"food","Terapia":"heart","Salud":"water","Sueño":"moon","Emociones":"cloud","Cognitivo":"person","Ocio":"book","Trabajo":"briefcase","Personal":"person","Hidratación":"water","Descanso":"moon","Salida":"walk","Social":"heart","Ir al baño":"toilet","Tabaco":"smoke","Vapeo":"vape","Alcohol":"glass","Medicación":"pill","Cafeína":"coffee","Higiene":"shower"};
- const box=el("span","entry-icon "+(p[2]||""));const name=icons[p[0]]||"leaf";
- box.innerHTML='<svg class="icon"><use href="#i-'+name+'"></use></svg>';return box;
+ const p=categoryStore.get(canonicalCategory(category));
+ const box=el("span","entry-icon "+p.color);
+ if(p.image){
+  const image=el("img");image.alt="";image.src=p.image;
+  box.append(image);
+ }else{box.append(drawLucideIcon(p.icon));}
+ return box;
 }
 function categoryOptions(){
- const cats=unique([...preset.map(p=>p[0]),...entries.map(e=>canonicalCategory(e.category)),...customCategories().map(canonicalCategory)]);
+ const cats=categoryNames();
  const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
 }
 // App-owned dialogs: WebView alert/confirm/prompt use disruptive Android UI.
@@ -74,8 +88,10 @@ const appPrompt=(title,value="")=>
  showAppDialog({title,message:"",kind:"input",ok:"Guardar",value});
 const appInfo=(message,title="Información")=>
  showAppDialog({title,message,kind:"info",ok:"Cerrar"});
-function customCategories(){try{return JSON.parse(localStorage.getItem("rh-categories")||"[]")}catch{return []}}
-function saveCategory(name){localStorage.setItem("rh-categories",JSON.stringify(unique([...customCategories(),name])))}
+function customCategories(){return categoryStore.names().filter(name=>!preset.some(p=>p[0]===name))}
+function saveCategory(name){
+ if(!categoryStore.names().includes(name))categoryStore.save({name,keywords:[],icon:"leaf",color:"grey"});
+}
 function quickDescription(category){
  const phrases={
   "Ir al baño":"Fui al baño","Tabaco":"Fumé tabaco","Vapeo":"Vapeé",
@@ -86,7 +102,7 @@ function quickDescription(category){
  return phrases[category]||category;
 }
 function categoryNames(){
- return unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
+ return unique([...categoryStore.names(),...entries.map(e=>canonicalCategory(e.category)).filter(name=>name&&!categoryStore.get(name).deleted)]);
 }
 function normalizeCategorySearch(text){
  return String(text||"").toLocaleLowerCase("es-AR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
@@ -109,7 +125,7 @@ function matchesCategorySearch(category,query){
  const terms=normalizeCategorySearch(query).split(/\s+/).filter(Boolean);
  if(!terms.length)return true;
  const haystack=normalizeCategorySearch([
-  category,quickDescription(category),...(categoryAliases[category]||[])
+  category,quickDescription(category),...categoryStore.get(category).keywords
  ].join(" "));
  return terms.every(term=>haystack.includes(term));
 }
@@ -254,8 +270,111 @@ function drawHistory(){
 }
 function drawCategories(){
  const root=$("category-list");root.replaceChildren();
- const names=unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
- for(const cat of names){const count=entries.filter(e=>canonicalCategory(e.category)===cat).length;const row=el("button","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));row.onclick=()=>{categoryFilter=cat;$("search").value="";show("history")};root.append(row);}
+ for(const cat of categoryNames()){
+  const p=categoryStore.get(cat),count=entries.filter(e=>canonicalCategory(e.category)===cat).length;
+  const row=el("div","category-item");
+  const main=el("span","item-main");
+  main.append(el("strong","",cat));
+  main.append(el("small","category-detail",p.keywords.slice(0,4).join(" · ")||"Sin palabras clave"));
+  const edit=el("button","category-edit","Editar");
+  edit.type="button";edit.setAttribute("aria-label","Editar "+cat);edit.onclick=()=>openCategoryEditor(cat);
+  const remove=el("button","category-remove","×");
+  remove.type="button";remove.setAttribute("aria-label","Eliminar "+cat);remove.onclick=()=>deleteCategory(cat,count);
+  row.append(iconFor(cat),main,el("span","category-count",String(count)),edit,remove);
+  root.append(row);
+ }
+ if(!root.children.length)root.append(el("p","muted","No hay categorías. Agregá una con +."));
+}
+function updateCategoryPreview(){
+ const box=$("cat-icon-preview");box.replaceChildren();
+ box.className="entry-icon "+$("cat-color").value;
+ if(categoryImage){
+  const image=el("img");image.src=categoryImage;image.alt="";box.append(image);
+ }else box.append(drawLucideIcon(categoryIcon));
+ $("cat-image-clear").classList.toggle("hidden",!categoryImage);
+ for(const item of $("cat-icon-grid").children){
+  const isSelected=item.dataset.icon===categoryIcon&&!categoryImage;
+  item.classList.toggle("selected",isSelected);
+  item.setAttribute("aria-pressed",isSelected?"true":"false");
+ }
+}
+function openCategoryEditor(category=null){
+ editingCategory=category;
+ const profile=category?categoryStore.get(category):null;
+ $("category-dialog-title").textContent=category?"Editar categoría":"Nueva categoría";
+ $("cat-name").value=profile?.name||"";
+ $("cat-keywords").value=(profile?.keywords||[]).join(", ");
+ $("cat-color").value=profile?.color||"green";
+ $("cat-error").textContent="";
+ $("cat-image").value="";
+ categoryImage=profile?.image||null;
+ categoryIcon=profile?.icon||"leaf";
+ const grid=$("cat-icon-grid");grid.replaceChildren();
+ for(const name of ICON_NAMES){
+  const button=el("button");button.type="button";button.dataset.icon=name;
+  button.setAttribute("aria-label","Ícono "+name);button.title=name;
+  button.append(drawLucideIcon(name));
+  button.onclick=()=>{categoryIcon=name;categoryImage=null;updateCategoryPreview();};
+  grid.append(button);
+ }
+ updateCategoryPreview();
+ $("category-dialog").showModal();
+}
+async function deleteCategory(name,count){
+ if(!await appConfirm("¿Eliminar «"+name+"» de las categorías?"+(count?" Sus "+count+" registros anteriores se conservarán en el historial.":""),"Eliminar categoría","Eliminar"))return;
+ categoryStore.remove(name);
+ await reload();
+}
+async function saveCategoryEditor(){
+ const save=$("cat-save");save.disabled=true;$("cat-error").textContent="";
+ try{
+  const original=editingCategory;
+  const name=$("cat-name").value.trim().replace(/\s+/g," ");
+  if(!name||name.length>64)throw Error("Ingresá un nombre de hasta 64 caracteres.");
+  const words=$("cat-keywords").value.split(/[,\n;]/).map(x=>x.trim()).filter(Boolean);
+  // Rename the historical entries first; category definitions continue
+  // governing the display of existing records without losing entry content.
+  if(original&&original!==name&&categoryNames().some(x=>x.toLocaleLowerCase("es-AR")===name.toLocaleLowerCase("es-AR")))
+   throw Error("Ya existe una categoría con ese nombre.");
+  categoryStore.save({
+   name,keywords:words,icon:categoryIcon,image:categoryImage,color:$("cat-color").value
+  },original);
+  if(original&&name!==original){
+   for(const entry of entries.filter(e=>canonicalCategory(e.category)===original)){
+    await storage.save({...entry,category:name});
+   }
+  }
+  $("category-dialog").close();
+  categoryFilter=categoryFilter===original?name:categoryFilter;
+  await reload();
+ }catch(error){$("cat-error").textContent=error.message;}
+ finally{save.disabled=false;}
+}
+function readCategoryImage(file){
+ return new Promise((resolve,reject)=>{
+  if(!file||!["image/png","image/jpeg","image/webp"].includes(file.type))return reject(Error("Elegí una imagen PNG, JPG o WebP."));
+  if(file.size>8*1024*1024)return reject(Error("La imagen debe ocupar menos de 8 MB."));
+  const reader=new FileReader();
+  reader.onerror=()=>reject(Error("No se pudo abrir la imagen."));
+  reader.onload=()=>{
+   const image=new Image();
+   image.onerror=()=>reject(Error("El archivo no contiene una imagen válida."));
+   image.onload=()=>{
+    try{
+     const side=192,canvas=document.createElement("canvas");canvas.width=side;canvas.height=side;
+     const ctx=canvas.getContext("2d");if(!ctx)throw Error("No se pudo procesar la imagen.");
+     const scale=Math.max(side/image.width,side/image.height);
+     ctx.drawImage(image,(side-image.width*scale)/2,(side-image.height*scale)/2,image.width*scale,image.height*scale);
+     const result=canvas.toDataURL("image/webp",0.73);
+     if(!result.startsWith("data:image/webp;"))throw Error("No se pudo comprimir la imagen.");
+     if(result.length>240000)throw Error("La imagen comprimida sigue siendo demasiado grande.");
+     resolve(result);
+    }catch(error){reject(error);}
+   };
+   image.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
 }
 function drawSummary(){
  const now=new Date(),start=new Date(now),buckets=period==="week"?7:period==="month"?30:12;
@@ -279,8 +398,9 @@ async function saveCapture(){
  try{timing=durationDetails("entry");}
  catch(error){$("entry-status").textContent=error.message;return;}
  const manual=canonicalCategory($("entry-category").value);
- const suggested=manual?null:suggestCategory(description,entries);
- const category=manual||canonicalCategory(suggested?.category)||null;
+ const suggested=manual?null:suggestCategory(description,entries,null,categoryStore.list());
+ const predicted=canonicalCategory(suggested?.category);
+ const category=manual||(predicted&&!categoryStore.get(predicted).deleted?predicted:null);
  quickSaving=true;
  $("capture-save").disabled=true;
  try{
@@ -325,6 +445,7 @@ async function importBackup(file){
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
  if(Array.isArray(backup.categories))for(const cat of backup.categories){if(typeof cat==="string"&&cat.trim())saveCategory(cat.trim());}
+ if(backup.categoryProfiles)categoryStore.merge(backup.categoryProfiles);
  await reload();
  let notice="Importadas "+n.imported+" entradas. "+n.skipped+" ya existían.";
  if(Array.isArray(backup.reminders)&&backup.reminders.length){
@@ -462,7 +583,18 @@ for(const name of ["energy","mood"]){
  };
 }
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
-$("category-add").onclick=async()=>{const cat=await appPrompt("Nueva categoría");if(cat){saveCategory(cat);drawCategories()}};
+$("category-add").onclick=()=>openCategoryEditor();
+$("category-dialog-close").onclick=()=>$("category-dialog").close();
+$("cat-cancel").onclick=()=>$("category-dialog").close();
+$("cat-color").onchange=updateCategoryPreview;
+$("cat-save").onclick=saveCategoryEditor;
+$("cat-image-clear").onclick=()=>{categoryImage=null;$("cat-image").value="";updateCategoryPreview()};
+$("cat-image").onchange=async event=>{
+ const file=event.target.files?.[0];if(!file)return;
+ $("cat-error").textContent="";
+ try{categoryImage=await readCategoryImage(file);updateCategoryPreview();}
+ catch(error){$("cat-error").textContent=error.message;}
+};
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
  for(const field of ["hours","minutes"]){
@@ -553,7 +685,7 @@ $("reminder-delete").onclick=async()=>{
  editingReminderId=null;$("reminder-dialog").close();drawReminders();
  $("reminder-status").textContent="Recordatorio eliminado.";
 };
-$("export-json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list(),categories:customCategories()},null,2),"application/json");
+$("export-json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list(),categories:customCategories(),categoryProfiles:categoryStore.export()},null,2),"application/json");
 $("export-csv").onclick=()=>download("registro-habitos.csv",csv(),"text/csv;charset=utf-8");
 $("import-json").onclick=()=>{if(window.NativeBridge?.Android?.clipboard){const copied=window.NativeBridge.Android.clipboard.get();if(copied?.trim().startsWith("{")){$("import-text").value=copied;$("import-dialog").showModal();return;}}$("import-file").click();};
 $("import-text-btn").onclick=()=>{$("import-dialog").showModal();};
