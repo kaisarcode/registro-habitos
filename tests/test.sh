@@ -81,7 +81,23 @@ grep -q 'id="reminder-delete"' "$PAGE"
 grep -q 'id="reminder-dialog-title"' "$PAGE"
 grep -q 'async update(id,changes)' "$PAGE"
 grep -q 'function openReminderDialog(item=null)' "$PAGE"
-grep -q 'edit.onclick=()=>openReminderDialog(item)' "$PAGE"
+grep -q 'open.onclick=()=>openReminderDialog(item)' "$PAGE"
+grep -q 'row.onclick=()=>openEdit(e)' "$PAGE"
+grep -q 'open.onclick=()=>openCategoryEditor(cat)' "$PAGE"
+grep -q 'id="edit-dialog"' "$PAGE"
+grep -q 'id="edit-close"' "$PAGE"
+grep -q 'id="edit-cancel"' "$PAGE"
+grep -q 'function handleDeviceBack()' "$PAGE"
+grep -q 'window.registroHabitosBack=handleDeviceBack' "$PAGE"
+grep -q 'new AppNavigationBridge(this, webView)' "$ROOT/scripts/patch-kcapk.py"
+grep -q 'webView.evaluateJavascript(' "$ROOT/scripts/patch-kcapk.py"
+grep -q 'window.registroHabitosBack' "$ROOT/scripts/patch-kcapk.py"
+grep -q 'public void exitApp()' "$ROOT/native/AppNavigationBridge.java.in"
+grep -q '"/app.html".equals(uri.getPath())' "$ROOT/native/AppNavigationBridge.java.in"
+if grep -q '<section id="edit"' "$PAGE"; then
+    echo "Edit should be an app dialog, not a separate screen" >&2
+    exit 1
+fi
 # Verify the direct KCAPK entry point uses the same newly generated bundle.
 cmp "$ROOT/web/app.bundle.js" "$ROOT/build/web/app.bundle.js"
 if grep -q 'id="reminder-new"' "$PAGE"; then
@@ -129,6 +145,37 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
+// Hardware Back: modal first, home second, exit confirmation only at home.
+const backSource=source.slice(source.indexOf("// Android back is always consumed here:"),
+ source.indexOf('document.querySelectorAll("[data-page]")'));
+if(!backSource.includes("function handleDeviceBack()"))throw Error("Missing Back handler");
+let activePage="history",activeDialogs=[],lastConfirm=null,closeEntryCalls=0;
+const systemDialog={open:false,dispatchEvent(){this.open=false;}};
+const fakeDoc={
+ querySelector(sel){if(sel===".screen.active")return {id:activePage};throw Error("Unknown selector "+sel)},
+ querySelectorAll(sel){if(sel==="dialog[open]")return activeDialogs.filter(d=>d.open);throw Error("Unknown selector "+sel)}
+};
+const windowFake={AppNavigation:{exitApp(){throw Error("Exit must require confirmation")}}};
+const back=new Function("$","document","window","show","showAppDialog","closeEntryDialog","Event",
+ backSource+";return handleDeviceBack")(
+ id=>id==="app-action-dialog"?systemDialog:null,fakeDoc,windowFake,
+ page=>{activePage=page},
+ options=>{lastConfirm=options;return new Promise(()=>{})},
+ ()=>{closeEntryCalls++},Event
+);
+if(back()!==true||activePage!=="capture"||lastConfirm!==null)
+ throw Error("Back from secondary screen must go home");
+const editDialog={id:"edit-dialog",open:true,close(){this.open=false}};
+activeDialogs=[editDialog];
+if(!back()||editDialog.open||lastConfirm!==null)throw Error("Back must close edit modal first");
+const entryDialog={id:"entry-dialog",open:true};
+activeDialogs=[entryDialog];
+if(!back()||closeEntryCalls!==1)throw Error("Back must cancel new-entry modal");
+activeDialogs=[];
+if(!back()||lastConfirm?.title!=="Salir de la app"||lastConfirm?.ok!=="Salir")
+ throw Error("Back at home must show a themed exit confirmation");
+systemDialog.open=true;
+if(!back()||systemDialog.open)throw Error("Back must cancel exit confirmation");
 // Profiles must survive local storage, allow renaming, archiving and imports.
 const categorySource=fs.readFileSync(root+"/web/categories.js","utf8")
   .replace(/^export const /gm,"const ");
