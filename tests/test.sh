@@ -30,6 +30,14 @@ if grep -q 'id="category-add"\|class="category-page-actions"' "$PAGE"; then
     exit 1
 fi
 grep -q 'id="top-action"' "$PAGE"
+grep -q 'id="i-gear"' "$PAGE"
+grep -q 'id="i-plus"' "$PAGE"
+grep -q 'id="i-more-vertical"' "$PAGE"
+grep -Fq 'const headerIcon={capture:"i-gear",history:"i-more-vertical",reminders:"i-plus",categories:"i-plus"}[page]' "$PAGE"
+if grep -Fq '$("top-action").textContent=' "$PAGE"; then
+    echo 'Top action must retain SVG icons, not Unicode glyphs' >&2
+    exit 1
+fi
 grep -Fq 'page==="categories"?"Crear categoría"' "$PAGE"
 grep -Fq 'if(page==="categories")openCategoryEditor()' "$PAGE"
 

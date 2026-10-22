@@ -17,7 +17,21 @@ function show(page){
     ["capture","history","categories","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
     const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
-    $("top-action").textContent=page==="capture"?"⚙":page==="history"?"⋮":["reminders","categories"].includes(page)?"＋":"";
+    // Always render the same bundled SVG icons. Assigning textContent here
+    // replaces the initial settings SVG with a font-dependent Unicode gear.
+    const headerIcon={capture:"i-gear",history:"i-more-vertical",reminders:"i-plus",categories:"i-plus"}[page];
+    const topAction=$("top-action");
+    topAction.classList.toggle("hidden",!headerIcon);
+    const svgNamespace="http://www.w3.org/2000/svg";
+    if(headerIcon){
+        const svg=document.createElementNS(svgNamespace,"svg");
+        svg.setAttribute("class","icon");
+        svg.setAttribute("viewBox","0 0 24 24");
+        const use=document.createElementNS(svgNamespace,"use");
+        use.setAttribute("href","#"+headerIcon);
+        svg.append(use);
+        topAction.replaceChildren(svg);
+    }else topAction.replaceChildren();
     $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Más opciones":page==="history"?"Opciones del historial":"Opciones");
     document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
