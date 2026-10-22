@@ -29,7 +29,7 @@ replace_once(main_file,
     '        webView.clearCache(true);')
 replace_once(main_file,
     'private JSBridge bridge;',
-    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;\n    private AppNavigationBridge appNavigation;')
+    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;\n    private AppNavigationBridge appNavigation;\n    private AppDocumentBridge appDocuments;')
 replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
@@ -38,6 +38,7 @@ replace_once(main_file,
 replace_once(main_file,
     '        if (bridge != null) {\n'
     '            bridge.onActivityResult(requestCode, resultCode, data);',
+    '        if (appDocuments != null && appDocuments.onActivityResult(requestCode, resultCode, data)) return;\n'
     '        if (appChromeClient != null && appChromeClient.onActivityResult(requestCode, resultCode, data)) return;\n'
     '        if (bridge != null) {\n'
     '            bridge.onActivityResult(requestCode, resultCode, data);')
@@ -53,7 +54,9 @@ replace_once(main_file,
     'webView.addJavascriptInterface(bridge, JS_INTERFACE_NAME);',
     'webView.addJavascriptInterface(bridge, JS_INTERFACE_NAME);\n'
     '        appNavigation = new AppNavigationBridge(this, webView);\n'
-    '        webView.addJavascriptInterface(appNavigation, "AppNavigation");')
+    '        webView.addJavascriptInterface(appNavigation, "AppNavigation");\n'
+    '        appDocuments = new AppDocumentBridge(this, webView);\n'
+    '        webView.addJavascriptInterface(appDocuments, "AppDocuments");')
 replace_once(main_file,
     'if (webView.canGoBack()) { webView.goBack(); } else { super.onBackPressed(); }',
     '''if (webView == null) { super.onBackPressed(); return; }
