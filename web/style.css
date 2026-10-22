@@ -118,3 +118,6 @@
 .edit-modal-title h2{font-size:20px;margin:0}
 .edit-modal-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
 .edit-modal-actions>button{width:100%;min-height:52px;height:52px;margin:0;display:grid;place-items:center}
+
+.category-item .category-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;text-align:left;background:transparent;border-radius:8px}
+.category-item .category-open:focus-visible{outline:2px solid var(--accent)}

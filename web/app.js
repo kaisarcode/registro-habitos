@@ -277,11 +277,13 @@ function drawCategories(){
   const main=el("span","item-main");
   main.append(el("strong","",cat));
   main.append(el("small","category-detail",p.keywords.slice(0,4).join(" · ")||"Sin palabras clave"));
-  const edit=el("button","category-edit","Editar");
-  edit.type="button";edit.setAttribute("aria-label","Editar "+cat);edit.onclick=()=>openCategoryEditor(cat);
+  const open=el("button","category-open");
+  open.type="button";open.setAttribute("aria-label","Editar categoría: "+cat);
+  open.append(iconFor(cat),main);
+  open.onclick=()=>openCategoryEditor(cat);
   const remove=el("button","category-remove","×");
   remove.type="button";remove.setAttribute("aria-label","Eliminar "+cat);remove.onclick=()=>deleteCategory(cat,count);
-  row.append(iconFor(cat),main,el("span","category-count",String(count)),edit,remove);
+  row.append(open,el("span","category-count",String(count)),remove);
   root.append(row);
  }
  if(!root.children.length)root.append(el("p","muted","No hay categorías. Agregá una con +."));
