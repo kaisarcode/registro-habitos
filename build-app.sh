@@ -44,7 +44,16 @@ if [ ! -f "$KCAPK_DIR/build.sh" ]; then
     printf '%s\n' "KCAPK not found: $KCAPK_DIR/build.sh (set KCAPK_DIR)" >&2
     exit 1
 fi
-cd "$KCAPK_DIR"
+# Stage only KCAPK's build sources and apply app-specific integration.
+# The KCAPK repository itself is never changed.
+KCAPK_STAGE="$ROOT/build/kcapk-voice"
+mkdir -p "$KCAPK_STAGE"
+rm -rf "$KCAPK_STAGE/src"
+cp -R "$KCAPK_DIR/src" "$KCAPK_STAGE/src"
+cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
+cp "$ROOT/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
+python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
+cd "$KCAPK_STAGE"
 exec sh ./build.sh \
     --display-name "Registro Hábitos" \
     --project-name registro-habitos \
@@ -62,4 +71,5 @@ exec sh ./build.sh \
     --api clipboard \
     --permission notifications \
     --permission microphone \
+    --trusted-origin https://appassets.androidplatform.net \
     "$@"
