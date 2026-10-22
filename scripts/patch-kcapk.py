@@ -28,9 +28,25 @@ replace_once(main_file,
     '        webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);\n'
     '        webView.clearCache(true);')
 replace_once(main_file,
+    'private JSBridge bridge;',
+    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;')
+replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
-    '        webView.setWebChromeClient(new AppWebChromeClient(this));')
+    '        appChromeClient = new AppWebChromeClient(this);\n'
+    '        webView.setWebChromeClient(appChromeClient);')
+replace_once(main_file,
+    '        if (bridge != null) {\n'
+    '            bridge.onActivityResult(requestCode, resultCode, data);',
+    '        if (appChromeClient != null && appChromeClient.onActivityResult(requestCode, resultCode, data)) return;\n'
+    '        if (bridge != null) {\n'
+    '            bridge.onActivityResult(requestCode, resultCode, data);')
+replace_once(main_file,
+    '        if (webView != null) {\n'
+    '            webView.removeJavascriptInterface(JS_INTERFACE_NAME);',
+    '        if (appChromeClient != null) appChromeClient.cancelFileChooser();\n'
+    '        if (webView != null) {\n'
+    '            webView.removeJavascriptInterface(JS_INTERFACE_NAME);')
 replace_once(client_file,
     'import android.webkit.WebViewClient;',
     'import android.webkit.WebViewClient;\n'
