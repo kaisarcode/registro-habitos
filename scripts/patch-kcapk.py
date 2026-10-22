@@ -86,3 +86,47 @@ intercept = '''
 replace_once(client_file,
     '    private boolean openExternally(String url) {',
     intercept + '    private boolean openExternally(String url) {')
+
+# KCAPK's stock alarm restoration removes alarms whose old timestamp has
+# passed while the device was off. Repeating reminders must instead advance
+# to the next future local occurrence and persist the new timestamp. Also
+# promote restored alarms to exact delivery when the special access is granted.
+alarm_file = templates / "AlarmBridge.java.in"
+replace_once(alarm_file,
+    "import java.util.Map;",
+    "import java.util.Map;\nimport java.util.Calendar;")
+replace_once(alarm_file,
+    '''                if (at < now) {
+                    preferences.edit().remove(entry.getKey()).apply();
+                    continue;
+                }
+                schedule(context, options, false);''',
+    '''                if (at < now) {
+                    JSONObject recurrence = options.optJSONObject("recurrence");
+                    String mode = recurrence == null ? "" : recurrence.optString("mode", "");
+                    if (!"daily".equals(mode) && !"weekdays".equals(mode)) {
+                        preferences.edit().remove(entry.getKey()).apply();
+                        continue;
+                    }
+                    int hour = recurrence.optInt("hour", -1);
+                    int minute = recurrence.optInt("minute", -1);
+                    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                        preferences.edit().remove(entry.getKey()).apply();
+                        continue;
+                    }
+                    Calendar next = Calendar.getInstance();
+                    next.set(Calendar.HOUR_OF_DAY, hour);
+                    next.set(Calendar.MINUTE, minute);
+                    next.set(Calendar.SECOND, 0);
+                    next.set(Calendar.MILLISECOND, 0);
+                    while (next.getTimeInMillis() <= now ||
+                        ("weekdays".equals(mode) &&
+                         (next.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
+                          next.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY))) {
+                        next.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+                    options.put("at", next.getTimeInMillis());
+                }
+                options.put("exact", canScheduleExact(context));
+                options.put("allowWhileIdle", true);
+                schedule(context, options, true);''')
