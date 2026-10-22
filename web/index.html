@@ -1,11 +1,27 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1419"><title>Registro Hábitos</title><link rel="stylesheet" href="./style.css"></head>
-<body><div class="app">
-<header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Nuevo registro</h1><button id="top-action" class="icon-button" aria-label="Opciones">⚙</button></header>
+<body><svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true" width="0" height="0"><defs>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C9 4 4 9 4 16c0 3 2 4 4 4 7 0 12-5 12-16Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c2-4 6-7 11-10" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 6h2M3 12h2M3 18h2" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10ZM10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><path d="M10 2h4l1 3 3 1 3-1 2 4-2 2v3l2 2-2 4-3-1-3 1-1 3h-4l-1-3-3-1-3 1-2-4 2-2v-3L1 9l2-4 3 1 3-1z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-walk" viewBox="0 0 24 24"><circle cx="12" cy="3.5" r="2" fill="currentColor"/><path d="m11 7 4 4m-4-4-3 5-4 3m7-8 2 7-3 7m3-7 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+<symbol id="i-food" viewBox="0 0 24 24"><path d="M4 3v8m3-8v8M2 4v5q0 3 4 3v9M16 21V3q5 2 5 9v1h-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-water" viewBox="0 0 24 24"><path d="M12 2C9 7 4 12 4 16a8 8 0 0 0 16 0c0-4-5-9-8-14Z" fill="currentColor"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M20 5c-3-3-7-1-8 1C11 4 7 2 4 5c-4 4 0 9 8 16 8-7 12-12 8-16Z" fill="currentColor"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 14A9 9 0 0 1 10 3a9 9 0 1 0 11 11Z" fill="currentColor"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5Q7 2 2 4v15q5-2 10 1 5-3 10-1V4q-5-2-10 1Z" stroke="currentColor" fill="none" stroke-width="1.8"/><path d="M12 5v15" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h12a4 4 0 0 0 0-8h-1a7 7 0 0 0-13-2 5 5 0 0 0 2 10Z" fill="currentColor"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 7V4h8v3M3 13h18" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 22c0-5 3-8 8-8s8 3 8 8" fill="currentColor"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v4m-4 0h8" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v13M7 8l5-5 5 5M4 14v7h16v-7" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+</defs></svg><div class="app">
+<header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Nuevo registro</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-gear"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
  <textarea id="capture-text" placeholder="¿Qué hiciste o cómo te sentís?" aria-label="Descripción del registro"></textarea>
- <div class="quick-row"><button id="mic" class="mic-button" aria-label="Dictar">♩</button><button id="today" class="chip">☼ Hoy</button><button id="now" class="chip">◷ Ahora</button><button id="notes" class="chip">▤ Nota</button></div>
+ <div class="quick-row"><button id="mic" class="mic-button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><button id="today" class="chip">☼ Hoy</button><button id="now" class="chip">◷ Ahora</button><button id="notes" class="chip">▤ Nota</button></div>
  <p class="section-label">Sugerencias</p><div id="suggestions" class="suggestions"></div>
  <p id="capture-status" class="muted" role="status"></p><button id="capture-save" class="main-button">Registrar</button>
 </section>
@@ -20,5 +36,5 @@
 <section id="data" class="screen"><article class="panel"><h2>Exportar datos</h2><p>Guardá todos tus registros en un archivo para respaldo o análisis externo.</p><button id="export-json" class="utility-button">↧ &nbsp; Exportar JSON</button><button id="export-csv" class="utility-button">▦ &nbsp; Exportar CSV</button></article><article class="panel"><h2>Importar datos</h2><p>Restaurá registros desde un archivo anterior. No sobrescribe tus datos.</p><button id="import-json" class="utility-button accent">⇧ &nbsp; Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></article><article class="panel"><h2>Información</h2><p>JSON: respaldo completo con todos los datos originales.<br>CSV: tabla simple para análisis en otras herramientas.</p></article></section>
 <section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="data">Importar / Exportar <span>›</span></button><article class="panel"><h2>Preferencias sensoriales</h2><label><input id="reduced-motion" type="checkbox" checked> Sin animaciones</label><p>Modo oscuro predeterminado. Sin avisos anticipados.</p></article></section>
 </main>
-<nav class="tabs"><button data-page="capture" class="active"><span>♧</span>Registro</button><button data-page="history"><span>▤</span>Historial</button><button data-page="reminders"><span>♧</span>Recordatorios</button><button data-page="more"><span>•••</span>Más</button></nav>
+<nav class="tabs"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="more"><span>•••</span>Más</button></nav>
 </div><script defer src="./app.bundle.js"></script></body></html>
