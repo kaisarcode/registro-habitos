@@ -2,7 +2,16 @@
 # Smoke-test the exact local HTML that KCAPK will package.
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+# Rebuild must discard stale generated resources, not package old leftovers.
+mkdir -p "$ROOT/build/web"
+printf 'stale\n' > "$ROOT/build/web/stale-asset-check.txt"
 "$ROOT/build.sh" --prepare-only
+if [ -e "$ROOT/build/web/stale-asset-check.txt" ]; then
+    echo 'Previous build/web assets leaked into this build' >&2
+    exit 1
+fi
+grep -Fq 'VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4' "$ROOT/build.sh"
+grep -Fq -- '--version-code "$VERSION_CODE"' "$ROOT/build.sh"
 PAGE="$ROOT/build/web/app.html"
 MIGRATOR="$ROOT/build/web/index.html"
 test -s "$MIGRATOR"

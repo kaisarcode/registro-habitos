@@ -112,3 +112,8 @@ Licencia de terceros: `web/third-party/LUCIDE_LICENSE.txt`.
 ## Navegación Android y edición de listas
 
 El botón físico Volver se maneja desde el WebView a través de `registroHabitosBack`. Cierra primero cualquier diálogo abierto (incluidos los de edición y confirmación); desde cualquier pantalla secundaria regresa a **Mi día**. Desde Mi día muestra un diálogo propio de confirmación para salir; la salida confirmada utiliza un puente Android limitado a la página local. Las entradas del Historial y los recordatorios se editan tocando su fila, con un diálogo oscuro; el interruptor de cada recordatorio conserva su acción independiente.
+
+
+## Diagnóstico de instalación de APK
+
+El APK no descarga dependencias ni recursos de CDN. El script elimina los archivos generados de `build/web/` antes de empaquetar, comprueba la integridad ZIP del APK y muestra el tamaño final. Cada commit posterior al 45101558 incrementa automáticamente el `versionCode`, de modo que una actualización nueva no tenga el mismo identificador de versión que la anterior. `kcapk` firma con `~/.android/debug.keystore`: si se cambia de computadora, cuenta o keystore, Android puede rechazar la actualización sobre la instalación anterior por incompatibilidad de firma. **No desinstales la app sin exportar primero el respaldo JSON**, ya que los datos están guardados localmente. Si el instalador permanece en «Instalando», un log de PackageInstaller o una prueba con `adb install -r` permite obtener la causa concreta; el código web por sí solo no puede determinarla.

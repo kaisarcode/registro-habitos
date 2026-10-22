@@ -10,6 +10,9 @@ if [ "${1:-}" = "--prepare-only" ]; then
 fi
 
 WEB_OUT="$ROOT/build/web"
+# Never carry stale assets from an earlier build into the new APK.
+# build/web is generated output, not a source directory.
+rm -rf "$WEB_OUT"
 mkdir -p "$WEB_OUT"
 cp -R "$ROOT/web/." "$WEB_OUT/"
 # The KCAPK integration test uses classic, inline JavaScript in a local HTML
@@ -39,8 +42,18 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
     { print }
     END { if (!found) exit 1 }
 ' "$ROOT/web/index.html" > "$WEB_OUT/app.html"
-# Embed a reproducible source revision in the packaged UI. It appears in Más.
+# Embed the commit ID and use a monotonically increasing Android versionCode.
+# Reusing the same versionCode across many APK updates makes device diagnosis
+# difficult and can result in stale copies being installed. The version code is
+# independent of timestamps and increases with commits on slave.
 APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
+VERSION_CODE=20261027
+VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4
+if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then
+    VERSION_INCREMENT=$(git -C "$ROOT" rev-list --count "$VERSION_BASE_COMMIT..HEAD")
+    VERSION_CODE=$((20261026 + VERSION_INCREMENT))
+fi
+printf 'APK versionCode: %s (source %s)\n' "$VERSION_CODE" "$APP_BUILD"
 sed "s/@APP_BUILD@/$APP_BUILD/g" "$WEB_OUT/app.html" > "$WEB_OUT/app.versioned.html"
 mv "$WEB_OUT/app.versioned.html" "$WEB_OUT/app.html"
 printf 'Bundled app revision: %s\n' "$APP_BUILD"
@@ -79,8 +92,8 @@ sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
-    --version-code 20261026 \
-    --version-name "0.2.6" \
+    --version-code "$VERSION_CODE" \
+    --version-name "0.2.7" \
     --icon "$ROOT/assets/icon.svg" \
     --icon-background '#102a30' \
     --api alarms \
@@ -101,5 +114,18 @@ if [ ! -s "$APK_BUILT" ]; then
     printf 'Error: KCAPK did not produce %s\n' "$APK_BUILT" >&2
     exit 1
 fi
+# Check that the actual output is a complete APK, rather than copying a
+# partial or stale artifact with a .apk extension.
+if ! unzip -tq "$APK_BUILT" >/dev/null; then
+    printf 'Error: APK ZIP integrity check failed: %s\n' "$APK_BUILT" >&2
+    exit 1
+fi
+if ! unzip -Z1 "$APK_BUILT" | grep -qx 'AndroidManifest.xml' ||
+   ! unzip -Z1 "$APK_BUILT" | grep -qx 'classes.dex'; then
+    printf 'Error: APK is missing its manifest or classes.dex\n' >&2
+    exit 1
+fi
 cp "$APK_BUILT" "$APK_OUTPUT"
 printf 'APK: %s\n' "$APK_OUTPUT"
+wc -c < "$APK_OUTPUT" | awk '{printf "APK size: %s bytes\n", $1}'
+printf '%s\n' 'Signing: KCAPK uses ~/.android/debug.keystore; keep the same keystore for updates.'
