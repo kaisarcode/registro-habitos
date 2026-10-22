@@ -9,8 +9,14 @@
 
 /* Reminder editing is distinct from deleting. The topbar owns the page title. */
 .reminder-edit{color:#a6dace;font-size:22px;min-width:38px;min-height:38px}
-#reminder-dialog .dialog-actions{align-items:center;flex-wrap:wrap}
-#reminder-delete{margin:0 auto 0 0;padding:10px 4px}
+/* Fixed two-column footer; deletion is a distinct, low-emphasis action below. */
+#reminder-dialog .reminder-dialog-footer{display:flex;flex-direction:column;gap:12px;margin-top:18px;width:100%;clear:both}
+#reminder-dialog .reminder-dialog-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:12px;width:100%;margin:0;padding:0}
+#reminder-dialog .reminder-dialog-actions>button{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-width:0;width:100%;height:52px;min-height:52px;margin:0;padding:0 10px;border-radius:25px;line-height:1.2;white-space:nowrap}
+#reminder-dialog #reminder-cancel{background:#2b3942;color:#e2edf0;font-weight:500}
+#reminder-dialog #reminder-confirm{background:var(--accent);color:#072823;font-weight:750}
+#reminder-dialog #reminder-delete{box-sizing:border-box;display:block;align-self:flex-start;width:auto;height:auto;min-height:0;margin:0;padding:9px 12px;border-radius:10px;background:transparent;color:#e8a6a6;font-size:14px}
+#reminder-dialog #reminder-delete.hidden{display:none}
 
 /* Home: fixed-category, one-tap capture with a quiet edit shortcut. */
 .dashboard-heading h2,.today-heading h2{margin:0;font-size:16px;font-weight:650}

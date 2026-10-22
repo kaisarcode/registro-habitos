@@ -775,6 +775,10 @@ $("reminder-add-time").onclick=()=>{
  const input=addReminderTimeRow("");
  input.focus();
 };
+$("reminder-cancel").onclick=()=>{
+ $("reminder-dialog").close();
+ editingReminderId=null;
+};
 $("reminder-confirm").onclick=async e=>{
  e.preventDefault();
  const title=$("reminder-name").value.trim(),repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;

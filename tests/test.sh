@@ -114,6 +114,18 @@ grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/web/style.cs
 grep -Fq '#edit-dialog .edit-modal-actions>button' "$ROOT/web/style.css"
 
 grep -q 'id="reminder-confirm"' "$PAGE"
+grep -q 'class="reminder-dialog-footer"' "$PAGE"
+grep -q 'class="reminder-dialog-actions"' "$PAGE"
+grep -q 'id="reminder-cancel" type="button" class="secondary">Cancelar' "$PAGE"
+grep -q 'id="reminder-confirm" type="button" class="main-button">Guardar' "$PAGE"
+grep -q 'id="reminder-delete" type="button" class="reminder-delete-action hidden"' "$PAGE"
+grep -Fq '$("reminder-confirm").textContent="Guardar";' "$PAGE"
+grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/web/style.css"
+grep -Fq '#reminder-dialog .reminder-dialog-actions>button' "$ROOT/web/style.css"
+if grep -q 'id="reminder-confirm"[^>]*>Guardar cambios' "$PAGE"; then
+    echo 'Reminder save button must be labeled Guardar' >&2
+    exit 1
+fi
 grep -q 'id="app-action-dialog"' "$PAGE"
 grep -q 'id="test-notification"' "$PAGE"
 grep -q 'id="test-closed-notification"' "$PAGE"
