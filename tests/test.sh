@@ -52,6 +52,12 @@ grep -q 'id="edit-save"' "$PAGE"
 grep -q 'id="reminder-confirm"' "$PAGE"
 grep -q 'id="app-action-dialog"' "$PAGE"
 grep -q 'id="test-notification"' "$PAGE"
+grep -q 'id="test-closed-notification"' "$PAGE"
+grep -q 'async testClosed(title,sound)' "$PAGE"
+grep -q -- '--permission exactAlarm' "$ROOT/build.sh"
+grep -q 'AlarmBridge.schedule(context, options, true)' "$ROOT/native/AlarmReceiver.java.in"
+grep -q 'JSONObject recurrence = scheduled.optJSONObject("recurrence")' "$ROOT/native/AlarmReceiver.java.in"
+grep -q 'alarm_file = templates / "AlarmBridge.java.in"' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'id="reminder-dialog-status"' "$PAGE"
 grep -q 'function showAppDialog({' "$PAGE"
 if grep -Eq '(^|[^[:alnum:]_])(alert|confirm|prompt)[[:space:]]*\\(' "$ROOT/web/app.js"; then
@@ -151,10 +157,20 @@ if(!channel||channel.importance!=="default"||!channel.sound.endsWith("/registro_
 if(!first||first.allowWhileIdle!==true||first.action.channel!==channel.id||
  first.action.sound!==channel.sound||first.action.type!=="notification")
  throw Error("Background alarm does not deliver an audible native notification");
+if(alarms.length!==1||first.recurrence?.mode!=="daily"||
+ first.recurrence.hour!==12||first.recurrence.minute!==0)
+ throw Error("Only the next event should be scheduled, with native recurrence metadata");
+if(alarms[0].exact!==false)throw Error("Inexact fallback should be used without exact permission");
 if(channel.id==="registro-soft")throw Error("Reused permanently silent Android channel");
 store.schedule({id:"550100",base:550100,title:"Descanso",time:"16:00",repeat:"once",sound:"none",enabled:true});
 if(channels.at(-1).sound!=="none"||channels.at(-1).importance!=="low")
  throw Error("Explicitly silent reminders must remain silent");
+const once=alarms[1];
+if(!once||once.recurrence!==null)throw Error("A once-only reminder must not repeat");
+if(!remindersSource.includes('permissions.request("exactAlarm")'))
+ throw Error("Exact alarm permission is never requested");
+if(!remindersSource.includes('async testClosed(title,sound)'))
+ throw Error("No closed-app alarm test is available");
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[
