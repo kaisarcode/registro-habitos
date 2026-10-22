@@ -64,7 +64,7 @@ cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
 cp "$ROOT/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
 python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
 cd "$KCAPK_STAGE"
-exec sh ./build.sh \
+sh ./build.sh \
     --display-name "Registro Hábitos" \
     --project-name registro-habitos \
     --package-name com.kaisarcode.registrohabitos \
@@ -85,3 +85,12 @@ exec sh ./build.sh \
     --permission microphone \
     --trusted-origin https://appassets.androidplatform.net \
     "$@"
+
+APK_BUILT="$ROOT/build/android/bin/registro-habitos.apk"
+APK_OUTPUT="$ROOT/registro-habitos.apk"
+if [ ! -s "$APK_BUILT" ]; then
+    printf 'Error: KCAPK did not produce %s\n' "$APK_BUILT" >&2
+    exit 1
+fi
+cp "$APK_BUILT" "$APK_OUTPUT"
+printf 'APK: %s\n' "$APK_OUTPUT"

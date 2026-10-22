@@ -2,7 +2,7 @@
 # Smoke-test the exact local HTML that KCAPK will package.
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-"$ROOT/build-app.sh" --prepare-only
+"$ROOT/build.sh" --prepare-only
 PAGE="$ROOT/build/web/app.html"
 MIGRATOR="$ROOT/build/web/index.html"
 test -s "$MIGRATOR"

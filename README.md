@@ -4,17 +4,19 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Abrir `web/index.html` en un navegador moderno. `build-app.sh` genera `build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
+Abrir `web/index.html` en un navegador moderno. `build.sh` genera `build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
 ## Comprobación rápida\n\n```sh\nsh ./tests/test.sh\n```\n\nEsto genera la misma página HTML local que se empaquetará y comprueba sus controles y JavaScript (también su sintaxis cuando Node está instalado). No sustituye una prueba manual del APK en Android.\n\n## Construir con KCAPK externo
 
 ```sh
-KCAPK_DIR=../kcapk ./build-app.sh
+KCAPK_DIR=../kcapk ./build.sh
 ```
 
-`build-app.sh` usa la instalación externa de KCAPK. Copia temporalmente sus templates a `build/kcapk-voice/` y aplica allí un parche específico para el micrófono y los recursos locales; **no modifica el repositorio de KCAPK**. KCAPK debe estar instalado con su cadena de compilación Android. `python3` es necesario solamente al compilar para aplicar ese parche.
+`build.sh` usa la instalación externa de KCAPK. Copia temporalmente sus templates a `build/kcapk-voice/` y aplica allí un parche específico para el micrófono y los recursos locales; **no modifica el repositorio de KCAPK**. KCAPK debe estar instalado con su cadena de compilación Android. `python3` es necesario solamente al compilar para aplicar ese parche.
+
+La compilación deja el resultado en **`registro-habitos.apk`**, directamente en la raíz del proyecto. Los archivos intermedios quedan en `build/`. El APK generado no se versiona en Git.
 
 ## Voz del navegador y migración de datos
 
@@ -30,7 +32,7 @@ Este cambio corrige la configuración de permisos y origen del WebView. La dispo
 - `web/storage.js`: contrato de almacenamiento (actualmente IndexedDB; reemplazable por SQLite).
 - `web/classifier.js`: sugerencias reproducibles a partir del historial, con prioridad a correcciones manuales; no modifica datos silenciosamente.
 - `web/index.html` y `web/style.css`: vista oscura mobile-first.
-- `build-app.sh`: integración con el builder externo de KCAPK.
+- `build.sh`: integración con el builder externo de KCAPK.
 
 Cada registro preserva fecha del evento, fecha de creación, texto original, categoría opcional, energía y bienestar opcionales (0–10). Los datos no se sincronizan. La exportación sólo ocurre a pedido.
 
@@ -52,7 +54,7 @@ El botón **Exportar JSON** produce un respaldo con `version`, `exportedAt` y `e
 
 ## Interfaz, recursos y modo sin conexión
 
-Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build-app.sh` configura `assets/icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo. Al importar, las alarmas se vuelven a programar sólo con confirmación explícita. Las alarmas nativas necesitan permisos de notificación y se programan con una ventana de 28 días, que se extiende al volver a abrir la aplicación. Si no se abre durante más de ese período, los recordatorios diarios pueden dejar de emitirse.
+Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build.sh` configura `assets/icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo. Al importar, las alarmas se vuelven a programar sólo con confirmación explícita. Las alarmas nativas necesitan permisos de notificación y se programan con una ventana de 28 días, que se extiende al volver a abrir la aplicación. Si no se abre durante más de ese período, los recordatorios diarios pueden dejar de emitirse.
 
 ## Límites de integración Android
 
@@ -69,4 +71,4 @@ La información puede contener datos sensibles: se mantiene local, sin telemetr�
 
 La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador actualiza `web/app.bundle.js` para que compilaciones directas de `web/index.html` no usen un script viejo y empaqueta el HTML inline desde `build/web/app.html`. El overlay de Android usa `LOAD_NO_CACHE`, limpia únicamente la caché de recursos (sin borrar IndexedDB) y devuelve `Cache-Control: no-store` para los assets locales. El APK incrementa `versionCode` a `20261022`.
 
-Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `slave` y con el nuevo `build-app.sh`. No desinstales ni borres datos para resolverlo.
+Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `slave` y con el nuevo `build.sh`. No desinstales ni borres datos para resolverlo.
