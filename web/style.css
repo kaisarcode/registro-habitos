@@ -51,3 +51,10 @@
 #category-search{display:block;width:100%;margin:0 0 15px;padding:13px 16px;border:1px solid #30434a;border-radius:13px;background:#19262e;color:#e7f1ef;font-size:15px}
 #category-search::placeholder{color:#93a6ad}
 .category-no-results{grid-column:1/-1;padding:18px 8px;color:var(--muted);font-size:13px;text-align:center}
+
+/* Time span can extend over midnight or multiple days without extra controls. */
+.duration-editor{margin:12px 0}
+.duration-editor select{margin:8px 0 12px}
+.duration-editor .muted{min-height:1.2em;margin:8px 0 0}
+.duration-editor .hidden,#entry-event-time.hidden,#edit-event-time.hidden{display:none!important}
+.duration-editor input[type=datetime-local]{width:100%;min-width:0}
