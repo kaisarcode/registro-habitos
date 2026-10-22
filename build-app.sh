@@ -51,6 +51,8 @@ exec sh ./build.sh \
     --webview-url "$WEB_OUT/index.html" \
     --output-path "$ROOT/build/android" \
     --background '#151a20' \
+    --icon "$ROOT/assets/icon.svg" \
+    --icon-background '#102a30' \
     --api alarms \
     --api notifications \
     --api permissions \
