@@ -259,4 +259,27 @@ $("import-confirm").onclick=async()=>{
 };
 $("import-file").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{await importBackup(file)}catch(err){alert("No se pudo importar: "+err.message)}finally{e.target.value=""}};
 $("reduced-motion").onchange=e=>{document.documentElement.classList.toggle("reduce-motion",e.target.checked)};
-suggestions();reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));try{reminderStore.refresh()}catch(e){console.warn(e)}
+// A one-time, same-APK migration preserves records from the old file:// origin
+// when switching to the synthetic HTTPS origin required for Web Speech.
+if (window.top !== window && location.search === "?migration=1") {
+ window.addEventListener("message", async event => {
+  if (event.source !== window.parent || event.origin !== "null" || event.data?.type !== "rh-migrate") return;
+  try {
+   const backup = event.data.backup;
+   if (!backup || !Array.isArray(backup.entries)) throw new Error("Respaldo inválido");
+   await storage.importEntries(backup.entries);
+   if (Array.isArray(backup.categories))
+    localStorage.setItem("rh-categories", JSON.stringify(backup.categories));
+   if (Array.isArray(backup.reminders))
+    localStorage.setItem("registro-habitos-reminders", JSON.stringify(backup.reminders));
+   window.parent.postMessage({type:"rh-complete"}, "*");
+  } catch (error) {
+   window.parent.postMessage({type:"rh-error", message:String(error.message||error)}, "*");
+  }
+ });
+ window.parent.postMessage({type:"rh-ready"}, "*");
+} else {
+ suggestions();
+ reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
+ try{reminderStore.refresh()}catch(e){console.warn(e)}
+}
