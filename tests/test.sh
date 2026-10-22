@@ -326,6 +326,7 @@ if(!remindersSource.includes('permissions.request("exactAlarm")'))
 if(!remindersSource.includes('async testClosed(title,sound)'))
  throw Error("No closed-app alarm test is available");
 // Multi-time reminders reserve a distinct Android alarm ID for every hour.
+(async()=>{
 const moreCalls=[],moreMem=new Map();
 const multiStore=new Function("window","localStorage",remindersSource+";return reminderStore")(
  {NativeBridge:{Android:{
@@ -374,6 +375,7 @@ moreCalls.length=0;multiStore.refresh();
 if(multiStore.list()[0].times?.[0]!=="12:00"||
  moreCalls.filter(([op])=>op==="schedule").length!==1)
  throw Error("Legacy single-time reminder was not migrated safely");
+})().catch(error=>{console.error(error);process.exitCode=1;});
 
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
