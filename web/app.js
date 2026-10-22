@@ -231,11 +231,10 @@ function resetEntryOptions(){
  const cats=categoryNames();
  $("entry-category").replaceChildren(new Option("Automática",""),...cats.map(c=>new Option(c,c)));
  $("entry-category").value="";
- for(const name of ["energy","mood"]){
-  $("entry-"+name).value=5;
-  $("entry-"+name+"-enabled").checked=false;
-  $("entry-"+name+"-value").textContent="—";
- }
+ $("entry-energy").value=5;
+ $("entry-energy-enabled").checked=false;
+ renderEnergy("entry");
+ setMood("entry",null);
  $("entry-duration").value="";$("entry-notes").value="";
  populateDurationParts("entry",null);
  $("entry-options").open=false;
@@ -264,8 +263,8 @@ function openEdit(e){
  categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
  populateDurationParts("edit",e.duration);
- $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
- document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
+ $("edit-energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;
+ renderEnergy("edit");setMood("edit",mood);
  $("edit-voice-status").textContent="";
  $("edit-dialog").showModal();
 }
@@ -426,7 +425,7 @@ async function saveCapture(){
    description,...timing,category,
    categorySource:manual?"manual":suggested?.source||null,
    energy:$("entry-energy-enabled").checked?Number($("entry-energy").value):null,
-   mood:$("entry-mood-enabled").checked?Number($("entry-mood").value):null,
+   mood:readMood("entry"),
    notes:$("entry-notes").value.trim()
   }));
   closeEntryDialog();await reload();
@@ -695,14 +694,30 @@ $("undo-quick").onclick=async()=>{
  try{await storage.remove(id);await reload();showCaptureFeedback("Entrada deshecha.");}
  catch(error){showCaptureFeedback("No se pudo deshacer: "+error.message);}
 };
-for(const name of ["energy","mood"]){
- $("entry-"+name).oninput=()=>{
-  $("entry-"+name+"-enabled").checked=true;
-  $("entry-"+name+"-value").textContent=$("entry-"+name).value+"/10";
- };
- $("entry-"+name+"-enabled").onchange=()=>{
-  $("entry-"+name+"-value").textContent=$("entry-"+name+"-enabled").checked?$("entry-"+name).value+"/10":"—";
- };
+function renderEnergy(prefix){
+ const active=$(prefix+"-energy-enabled").checked;
+ $(prefix+"-energy-value").textContent=active?$(prefix+"-energy").value+"/10":"—/10";
+ $(prefix+"-energy").disabled=!active;
+}
+function setMood(prefix,value){
+ const selected=value==null?null:Number(value);
+ $(prefix+"-mood-value").textContent=selected==null?"—":String(selected)+"/10";
+ for(const button of document.querySelectorAll("#"+prefix+"-moods button")){
+  const on=Number(button.dataset.mood)===selected;
+  button.classList.toggle("selected",on);
+  button.setAttribute("aria-pressed",String(on));
+ }
+}
+function readMood(prefix){
+ const selected=document.querySelector("#"+prefix+"-moods button.selected");
+ return selected?Number(selected.dataset.mood):null;
+}
+for(const prefix of ["entry","edit"]){
+ $(prefix+"-energy").oninput=()=>renderEnergy(prefix);
+ $(prefix+"-energy-enabled").onchange=()=>renderEnergy(prefix);
+ for(const button of document.querySelectorAll("#"+prefix+"-moods button")){
+  button.onclick=()=>setMood(prefix,button.classList.contains("selected")?null:Number(button.dataset.mood));
+ }
 }
 $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
 $("category-dialog-close").onclick=()=>$("category-dialog").close();
@@ -722,9 +737,7 @@ for(const prefix of ["entry","edit"]){
   $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromParts(prefix));
  }
 }
-$("edit-energy").oninput=()=>{$("energy-enabled").checked=true;$("energy-number").textContent=$("edit-energy").value};
-$("energy-enabled").onchange=()=>{$("energy-number").textContent=$("energy-enabled").checked?$("edit-energy").value:"—"};
-document.querySelectorAll("#moods button").forEach(b=>b.onclick=()=>{mood=Number(b.dataset.mood);document.querySelectorAll("#moods button").forEach(a=>a.classList.toggle("selected",a===b))});
+
 $("edit-save").onclick=async()=>{
  if(!current)return;
  const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
@@ -739,8 +752,8 @@ $("edit-save").onclick=async()=>{
   await storage.save({
    ...current,...timing,description,
    category:canonicalCategory($("edit-category").value)||null,
-   categorySource:"manual",mood,
-   energy:$("energy-enabled").checked?Number($("edit-energy").value):null,
+   categorySource:"manual",mood:readMood("edit"),
+   energy:$("edit-energy-enabled").checked?Number($("edit-energy").value):null,
    notes:$("edit-notes").value
   });
   $("edit-dialog").close();

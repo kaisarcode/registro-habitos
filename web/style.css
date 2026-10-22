@@ -195,3 +195,26 @@
 .reminder-item .reminder-switch input:disabled + .sensory-switch-track{
  opacity:.55;
 }
+
+/* Identical wellbeing controls in both entry and edit forms. */
+.wellbeing-field{margin:18px 0 20px}
+.wellbeing-field .section-label{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.wellbeing-value{font-size:13px;color:#a9dccc}
+.moods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0}
+.moods button{display:grid;place-items:center;padding:8px 2px;min-width:0;min-height:54px;border:1px solid #3b525d;border-radius:50%;color:#afc9d2;background:transparent}
+.moods button.selected{background:#245348;border:1px solid #55d5b0;border-radius:50%;color:#66e6ba}
+.mood-icon{display:block;width:clamp(27px,7vw,38px);height:clamp(27px,7vw,38px)}
+.wellbeing-energy{border:1px solid #304b54;border-radius:18px;padding:14px 16px;margin:18px 0;background:#192b33}
+.wellbeing-energy-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wellbeing-energy-heading>label:first-child{display:flex;align-items:center;justify-content:space-between;flex:1;min-width:0;gap:8px;margin:0}
+.wellbeing-energy output{color:#67dab5;font-weight:700;white-space:nowrap}
+.wellbeing-energy>input[type=range]{display:block;width:100%;min-width:0;margin:18px 0 5px;accent-color:var(--accent)}
+.wellbeing-energy>input[type=range]:disabled{opacity:.35}
+.wellbeing-energy-toggle{position:relative;display:flex;align-items:center;min-width:50px;min-height:40px;margin:0}
+.wellbeing-energy-toggle input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.wellbeing-energy-toggle input:checked+.sensory-switch-track{background:#55cfaa;border-color:#55cfaa}
+.wellbeing-energy-toggle input:checked+.sensory-switch-track::after{left:23px;background:#102b29}
+.wellbeing-energy-toggle input:focus-visible+.sensory-switch-track{outline:2px solid #a6e9ce;outline-offset:3px}
+#edit-dialog .edit-delete-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:flex-start;border:1px solid #694047;background:#2b242a;color:#efafb1;padding:10px 14px;border-radius:12px}
+#edit-dialog .edit-delete-action .icon{width:17px;height:17px}
+#edit-dialog .modal-voice{margin:10px 0}
