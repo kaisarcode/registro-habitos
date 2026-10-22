@@ -83,4 +83,8 @@ La vista **Mi día** presenta las categorías como botones permanentes. Tocar un
 
 ## Duración opcional: minutos o inicio/fin
 
-Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, sin selector de modo. Completar `4` horas y `0` minutos actualiza automáticamente un campo interno **oculto** con el total de `240` minutos, sin mostrar un tercer campo ni requerir edición manual. Opcionalmente, **Calcular con inicio y fin** despliega los dos selectores de fecha y hora; el intervalo calcula automáticamente el total oculto y conserva `startedAt` y `endedAt`. Se admiten intervalos que atraviesan medianoche y se rechaza un fin anterior al inicio. `duration` continúa almacenando minutos para el análisis; los intervalos se exportan también en JSON y CSV. Los registros existentes no requieren migración.
+Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, sin selector de modo. Completar `4` horas y `0` minutos actualiza automáticamente un campo interno **oculto** con el total de `240` minutos, sin mostrar un tercer campo ni requerir edición manual. No se muestran los controles de inicio y fin. `duration` sigue almacenando minutos; los registros históricos con `startedAt` y `endedAt` mantienen esos datos para las exportaciones JSON y CSV.
+
+## Botones del formulario
+
+Los botones Cerrar y Guardar comparten dos columnas iguales y altura de 52 px. El margen superior antiguo de Guardar se eliminó.

@@ -21,19 +21,20 @@ for prefix in entry edit; do
     grep -q "id=\"$prefix-hours\"" "$PAGE"
     grep -q "id=\"$prefix-minutes\"" "$PAGE"
     grep -q "id=\"$prefix-duration\" type=\"hidden\"" "$PAGE"
-    grep -q "id=\"$prefix-start\"" "$PAGE"
-    grep -q "id=\"$prefix-end\"" "$PAGE"
 done
-if grep -q 'id="entry-duration-mode"\|id="edit-duration-mode"' "$PAGE"; then
-    echo 'Unexpected duration mode selector' >&2
+if grep -q 'Calcular con inicio y fin' "$PAGE"; then
+    echo 'Old interval fields remain' >&2
     exit 1
 fi
 grep -q 'function updateDurationFromParts(prefix)' "$PAGE"
-grep -q 'function updateDurationFromInterval(prefix)' "$PAGE"
 grep -q 'id="add-entry"' "$PAGE"
 grep -q 'id="undo-quick"' "$PAGE"
 grep -q 'id="dismiss-feedback"' "$PAGE"
 grep -q 'class="entry-modal-actions"' "$PAGE"
+if grep -q '#capture-save{display:block;width:100%;margin-top:46px' "$ROOT/web/style.css"; then
+ echo 'Old button margin breaks alignment' >&2
+ exit 1
+fi
 grep -q 'id="entry-cancel" class="secondary">Cerrar' "$PAGE"
 grep -q '\$("dismiss-feedback").onclick=()=>showCaptureFeedback("")' "$PAGE"
 grep -q 'function openEntryDialog(category=null)' "$PAGE"
@@ -98,47 +99,31 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
-// Hours/minutes and optional start/end populate a hidden total.
-// Start/end (optional details) calculate both and preserve original times.
+// Check only the visible hours/minutes and the hidden total.
 const durationSource=source.slice(source.indexOf("function durationLabel("),source.indexOf("function createEntry(details)"));
 const controls=new Map();
 for(const prefix of ["entry","edit"]){
- for(const part of ["hours","minutes","duration","start","end","interval-details","duration-preview"]){
-  controls.set(prefix+"-"+part,{value:"",textContent:"",open:false});
- }
+ for(const part of ["hours","minutes","duration"])controls.set(prefix+"-"+part,{value:""});
 }
 controls.set("entry-when",{value:"2026-10-22T12:00"});
-controls.set("edit-date",{value:"2026-10-22"});
-controls.set("edit-time",{value:"12:00"});
+controls.set("edit-date",{value:"2026-10-22"});controls.set("edit-time",{value:"12:00"});
 const get=id=>controls.get(id);
-const toLocal=date=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
-const duration=new Function("$","localTime",durationSource+";return {durationDetails,updateDurationFromParts,updateDurationFromInterval,populateDurationParts}")(get,toLocal);
-get("entry-hours").value="4";
-get("entry-minutes").value="0";
+const duration=new Function("$",durationSource+";return {durationDetails,updateDurationFromParts,populateDurationParts}")(get);
+get("entry-hours").value="4";get("entry-minutes").value="0";
 duration.updateDurationFromParts("entry");
-if(get("entry-duration").value!=="240")throw Error("Hours and minutes did not fill total");
-if(duration.durationDetails("entry").duration!==240)throw Error("4h duration was not saved");
+if(get("entry-duration").value!=="240"||duration.durationDetails("entry").duration!==240)throw Error("4h must equal 240min");
+get("edit-hours").value="1";get("edit-minutes").value="30";
+duration.updateDurationFromParts("edit");
+if(duration.durationDetails("edit").duration!==90)throw Error("1h30m must equal 90min");
 get("entry-hours").value="";get("entry-minutes").value="";
 duration.updateDurationFromParts("entry");
-if(get("entry-duration").value!==""||duration.durationDetails("entry").duration!==null)throw Error("Empty duration not optional");
-get("entry-start").value="2026-10-22T12:00";
-get("entry-end").value="2026-10-22T16:00";
-duration.updateDurationFromInterval("entry");
-let result=duration.durationDetails("entry");
-if(result.duration!==240||result.startedAt!==new Date("2026-10-22T12:00").toISOString()||result.endedAt!==new Date("2026-10-22T16:00").toISOString())throw Error("Four-hour interval incorrect");
-if(get("entry-hours").value!=="4"||get("entry-duration").value!=="240")throw Error("Interval did not fill total");
-get("entry-start").value="2026-10-22T23:30";
-get("entry-end").value="2026-10-23T03:30";
-duration.updateDurationFromInterval("entry");
-if(duration.durationDetails("entry").duration!==240)throw Error("Cross-midnight interval incorrect");
-get("entry-end").value="2026-10-22T22:00";
-let rejected=false;try{duration.durationDetails("entry")}catch(error){rejected=/posterior/.test(error.message)}
-if(!rejected)throw Error("End before start must be rejected");
-get("edit-hours").value="2";get("edit-minutes").value="75";
-duration.updateDurationFromParts("edit");
+if(get("entry-duration").value!==""||duration.durationDetails("entry").duration!==null)throw Error("Duration must be optional");
+get("edit-minutes").value="75";
 let invalid=false;try{duration.durationDetails("edit")}catch(error){invalid=/minutos/.test(error.message)}
-if(!invalid)throw Error("Minutes above 59 must be rejected");
-if(!source.includes('"startedAt","endedAt"'))throw Error("CSV must export interval endpoints");
+if(!invalid)throw Error("Minutes must be 0–59");
+duration.populateDurationParts("edit",245);
+if(get("edit-hours").value!=="4"||get("edit-minutes").value!=="5")throw Error("Historical duration not displayed");
+if(!source.includes('"startedAt","endedAt"'))throw Error("Existing historical fields no longer export");
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[

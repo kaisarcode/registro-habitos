@@ -104,86 +104,40 @@ function showCaptureFeedback(message,entry=null){
 // both endpoints for later analysis; neither requires a database migration.
 // duration is always stored as total minutes. Hours and minutes are
 // convenience inputs; explicit start/end are retained only when provided.
-function durationLabel(value){
- const total=Number(value);
- if(!Number.isFinite(total))return "";
- const hours=Math.floor(total/60),minutes=total%60;
- return hours?(hours+" h"+(minutes?" "+minutes+" min":"")):(minutes+" min");
-}
-function durationFromInterval(prefix){
- const startValue=$(prefix+"-start").value,endValue=$(prefix+"-end").value;
- if(!startValue||!endValue)throw Error("Indicá fecha y hora de inicio y fin.");
- const start=new Date(startValue),end=new Date(endValue);
- if(!Number.isFinite(start.getTime())||!Number.isFinite(end.getTime()))throw Error("Inicio o fin no válidos.");
- if(end<=start)throw Error("El fin debe ser posterior al inicio.");
- return {
-  occurredAt:start.toISOString(),startedAt:start.toISOString(),endedAt:end.toISOString(),
-  duration:Math.round((end.getTime()-start.getTime())/60000)
- };
+// Duration is stored as optional total minutes; historical interval data
+// is preserved when an existing record is edited without changing duration.
+function durationLabel(total){
+ const n=Number(total);
+ if(!Number.isFinite(n))return "";
+ const h=Math.floor(n/60),m=n%60;
+ return h?(h+" h"+(m?" "+m+" min":"")):(m+" min");
 }
 function populateDurationParts(prefix,total){
- if(total==null||total===""){
-  $(prefix+"-hours").value="";
-  $(prefix+"-minutes").value="";
-  return;
- }
- const value=Number(total);
- if(!Number.isInteger(value)||value<0)return;
- $(prefix+"-hours").value=String(Math.floor(value/60));
- $(prefix+"-minutes").value=String(value%60);
-}
-function clearDurationInterval(prefix){
- $(prefix+"-start").value="";
- $(prefix+"-end").value="";
- $(prefix+"-duration-preview").textContent="";
+ const hours=$(prefix+"-hours"),minutes=$(prefix+"-minutes");
+ if(total==null||total===""){hours.value="";minutes.value="";return;}
+ const n=Number(total);
+ if(!Number.isInteger(n)||n<0){hours.value="";minutes.value="";return;}
+ hours.value=String(Math.floor(n/60));minutes.value=String(n%60);
 }
 function updateDurationFromParts(prefix){
  const h=$(prefix+"-hours").value.trim(),m=$(prefix+"-minutes").value.trim();
- if(h===""&&m===""){
-  $(prefix+"-duration").value="";
-  clearDurationInterval(prefix);
-  return;
- }
+ if(h===""&&m===""){$(prefix+"-duration").value="";return;}
  const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
  if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59){
-  $(prefix+"-duration").value="";
-  return;
+  $(prefix+"-duration").value="";return;
  }
  $(prefix+"-duration").value=String(hours*60+minutes);
- clearDurationInterval(prefix);
-}
-function updateDurationFromInterval(prefix){
- const start=$(prefix+"-start").value,end=$(prefix+"-end").value;
- const preview=$(prefix+"-duration-preview");
- if(!start&&!end){preview.textContent="";return;}
- if(!start||!end){preview.textContent="Completá inicio y fin.";return;}
- try{
-  const timing=durationFromInterval(prefix);
-  $(prefix+"-duration").value=String(timing.duration);
-  populateDurationParts(prefix,timing.duration);
-  // The event occurred at the start when an explicit interval is given.
-  const local=localTime(new Date(timing.startedAt));
-  if(prefix==="entry")$("entry-when").value=local;
-  else {$("edit-date").value=local.slice(0,10);$("edit-time").value=local.slice(11);}
-  preview.textContent="Duración: "+durationLabel(timing.duration);
- }catch(error){preview.textContent=error.message;}
 }
 function durationDetails(prefix){
- const start=$(prefix+"-start").value,end=$(prefix+"-end").value;
- if(start||end)return durationFromInterval(prefix);
- const raw=$(prefix+"-duration").value.trim();
- const duration=raw===""?null:Number(raw);
- if(duration!=null&&(!Number.isInteger(duration)||duration<0)){
-  throw Error("La duración debe ser un número entero de minutos válido.");
- }
- const hours=$(prefix+"-hours").value.trim(),minutes=$(prefix+"-minutes").value.trim();
- if(hours!==""||minutes!==""){
-  const h=hours===""?0:Number(hours),m=minutes===""?0:Number(minutes);
-  if(!Number.isInteger(h)||h<0||!Number.isInteger(m)||m<0||m>59){
+ const h=$(prefix+"-hours").value.trim(),m=$(prefix+"-minutes").value.trim();
+ let duration=null;
+ if(h!==""||m!==""){
+  const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
+  if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59)
    throw Error("Usá horas positivas y minutos entre 0 y 59.");
-  }
-  if(duration!==h*60+m)throw Error("Revisá la duración en horas y minutos.");
+  duration=hours*60+minutes;
  }
+ $(prefix+"-duration").value=duration==null?"":String(duration);
  const source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
  if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresá una fecha y hora válidas.");
  return {occurredAt:new Date(source).toISOString(),duration,startedAt:null,endedAt:null};
@@ -210,8 +164,6 @@ function resetEntryOptions(){
  }
  $("entry-duration").value="";$("entry-notes").value="";
  populateDurationParts("entry",null);
- clearDurationInterval("entry");
- $("entry-interval-details").open=false;
  $("entry-options").open=false;
 }
 function openEntryDialog(category=null){
@@ -238,10 +190,6 @@ function openEdit(e){
  categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
  populateDurationParts("edit",e.duration);
- $("edit-start").value=e.startedAt?localTime(e.startedAt):"";
- $("edit-end").value=e.endedAt?localTime(e.endedAt):"";
- $("edit-interval-details").open=Boolean(e.startedAt&&e.endedAt);
- updateDurationFromInterval("edit");
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
  show("edit");
@@ -476,9 +424,6 @@ for(const prefix of ["entry","edit"]){
  for(const field of ["hours","minutes"]){
   $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromParts(prefix));
  }
- for(const field of ["start","end"]){
-  $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromInterval(prefix));
- }
 }
 $("edit-energy").oninput=()=>{$("energy-enabled").checked=true;$("energy-number").textContent=$("edit-energy").value};
 $("energy-enabled").onchange=()=>{$("energy-number").textContent=$("energy-enabled").checked?$("edit-energy").value:"—"};
@@ -488,6 +433,12 @@ $("edit-save").onclick=async()=>{
  const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
  try{
   const timing=durationDetails("edit");
+  // Avoid losing original start/end metadata if the time and duration are
+  // unchanged while editing an older record.
+  if(current.startedAt&&current.endedAt&&timing.duration===current.duration&&
+     Math.abs(Date.parse(timing.occurredAt)-Date.parse(current.occurredAt))<60000){
+   timing.startedAt=current.startedAt;timing.endedAt=current.endedAt;
+  }
   await storage.save({
    ...current,...timing,description,
    category:canonicalCategory($("edit-category").value)||null,
