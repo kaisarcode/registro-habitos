@@ -161,7 +161,7 @@ const back=new Function("$","document","window","show","showAppDialog","closeEnt
  id=>id==="app-action-dialog"?systemDialog:null,fakeDoc,windowFake,
  page=>{activePage=page},
  options=>{lastConfirm=options;return new Promise(()=>{})},
- ()=>{closeEntryCalls++},Event
+ ()=>{closeEntryCalls++},class FakeEvent {constructor(type,opts){this.type=type;this.cancelable=opts?.cancelable;}}
 );
 if(back()!==true||activePage!=="capture"||lastConfirm!==null)
  throw Error("Back from secondary screen must go home");
