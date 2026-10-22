@@ -5,10 +5,11 @@ const nowLocal = date => { const d = new Date(date.getTime() - date.getTimezoneO
 let entries = [], editing = null, speech = null, manualCategory = false;
 $("date-label").textContent = new Intl.DateTimeFormat("es-AR",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
 function show(screen) {
-    for(const id of ["home","editor","history"]) $(id).classList.toggle("active",id===screen);
-    $("screen-title").textContent = {home:"Mi día",editor:editing?"Editar entrada":"Nueva entrada",history:"Historial"}[screen];
+    for(const id of ["home","editor","history","reminders"]) $(id).classList.toggle("active",id===screen);
+    $("screen-title").textContent = {home:"Mi día",editor:editing?"Editar entrada":"Nueva entrada",history:"Historial",reminders:"Recordatorios"}[screen];
     $("nav-home").classList.toggle("active",screen==="home");
     $("nav-history").classList.toggle("active",screen==="history");
+    $("nav-reminders").classList.toggle("active",screen==="reminders");
     window.scrollTo(0,0);
 }
 function openEditor(entry=null) {
@@ -64,6 +65,29 @@ async function reload(){entries=await storage.list();redraw();}
 $("record").onclick=()=>openEditor();
 $("view-all").onclick=$("nav-history").onclick=$("menu-button").onclick=()=>show("history");
 $("nav-home").onclick=()=>show("home");
+$("nav-reminders").onclick=()=>{renderReminders();show("reminders");};
+function renderReminders(){
+    const root=$("reminder-list");root.replaceChildren();
+    const items=reminderStore.list();
+    for(const item of items){
+        const row=document.createElement("div");row.className="reminder";
+        const info=document.createElement("div");info.textContent=item.title+" · "+item.time+(item.daily?" · Diario":"");
+        const remove=document.createElement("button");remove.textContent="Eliminar";remove.className="secondary";
+        remove.onclick=()=>{reminderStore.remove(item.id);renderReminders();};
+        row.append(info,remove);root.append(row);
+    }
+    if(!items.length){const p=document.createElement("p");p.className="note";p.textContent="Todavía no hay recordatorios.";root.append(p);}
+}
+$("reminder-save").onclick=async()=>{
+    const title=$("reminder-title").value.trim(),time=$("reminder-time").value;
+    if(!title||!time){$("reminder-status").textContent="Escribí una descripción y elegí una hora.";return;}
+    try{
+        await reminderStore.add(title,time,$("reminder-daily").checked);
+        $("reminder-title").value="";
+        $("reminder-status").textContent="Recordatorio programado.";
+        renderReminders();
+    }catch(error){$("reminder-status").textContent=error.message;}
+};
 $("cancel").onclick=()=>{if(speech) speech.stop();show("home");};
 $("save").onclick=async()=>{
     const description=$("description").value.trim();if(!description){$("description").focus();return;}
@@ -83,7 +107,7 @@ $("search").oninput=redraw;$("filter-category").onchange=redraw;
 function download(filename,content,type){
     const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-$("json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries},null,2),"application/json");
+$("json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list()},null,2),"application/json");
 $("csv").onclick=()=>{
     const cols=["id","occurredAt","createdAt","description","category","categorySource","energy","mood"];
     const quote=s=>'"'+String(s??"").replaceAll('"','""')+'"';
