@@ -23,9 +23,10 @@ const reminderStore = {
             const when=new Date();when.setHours(hour,minute,0,0);
             if (when.getTime()<=Date.now()) when.setDate(when.getDate()+1);
             when.setDate(when.getDate()+n);
-            alarms.schedule({id:base+n,at:when.getTime(),exact:false,
+            const scheduled=alarms.schedule({id:base+n,at:when.getTime(),exact:false,
                 action:{type:"notification",id:base+n,channel:"registro-discreto",
                     title,text:"Recordatorio",onlyAlertOnce:true,sound:"none"}});
+            if(!scheduled) throw new Error("Android no pudo programar el recordatorio.");
         }
         const items=this.list();items.push(item);this.persist(items);return item;
     },
