@@ -149,9 +149,9 @@ $("import-file").onchange=async event=>{
 };
 $("dictate").onclick=()=>{
     const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!Recognition){$("voice-state").textContent="Dictado no disponible; podés escribir.";return;}
+    if(!Recognition || !("processLocally" in Recognition.prototype)){$("voice-state").textContent="El dictado local no está disponible aquí. Podés escribir sin conexión.";return;}
     if(speech){speech.stop();speech=null;return;}
-    const recognition=new Recognition();recognition.lang="es-AR";recognition.interimResults=true;
+    const recognition=new Recognition();recognition.lang="es-AR";recognition.interimResults=true;recognition.processLocally=true;
     const baseline=$("description").value.trim();speech=recognition;
     recognition.onresult=event=>{
         let heard="";for(let i=0;i<event.results.length;i++)heard+=event.results[i][0].transcript+" ";
