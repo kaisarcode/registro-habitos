@@ -72,3 +72,7 @@ La información puede contener datos sensibles: se mantiene local, sin telemetr�
 La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador actualiza `web/app.bundle.js` para que compilaciones directas de `web/index.html` no usen un script viejo y empaqueta el HTML inline desde `build/web/app.html`. El overlay de Android usa `LOAD_NO_CACHE`, limpia únicamente la caché de recursos (sin borrar IndexedDB) y devuelve `Cache-Control: no-store` para los assets locales. El APK incrementa `versionCode` a `20261022`.
 
 Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `slave` y con el nuevo `build.sh`. No desinstales ni borres datos para resolverlo.
+
+## Registro corporal y consumo
+
+Categorías disponibles: **Ir al baño**, **Tabaco**, **Vapeo**, **Alcohol**, **Higiene**, **Medicación** y **Cafeína**, además de las actividades habituales. El clasificador local reconoce frases naturales como “fui al baño”, “hice pis”, “fumé un cigarrillo”, “vapeé” o “tomé cerveza”. Guardar sigue siendo inmediato; ninguna medición adicional es obligatoria. Las categorías se pueden corregir desde Editar y los datos se exportan con las categorías elegidas. El registro rápido mantiene un máximo de seis sugerencias que se adaptan al historial.
