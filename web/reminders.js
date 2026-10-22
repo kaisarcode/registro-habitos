@@ -1,8 +1,26 @@
 // Local persistent reminder definitions; Android alarms are independent of WebView lifetime.
 const REMINDER_KEY="registro-habitos-reminders";
+const REMINDER_MAX_TIMES=29; // Reserved native IDs: base ... base + 28
+const REMINDER_TIME_RE=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;
 const reminderStore={
  list(){try{return JSON.parse(localStorage.getItem(REMINDER_KEY)||"[]")}catch{return []}},
  persist(items){localStorage.setItem(REMINDER_KEY,JSON.stringify(items))},
+ normalizeTimes(value){
+  const source=Array.isArray(value)?value:[value];
+  if(!source.length||source.length>REMINDER_MAX_TIMES)
+   throw Error("Elegí entre 1 y "+REMINDER_MAX_TIMES+" horarios.");
+  const times=source.map(time=>typeof time==="string"?time.trim():"");
+  if(times.some(time=>!REMINDER_TIME_RE.test(time)))throw Error("Completá todos los horarios con una hora válida.");
+  if(new Set(times).size!==times.length)throw Error("Hay horarios repetidos. Elegí horas diferentes.");
+  return times.sort();
+ },
+ timesFor(item){
+  return this.normalizeTimes(Array.isArray(item.times)&&item.times.length?item.times:item.time);
+ },
+ cancel(item){
+  const api=this.api();
+  if(api)for(let index=0;index<REMINDER_MAX_TIMES;index++)api.cancel(item.base+index);
+ },
  api(){return window.NativeBridge?.Android?.alarms},
  lastWarning:"",
  status(){return this.lastWarning;},
@@ -48,47 +66,50 @@ const reminderStore={
    }
   }
  },
- nextOccurrence(item){
-  const [hour,minute]=item.time.split(":").map(Number);
-  if(!Number.isInteger(hour)||hour<0||hour>23||!Number.isInteger(minute)||minute<0||minute>59)
-   throw Error("La hora del recordatorio no es válida.");
-  if(item.repeat==="once"&&Number.isFinite(item.onceAt)){
-   return item.onceAt>Date.now()?item.onceAt:null;
-  }
-  const day=new Date();
-  day.setHours(hour,minute,0,0);
-  // Android's native receiver will schedule subsequent repeats. Only the
-  // closest occurrence needs to be registered from the WebView.
+ nextOccurrence(item,time=item.time){
+  if(!REMINDER_TIME_RE.test(time))throw Error("La hora del recordatorio no es válida.");
+  const storedAt=item.onceAts?.[time]??(time===item.time?item.onceAt:null);
+  if(item.repeat==="once"&&Number.isFinite(storedAt))
+   return storedAt>Date.now()?storedAt:null;
+  const [hour,minute]=time.split(":").map(Number);
+  const day=new Date();day.setHours(hour,minute,0,0);
   for(let i=0;i<8;i++){
    if(day.getTime()>Date.now() &&
-      (item.repeat!=="weekdays"||(day.getDay()!==0&&day.getDay()!==6)))
+       (item.repeat!=="weekdays"||(day.getDay()!==0&&day.getDay()!==6)))
     return day.getTime();
    day.setDate(day.getDate()+1);
   }
   return null;
  },
+ // Android reserves one persistent native alarm per scheduled hour. Each
+ // daily/weekday alarm independently schedules its next occurrence in
+ // AlarmReceiver, so a WebView or foreground service is never required.
  schedule(item){
   const api=this.api();
   if(!api)throw Error("Alarmas nativas no disponibles.");
-  // Cancel the 28-day batch from older app builds when migrating.
-  for(let i=0;i<29;i++)api.cancel(item.base+i);
-  const at=this.nextOccurrence(item);
-  if(at===null)return false;
+  const times=this.timesFor(item);
+  this.cancel(item); // Also clears all slots from the old single-time build.
+  const scheduleTimes=times.map((time,index)=>({time,index,at:this.nextOccurrence(item,time)}))
+      .filter(slot=>slot.at!==null);
+  if(!scheduleTimes.length)return false;
   const soundName=item.sound||"none",channel=this.channel(soundName);
   const exact=typeof api.canScheduleExact==="function"&&api.canScheduleExact();
-  const [hour,minute]=item.time.split(":").map(Number);
-  const recurrence=item.repeat==="once"?null:{
-   mode:item.repeat==="weekdays"?"weekdays":"daily",hour,minute
-  };
-  const ok=api.schedule({
-   id:item.base,at,exact,allowWhileIdle:true,recurrence,
-   action:{
-    type:"notification",id:item.base,channel,title:item.title,
-    text:"Recordatorio",importance:soundName==="none"?"low":"default",
-    onlyAlertOnce:false,sound:this.soundUri(soundName)
-   }
-  });
-  if(!ok)throw Error("Android no pudo programar el recordatorio.");
+  for(const {time,index,at} of scheduleTimes){
+   const [hour,minute]=time.split(":").map(Number);
+   const recurrence=item.repeat==="once"?null:{
+    mode:item.repeat==="weekdays"?"weekdays":"daily",hour,minute
+   };
+   const id=item.base+index;
+   const ok=api.schedule({
+    id,at,exact,allowWhileIdle:true,recurrence,
+    action:{
+     type:"notification",id,channel,title:item.title,
+     text:"Recordatorio",importance:soundName==="none"?"low":"default",
+     onlyAlertOnce:false,sound:this.soundUri(soundName)
+    }
+   });
+   if(!ok)throw Error("Android no pudo programar el horario "+time+".");
+  }
   return true;
  },
  async testClosed(title,sound){
@@ -118,35 +139,48 @@ const reminderStore={
   });
   if(!ok)throw Error("Android rechazó la notificación de prueba.");
  },
- async add(title,time,daily,repeat,sound){
-  await this.permission();const entries=this.list();
-  // Native alarm IDs must fit signed Android int and remain stable across runs.
-  const used=new Set(entries.map(x=>x.base));
+ async add(title,timesValue,daily,repeat,sound){
+  const titleText=String(title||"").trim();
+  const times=this.normalizeTimes(timesValue),cadence=repeat||(daily?"daily":"once");
+  if(!titleText||!["once","daily","weekdays"].includes(cadence))
+   throw Error("Ingresá un nombre y una frecuencia válida.");
+  await this.permission();
+  const entries=this.list(),used=new Set(entries.map(x=>x.base));
   let base;
   do{base=100000+Math.floor(Math.random()*45000000)*32}while(used.has(base));
-  const cadence=repeat|| (daily?"daily":"once");
-  const item={id:String(base),base,title,time,daily:!!daily,repeat:cadence,sound:sound||"glock",enabled:true};
-  if(cadence==="once")item.onceAt=this.nextOccurrence(item);
+  const item={id:String(base),base,title:titleText,time:times[0],times,
+   daily:cadence!=="once",repeat:cadence,sound:sound||"glock",enabled:true};
+  if(cadence==="once"){
+   item.onceAts=Object.fromEntries(times.map(time=>
+    [time,this.nextOccurrence({...item,onceAts:{},onceAt:null},time)]));
+  }
   this.schedule(item);entries.push(item);this.persist(entries);return item;
  },
  async update(id,changes){
   const items=this.list(),index=items.findIndex(item=>item.id===id);
   if(index<0)throw Error("El recordatorio ya no existe.");
   const current=items[index];
-  const updated={...current,title:changes.title,time:changes.time,repeat:changes.repeat,daily:changes.daily,sound:changes.sound};
-  if(changes.repeat==="once"){
-   updated.onceAt=(current.repeat==="once"&&current.time===changes.time&&current.onceAt>Date.now())
-    ?current.onceAt:this.nextOccurrence({...updated,onceAt:null});
-  }else{delete updated.onceAt;}
-  if(!updated.title||!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(updated.time))
-   throw Error("El nombre o la hora del recordatorio no son válidos.");
+  const times=this.normalizeTimes(changes.times??changes.time);
+  const repeat=changes.repeat||"daily",title=String(changes.title||"").trim();
+  if(!title||!["once","daily","weekdays"].includes(repeat))
+   throw Error("El nombre o la frecuencia del recordatorio no son válidos.");
+  const updated={...current,title,time:times[0],times,repeat,
+   daily:repeat!=="once",sound:changes.sound};
+  delete updated.onceAt;
+  if(repeat==="once"){
+   updated.onceAts={};
+   for(const time of times){
+    const previous=current.onceAts?.[time]??(
+     current.repeat==="once"&&time===current.time?current.onceAt:null);
+    updated.onceAts[time]=current.repeat==="once"&&Number.isFinite(previous)
+     ?previous:this.nextOccurrence({...updated,onceAts:{},onceAt:null},time);
+   }
+  }else delete updated.onceAts;
   if(updated.enabled!==false){
    await this.permission();
    try{this.schedule(updated)}
    catch(error){try{this.schedule(current)}catch(rollback){console.warn("Unable to restore reminder alarms",rollback)}throw error}
-  }else if(this.api()){
-   for(let i=0;i<29;i++)this.api().cancel(updated.base+i);
-  }
+  }else this.cancel(updated);
   items[index]=updated;
   this.persist(items);
   return updated;
@@ -155,16 +189,21 @@ const reminderStore={
   const list=this.list(),item=list.find(x=>x.id===id);if(!item)return;
   if(enabled){
    await this.permission();
-   if(item.repeat==="once"&&(!item.onceAt||item.onceAt<=Date.now()))
-    item.onceAt=this.nextOccurrence({...item,onceAt:null});
+   if(item.repeat==="once"){
+    const times=this.timesFor(item),hasFuture=times.some(t=>this.nextOccurrence(item,t)!==null);
+    if(!hasFuture){
+     item.onceAts=Object.fromEntries(times.map(time=>
+      [time,this.nextOccurrence({...item,onceAts:{},onceAt:null},time)]));
+     delete item.onceAt;
+    }
+   }
    this.schedule({...item,enabled:true});
-  }
-  else if(this.api())for(let i=0;i<29;i++)this.api().cancel(item.base+i);
+  }else this.cancel(item);
   item.enabled=enabled;this.persist(list);
  },
  remove(id){
   const list=this.list(),item=list.find(x=>x.id===id);
-  if(item&&this.api())for(let i=0;i<29;i++)this.api().cancel(item.base+i);
+  if(item)this.cancel(item);
   this.persist(list.filter(x=>x.id!==id));
  },
  refresh(){
@@ -173,15 +212,21 @@ const reminderStore={
   let changed=false;
   for(const item of items){
    if(!item.enabled)continue;
-   if(item.repeat==="once"&&item.onceAt&&item.onceAt<=Date.now()){
-    item.enabled=false;
-    changed=true;
-    continue;
-   }
    try{
-    if(item.repeat==="once"&&!item.onceAt){
-     item.onceAt=this.nextOccurrence(item);
-     changed=true;
+    const times=this.timesFor(item);
+    if(!Array.isArray(item.times)){item.times=times;changed=true;}
+    if(item.repeat==="once"){
+     if(!item.onceAts){
+      item.onceAts=Object.fromEntries(times.map(time=>[
+       time,time===item.time&&Number.isFinite(item.onceAt)
+        ?item.onceAt:this.nextOccurrence({...item,onceAts:{},onceAt:null},time)
+      ]));
+      delete item.onceAt;
+      changed=true;
+     }
+     if(times.every(time=>this.nextOccurrence(item,time)===null)){
+      item.enabled=false;changed=true;this.cancel(item);continue;
+     }
     }
     this.schedule(item);
    }catch(error){console.warn("Alarm restoration",error);}

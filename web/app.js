@@ -436,15 +436,43 @@ async function saveCapture(){
 }
 function csv(){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function addReminderTimeRow(value=""){
+ const list=$("reminder-times"),row=el("div","reminder-time-row");
+ const input=el("input","reminder-time-input");
+ input.type="time";input.required=true;input.value=value;
+ input.setAttribute("aria-label","Horario "+(list.children.length+1));
+ const remove=el("button","reminder-time-remove","×");
+ remove.type="button";remove.setAttribute("aria-label","Eliminar horario");
+ remove.onclick=()=>{
+  if(list.children.length<=1)return;
+  row.remove();updateReminderTimeRows();
+ };
+ row.append(input,remove);list.append(row);updateReminderTimeRows();
+ return input;
+}
+function updateReminderTimeRows(){
+ const rows=[...$("reminder-times").children];
+ for(let i=0;i<rows.length;i++){
+  rows[i].querySelector("input").setAttribute("aria-label","Horario "+(i+1));
+  rows[i].querySelector("button").disabled=rows.length===1;
+ }
+ $("reminder-add-time").disabled=rows.length>=REMINDER_MAX_TIMES;
+}
+function reminderFormTimes(){
+ const values=[...$("reminder-times").querySelectorAll('input[type="time"]')].map(input=>input.value);
+ return reminderStore.normalizeTimes(values);
+}
 function openReminderDialog(item=null){
  editingReminderId=item?.id||null;
  $("reminder-dialog-title").textContent=item?"Editar recordatorio":"Nuevo recordatorio";
  $("reminder-name").value=item?.title||"";
- $("reminder-time").value=item?.time||"13:00";
+ const times=item?(item.times?.length?item.times:[item.time]):["13:00"];
+ $("reminder-times").replaceChildren();
+ for(const time of times)addReminderTimeRow(time);
  $("reminder-repeat").value=item?.repeat||(item?.daily?"daily":"once");
  $("reminder-sound").value=item?.sound||"glock";
  $("reminder-dialog-status").textContent="";
- $("reminder-confirm").textContent=item?"Guardar cambios":"Guardar";
+ $("reminder-confirm").textContent="Guardar";
  $("reminder-delete").classList.toggle("hidden",!item);
  $("reminder-dialog").showModal();
 }
@@ -458,7 +486,8 @@ function drawReminders(){
   open.onclick=()=>openReminderDialog(item);
   open.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
   const body=el("span","item-main");
-  body.append(el("strong","",item.title),el("small","",item.time+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));
+  body.append(el("strong","",item.title),el("small","",
+   (item.times?.length?item.times:[item.time]).join(" · ")+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));
   open.append(body);row.append(open);
   const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");
   toggle.type="button";toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");
@@ -477,12 +506,17 @@ async function importBackup(file){
  await reload();
  let notice="Importadas "+n.imported+" entradas. "+n.skipped+" ya existían.";
  if(Array.isArray(backup.reminders)&&backup.reminders.length){
-  const existing=new Set(reminderStore.list().map(r=>r.title+"|"+r.time+"|"+r.repeat));
-  const add=backup.reminders.filter(r=>r&&typeof r.title==="string"&&/^[0-2][0-9]:[0-5][0-9]$/.test(r.time)&&!existing.has(r.title+"|"+r.time+"|"+r.repeat));
+  const identity=r=>r.title+"|"+(r.times?.length?r.times:[r.time]).join(",")+"|"+r.repeat;
+  const existing=new Set(reminderStore.list().map(identity));
+  const add=backup.reminders.filter(r=>{
+   if(!r||typeof r.title!=="string")return false;
+   try{return !!reminderStore.normalizeTimes(r.times?.length?r.times:r.time)&&!existing.has(identity(r));}
+   catch{return false;}
+  });
   if(add.length&&await appConfirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?","Restaurar recordatorios","Programar")){
    let done=0;
    for(const r of add){
-    try{const item=await reminderStore.add(r.title,r.time,r.repeat!=="once",r.repeat||"daily",r.sound||"none");if(r.enabled===false)await reminderStore.setEnabled(item.id,false);done++;}
+    try{const item=await reminderStore.add(r.title,r.times?.length?r.times:r.time,r.repeat!=="once",r.repeat||"daily",r.sound||"none");if(r.enabled===false)await reminderStore.setEnabled(item.id,false);done++;}
     catch(err){notice+=" Algunos recordatorios no pudieron programarse: "+err.message;break;}
    }
    notice+=" Recordatorios restaurados: "+done+".";
@@ -736,15 +770,19 @@ $("test-notification").onclick=async()=>{
  finally{button.disabled=false;}
 };
 
+$("reminder-add-time").onclick=()=>{
+ if($("reminder-times").children.length>=REMINDER_MAX_TIMES)return;
+ const input=addReminderTimeRow("");
+ input.focus();
+};
 $("reminder-confirm").onclick=async e=>{
  e.preventDefault();
- const title=$("reminder-name").value.trim(),time=$("reminder-time").value,repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;
- if(!title||!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)){
-  $("reminder-dialog-status").textContent="Escribí un nombre y una hora válida.";return;
- }
+ const title=$("reminder-name").value.trim(),repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;
  try{
-  if(editingReminderId)await reminderStore.update(editingReminderId,{title,time,repeat,daily:repeat!=="once",sound});
-  else await reminderStore.add(title,time,repeat!=="once",repeat,sound);
+  const times=reminderFormTimes();
+  if(!title){$("reminder-dialog-status").textContent="Escribí un nombre.";return;}
+  if(editingReminderId)await reminderStore.update(editingReminderId,{title,times,repeat,daily:repeat!=="once",sound});
+  else await reminderStore.add(title,times,repeat!=="once",repeat,sound);
   $("reminder-dialog").close();
   $("reminder-status").textContent=(editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.")+(reminderStore.status()?" "+reminderStore.status():"");
   editingReminderId=null;drawReminders();
