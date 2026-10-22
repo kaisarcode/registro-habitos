@@ -17,6 +17,13 @@ grep -q 'id="category-search"' "$PAGE"
 grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
 grep -q 'id="entry-status"' "$PAGE"
+grep -q 'id="entry-duration-mode"' "$PAGE"
+grep -q 'id="entry-start"' "$PAGE"
+grep -q 'id="entry-end"' "$PAGE"
+grep -q 'id="edit-duration-mode"' "$PAGE"
+grep -q 'id="edit-start"' "$PAGE"
+grep -q 'id="edit-end"' "$PAGE"
+grep -q 'function durationFromInterval(prefix)' "$PAGE"
 grep -q 'id="add-entry"' "$PAGE"
 grep -q 'id="undo-quick"' "$PAGE"
 grep -q 'function openEntryDialog(category=null)' "$PAGE"
@@ -81,6 +88,49 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
+// Existing durations stay in minutes; dated intervals retain both endpoints.
+const durationSource=source.slice(source.indexOf("function durationLabel("),source.indexOf("function createEntry(details)"));
+const controls=new Map();
+for(const prefix of ["entry","edit"]){
+ for(const part of ["duration-mode","duration","start","end","duration-minutes","duration-interval","event-time","duration-preview"]){
+  controls.set(prefix+"-"+part,{value:"",textContent:"",classList:{toggle(){}}});
+ }
+}
+controls.set("entry-when",{value:"2026-10-22T12:00"});
+controls.set("edit-date",{value:"2026-10-22"});
+controls.set("edit-time",{value:"12:00"});
+const get=id=>controls.get(id);
+const toLocal=date=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+const duration=new Function("$","localTime",durationSource+";return {durationDetails,durationFromInterval,updateDurationUI,changeDurationMode}")(get,toLocal);
+get("entry-duration-mode").value="interval";
+get("entry-start").value="2026-10-22T12:00";
+get("entry-end").value="2026-10-22T16:00";
+let result=duration.durationDetails("entry");
+if(result.duration!==240||result.startedAt!==new Date("2026-10-22T12:00").toISOString()||result.endedAt!==new Date("2026-10-22T16:00").toISOString())
+ throw Error("Four-hour nap duration incorrect");
+duration.updateDurationUI("entry");
+if(get("entry-duration-preview").textContent!=="Duración calculada: 4 h")throw Error("Four hour preview incorrect");
+get("entry-start").value="2026-10-22T23:30";
+get("entry-end").value="2026-10-23T03:30";
+if(duration.durationDetails("entry").duration!==240)throw Error("Cross-midnight interval incorrect");
+get("entry-end").value="2026-10-22T22:00";
+let rejected=false;try{duration.durationDetails("entry")}catch(error){rejected=/posterior/.test(error.message)}
+if(!rejected)throw Error("End before start must be rejected");
+get("entry-duration-mode").value="minutes";
+get("entry-duration").value="240";
+result=duration.durationDetails("entry");
+if(result.duration!==240||result.startedAt!==null||result.endedAt!==null)throw Error("Minutes mode incorrect");
+get("edit-duration-mode").value="minutes";
+get("edit-duration").value="";
+if(duration.durationDetails("edit").duration!==null)throw Error("Empty duration must remain optional");
+get("edit-duration-mode").value="interval";
+get("edit-start").value="2026-10-22T12:00";
+get("edit-end").value="2026-10-22T16:00";
+duration.changeDurationMode("edit");
+get("edit-duration-mode").value="minutes";
+duration.changeDurationMode("edit");
+if(get("edit-duration").value!=="240")throw Error("Switching modes lost minutes");
+if(!source.includes('"startedAt","endedAt"'))throw Error("CSV must export interval endpoints");
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[

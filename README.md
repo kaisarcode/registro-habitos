@@ -80,3 +80,7 @@ Categorías disponibles: **Ir al baño**, **Tabaco**, **Vapeo**, **Alcohol**, **
 ## Inicio: registro por categorías y botón flotante
 
 La vista **Mi día** presenta las categorías como botones permanentes. Tocar una categoría abre el formulario con esa categoría y una descripción sugerida ya seleccionadas; **Guardar** confirma la entrada con la fecha y hora actuales (editable). No se guarda nada antes de confirmar. **Deshacer** permite revertir la última entrada guardada. El botón flotante `+` abre un diálogo con texto, dictado del navegador y detalles opcionales (fecha, hora, categoría, energía, bienestar, duración, notas). Cerrar el diálogo no guarda nada. Los registros, clasificaciones, filtros y exportaciones existentes se mantienen sin migraciones de esquema.
+
+## Duración opcional: minutos o inicio/fin
+
+Al crear o editar una entrada, **Duración** permite elegir **Minutos** o **Inicio y fin**. Para intervalos, se seleccionan fecha y hora para ambos extremos y se muestra automáticamente la duración (por ejemplo, una siesta de 12:00 a 16:00 equivale a 4 h o 240 minutos). También funciona si termina al día siguiente. Se validan fechas y que el final sea posterior al inicio; ambos horarios se conservan como `startedAt` y `endedAt` en JSON y CSV, mientras `duration` sigue siendo el número de minutos. En modo minutos los extremos son `null`. Los registros antiguos se editan y exportan sin migrar la base de datos.
