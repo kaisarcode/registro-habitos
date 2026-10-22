@@ -152,10 +152,6 @@ function updateDurationFromParts(prefix){
  $(prefix+"-duration").value=String(hours*60+minutes);
  clearDurationInterval(prefix);
 }
-function updateDurationFromTotal(prefix){
- populateDurationParts(prefix,$(prefix+"-duration").value);
- clearDurationInterval(prefix);
-}
 function updateDurationFromInterval(prefix){
  const start=$(prefix+"-start").value,end=$(prefix+"-end").value;
  const preview=$(prefix+"-duration-preview");
@@ -480,7 +476,6 @@ for(const prefix of ["entry","edit"]){
  for(const field of ["hours","minutes"]){
   $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromParts(prefix));
  }
- $(prefix+"-duration").addEventListener("input",()=>updateDurationFromTotal(prefix));
  for(const field of ["start","end"]){
   $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromInterval(prefix));
  }

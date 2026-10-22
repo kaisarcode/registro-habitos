@@ -20,7 +20,7 @@ grep -q 'id="entry-status"' "$PAGE"
 for prefix in entry edit; do
     grep -q "id=\"$prefix-hours\"" "$PAGE"
     grep -q "id=\"$prefix-minutes\"" "$PAGE"
-    grep -q "id=\"$prefix-duration\"" "$PAGE"
+    grep -q "id=\"$prefix-duration\" type=\"hidden\"" "$PAGE"
     grep -q "id=\"$prefix-start\"" "$PAGE"
     grep -q "id=\"$prefix-end\"" "$PAGE"
 done
@@ -98,7 +98,7 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
-// Hours/minutes drive total, total can also be entered directly.
+// Hours/minutes and optional start/end populate a hidden total.
 // Start/end (optional details) calculate both and preserve original times.
 const durationSource=source.slice(source.indexOf("function durationLabel("),source.indexOf("function createEntry(details)"));
 const controls=new Map();
@@ -112,15 +112,12 @@ controls.set("edit-date",{value:"2026-10-22"});
 controls.set("edit-time",{value:"12:00"});
 const get=id=>controls.get(id);
 const toLocal=date=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
-const duration=new Function("$","localTime",durationSource+";return {durationDetails,updateDurationFromParts,updateDurationFromTotal,updateDurationFromInterval,populateDurationParts}")(get,toLocal);
+const duration=new Function("$","localTime",durationSource+";return {durationDetails,updateDurationFromParts,updateDurationFromInterval,populateDurationParts}")(get,toLocal);
 get("entry-hours").value="4";
 get("entry-minutes").value="0";
 duration.updateDurationFromParts("entry");
 if(get("entry-duration").value!=="240")throw Error("Hours and minutes did not fill total");
 if(duration.durationDetails("entry").duration!==240)throw Error("4h duration was not saved");
-get("entry-duration").value="275";
-duration.updateDurationFromTotal("entry");
-if(get("entry-hours").value!=="4"||get("entry-minutes").value!=="35")throw Error("Main total did not update parts");
 get("entry-hours").value="";get("entry-minutes").value="";
 duration.updateDurationFromParts("entry");
 if(get("entry-duration").value!==""||duration.durationDetails("entry").duration!==null)throw Error("Empty duration not optional");
