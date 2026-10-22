@@ -17,13 +17,19 @@ grep -q 'id="category-search"' "$PAGE"
 grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
 grep -q 'id="entry-status"' "$PAGE"
-grep -q 'id="entry-duration-mode"' "$PAGE"
-grep -q 'id="entry-start"' "$PAGE"
-grep -q 'id="entry-end"' "$PAGE"
-grep -q 'id="edit-duration-mode"' "$PAGE"
-grep -q 'id="edit-start"' "$PAGE"
-grep -q 'id="edit-end"' "$PAGE"
-grep -q 'function durationFromInterval(prefix)' "$PAGE"
+for prefix in entry edit; do
+    grep -q "id=\"$prefix-hours\"" "$PAGE"
+    grep -q "id=\"$prefix-minutes\"" "$PAGE"
+    grep -q "id=\"$prefix-duration\"" "$PAGE"
+    grep -q "id=\"$prefix-start\"" "$PAGE"
+    grep -q "id=\"$prefix-end\"" "$PAGE"
+done
+if grep -q 'id="entry-duration-mode"\|id="edit-duration-mode"' "$PAGE"; then
+    echo 'Unexpected duration mode selector' >&2
+    exit 1
+fi
+grep -q 'function updateDurationFromParts(prefix)' "$PAGE"
+grep -q 'function updateDurationFromInterval(prefix)' "$PAGE"
 grep -q 'id="add-entry"' "$PAGE"
 grep -q 'id="undo-quick"' "$PAGE"
 grep -q 'function openEntryDialog(category=null)' "$PAGE"
@@ -88,12 +94,13 @@ const examplesSearch=[
 for(const [query,category,expected] of examplesSearch){
  if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
 }
-// Existing durations stay in minutes; dated intervals retain both endpoints.
+// Hours/minutes drive total, total can also be entered directly.
+// Start/end (optional details) calculate both and preserve original times.
 const durationSource=source.slice(source.indexOf("function durationLabel("),source.indexOf("function createEntry(details)"));
 const controls=new Map();
 for(const prefix of ["entry","edit"]){
- for(const part of ["duration-mode","duration","start","end","duration-minutes","duration-interval","event-time","duration-preview"]){
-  controls.set(prefix+"-"+part,{value:"",textContent:"",classList:{toggle(){}}});
+ for(const part of ["hours","minutes","duration","start","end","interval-details","duration-preview"]){
+  controls.set(prefix+"-"+part,{value:"",textContent:"",open:false});
  }
 }
 controls.set("entry-when",{value:"2026-10-22T12:00"});
@@ -101,35 +108,35 @@ controls.set("edit-date",{value:"2026-10-22"});
 controls.set("edit-time",{value:"12:00"});
 const get=id=>controls.get(id);
 const toLocal=date=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
-const duration=new Function("$","localTime",durationSource+";return {durationDetails,durationFromInterval,updateDurationUI,changeDurationMode}")(get,toLocal);
-get("entry-duration-mode").value="interval";
+const duration=new Function("$","localTime",durationSource+";return {durationDetails,updateDurationFromParts,updateDurationFromTotal,updateDurationFromInterval,populateDurationParts}")(get,toLocal);
+get("entry-hours").value="4";
+get("entry-minutes").value="0";
+duration.updateDurationFromParts("entry");
+if(get("entry-duration").value!=="240")throw Error("Hours and minutes did not fill total");
+if(duration.durationDetails("entry").duration!==240)throw Error("4h duration was not saved");
+get("entry-duration").value="275";
+duration.updateDurationFromTotal("entry");
+if(get("entry-hours").value!=="4"||get("entry-minutes").value!=="35")throw Error("Main total did not update parts");
+get("entry-hours").value="";get("entry-minutes").value="";
+duration.updateDurationFromParts("entry");
+if(get("entry-duration").value!==""||duration.durationDetails("entry").duration!==null)throw Error("Empty duration not optional");
 get("entry-start").value="2026-10-22T12:00";
 get("entry-end").value="2026-10-22T16:00";
+duration.updateDurationFromInterval("entry");
 let result=duration.durationDetails("entry");
-if(result.duration!==240||result.startedAt!==new Date("2026-10-22T12:00").toISOString()||result.endedAt!==new Date("2026-10-22T16:00").toISOString())
- throw Error("Four-hour nap duration incorrect");
-duration.updateDurationUI("entry");
-if(get("entry-duration-preview").textContent!=="Duración calculada: 4 h")throw Error("Four hour preview incorrect");
+if(result.duration!==240||result.startedAt!==new Date("2026-10-22T12:00").toISOString()||result.endedAt!==new Date("2026-10-22T16:00").toISOString())throw Error("Four-hour interval incorrect");
+if(get("entry-hours").value!=="4"||get("entry-duration").value!=="240")throw Error("Interval did not fill total");
 get("entry-start").value="2026-10-22T23:30";
 get("entry-end").value="2026-10-23T03:30";
+duration.updateDurationFromInterval("entry");
 if(duration.durationDetails("entry").duration!==240)throw Error("Cross-midnight interval incorrect");
 get("entry-end").value="2026-10-22T22:00";
 let rejected=false;try{duration.durationDetails("entry")}catch(error){rejected=/posterior/.test(error.message)}
 if(!rejected)throw Error("End before start must be rejected");
-get("entry-duration-mode").value="minutes";
-get("entry-duration").value="240";
-result=duration.durationDetails("entry");
-if(result.duration!==240||result.startedAt!==null||result.endedAt!==null)throw Error("Minutes mode incorrect");
-get("edit-duration-mode").value="minutes";
-get("edit-duration").value="";
-if(duration.durationDetails("edit").duration!==null)throw Error("Empty duration must remain optional");
-get("edit-duration-mode").value="interval";
-get("edit-start").value="2026-10-22T12:00";
-get("edit-end").value="2026-10-22T16:00";
-duration.changeDurationMode("edit");
-get("edit-duration-mode").value="minutes";
-duration.changeDurationMode("edit");
-if(get("edit-duration").value!=="240")throw Error("Switching modes lost minutes");
+get("edit-hours").value="2";get("edit-minutes").value="75";
+duration.updateDurationFromParts("edit");
+let invalid=false;try{duration.durationDetails("edit")}catch(error){invalid=/minutos/.test(error.message)}
+if(!invalid)throw Error("Minutes above 59 must be rejected");
 if(!source.includes('"startedAt","endedAt"'))throw Error("CSV must export interval endpoints");
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();

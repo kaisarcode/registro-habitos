@@ -58,3 +58,10 @@
 .duration-editor .muted{min-height:1.2em;margin:8px 0 0}
 .duration-editor .hidden,#entry-event-time.hidden,#edit-event-time.hidden{display:none!important}
 .duration-editor input[type=datetime-local]{width:100%;min-width:0}
+
+.duration-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.duration-parts label{margin:6px 0 12px}
+.duration-parts input{width:100%;min-width:0}
+.duration-interval-details{margin:14px 0 0;border-top:1px solid #34464c;padding:10px 0 0}
+.duration-interval-details summary{color:#b5cbc6;cursor:pointer;padding:8px 0}
+.duration-editor select{display:none}

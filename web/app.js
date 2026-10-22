@@ -102,15 +102,17 @@ function showCaptureFeedback(message,entry=null){
 }
 // Canonical duration is stored in minutes. Explicit intervals also retain
 // both endpoints for later analysis; neither requires a database migration.
-function durationLabel(minutes){
- const total=Number(minutes);
+// duration is always stored as total minutes. Hours and minutes are
+// convenience inputs; explicit start/end are retained only when provided.
+function durationLabel(value){
+ const total=Number(value);
  if(!Number.isFinite(total))return "";
- const hours=Math.floor(total/60),mins=Math.round(total-hours*60);
- return hours?(hours+" h"+(mins?" "+mins+" min":"")):(mins+" min");
+ const hours=Math.floor(total/60),minutes=total%60;
+ return hours?(hours+" h"+(minutes?" "+minutes+" min":"")):(minutes+" min");
 }
 function durationFromInterval(prefix){
  const startValue=$(prefix+"-start").value,endValue=$(prefix+"-end").value;
- if(!startValue||!endValue)throw Error("Indicá la fecha y hora de inicio y fin.");
+ if(!startValue||!endValue)throw Error("Indicá fecha y hora de inicio y fin.");
  const start=new Date(startValue),end=new Date(endValue);
  if(!Number.isFinite(start.getTime())||!Number.isFinite(end.getTime()))throw Error("Inicio o fin no válidos.");
  if(end<=start)throw Error("El fin debe ser posterior al inicio.");
@@ -119,47 +121,76 @@ function durationFromInterval(prefix){
   duration:Math.round((end.getTime()-start.getTime())/60000)
  };
 }
+function populateDurationParts(prefix,total){
+ if(total==null||total===""){
+  $(prefix+"-hours").value="";
+  $(prefix+"-minutes").value="";
+  return;
+ }
+ const value=Number(total);
+ if(!Number.isInteger(value)||value<0)return;
+ $(prefix+"-hours").value=String(Math.floor(value/60));
+ $(prefix+"-minutes").value=String(value%60);
+}
+function clearDurationInterval(prefix){
+ $(prefix+"-start").value="";
+ $(prefix+"-end").value="";
+ $(prefix+"-duration-preview").textContent="";
+}
+function updateDurationFromParts(prefix){
+ const h=$(prefix+"-hours").value.trim(),m=$(prefix+"-minutes").value.trim();
+ if(h===""&&m===""){
+  $(prefix+"-duration").value="";
+  clearDurationInterval(prefix);
+  return;
+ }
+ const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
+ if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59){
+  $(prefix+"-duration").value="";
+  return;
+ }
+ $(prefix+"-duration").value=String(hours*60+minutes);
+ clearDurationInterval(prefix);
+}
+function updateDurationFromTotal(prefix){
+ populateDurationParts(prefix,$(prefix+"-duration").value);
+ clearDurationInterval(prefix);
+}
+function updateDurationFromInterval(prefix){
+ const start=$(prefix+"-start").value,end=$(prefix+"-end").value;
+ const preview=$(prefix+"-duration-preview");
+ if(!start&&!end){preview.textContent="";return;}
+ if(!start||!end){preview.textContent="Completá inicio y fin.";return;}
+ try{
+  const timing=durationFromInterval(prefix);
+  $(prefix+"-duration").value=String(timing.duration);
+  populateDurationParts(prefix,timing.duration);
+  // The event occurred at the start when an explicit interval is given.
+  const local=localTime(new Date(timing.startedAt));
+  if(prefix==="entry")$("entry-when").value=local;
+  else {$("edit-date").value=local.slice(0,10);$("edit-time").value=local.slice(11);}
+  preview.textContent="Duración: "+durationLabel(timing.duration);
+ }catch(error){preview.textContent=error.message;}
+}
 function durationDetails(prefix){
- if($(prefix+"-duration-mode").value==="interval")return durationFromInterval(prefix);
- const text=$(prefix+"-duration").value.trim();
- const duration=text===""?null:Number(text);
- if(duration!=null&&(!Number.isFinite(duration)||duration<0)){
-  throw Error("La duración debe ser un número de minutos válido.");
+ const start=$(prefix+"-start").value,end=$(prefix+"-end").value;
+ if(start||end)return durationFromInterval(prefix);
+ const raw=$(prefix+"-duration").value.trim();
+ const duration=raw===""?null:Number(raw);
+ if(duration!=null&&(!Number.isInteger(duration)||duration<0)){
+  throw Error("La duración debe ser un número entero de minutos válido.");
+ }
+ const hours=$(prefix+"-hours").value.trim(),minutes=$(prefix+"-minutes").value.trim();
+ if(hours!==""||minutes!==""){
+  const h=hours===""?0:Number(hours),m=minutes===""?0:Number(minutes);
+  if(!Number.isInteger(h)||h<0||!Number.isInteger(m)||m<0||m>59){
+   throw Error("Usá horas positivas y minutos entre 0 y 59.");
+  }
+  if(duration!==h*60+m)throw Error("Revisá la duración en horas y minutos.");
  }
  const source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
  if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresá una fecha y hora válidas.");
  return {occurredAt:new Date(source).toISOString(),duration,startedAt:null,endedAt:null};
-}
-function updateDurationUI(prefix){
- const isInterval=$(prefix+"-duration-mode").value==="interval";
- $(prefix+"-duration-minutes").classList.toggle("hidden",isInterval);
- $(prefix+"-duration-interval").classList.toggle("hidden",!isInterval);
- $(prefix+"-event-time").classList.toggle("hidden",isInterval);
- if(!isInterval)return;
- const label=$(prefix+"-duration-preview");
- if(!$(prefix+"-start").value||!$(prefix+"-end").value){label.textContent="Elegí inicio y fin, incluso si son de días distintos.";return;}
- try{label.textContent="Duración calculada: "+durationLabel(durationFromInterval(prefix).duration);}
- catch(error){label.textContent=error.message;}
-}
-function changeDurationMode(prefix){
- const interval=$(prefix+"-duration-mode").value==="interval";
- if(interval){
-  let source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
-  if(!$(prefix+"-start").value&&source&&Number.isFinite(new Date(source).getTime())){
-   $(prefix+"-start").value=source;
-  }
-  const minutes=Number($(prefix+"-duration").value);
-  if(!$(prefix+"-end").value&&$(prefix+"-duration").value!==""&&Number.isFinite(minutes)&&minutes>0&&$(prefix+"-start").value){
-   $(prefix+"-end").value=localTime(new Date(new Date($(prefix+"-start").value).getTime()+minutes*60000));
-  }
- }else if($(prefix+"-start").value){
-  // Retain the chosen start even if switching back to minutes.
-  const startValue=$(prefix+"-start").value;
-  if(prefix==="entry")$("entry-when").value=startValue;
-  else {$("edit-date").value=startValue.slice(0,10);$("edit-time").value=startValue.slice(11);}
-  try{$(prefix+"-duration").value=String(durationFromInterval(prefix).duration);}catch(_){}
- }
- updateDurationUI(prefix);
 }
 function createEntry(details){
  return {
@@ -182,10 +213,9 @@ function resetEntryOptions(){
   $("entry-"+name+"-value").textContent="—";
  }
  $("entry-duration").value="";$("entry-notes").value="";
- $("entry-duration-mode").value="minutes";
- $("entry-start").value="";$("entry-end").value="";
- $("entry-duration-preview").textContent="";
- updateDurationUI("entry");
+ populateDurationParts("entry",null);
+ clearDurationInterval("entry");
+ $("entry-interval-details").open=false;
  $("entry-options").open=false;
 }
 function openEntryDialog(category=null){
@@ -211,10 +241,11 @@ function openEdit(e){
  $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
  categoryOptions();$("edit-category").value=canonicalCategory(e.category);
  $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
- $("edit-duration-mode").value=e.startedAt&&e.endedAt?"interval":"minutes";
+ populateDurationParts("edit",e.duration);
  $("edit-start").value=e.startedAt?localTime(e.startedAt):"";
  $("edit-end").value=e.endedAt?localTime(e.endedAt):"";
- updateDurationUI("edit");
+ $("edit-interval-details").open=Boolean(e.startedAt&&e.endedAt);
+ updateDurationFromInterval("edit");
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
  show("edit");
@@ -445,9 +476,12 @@ $("history-filter").onclick=()=>{categoryFilter="";show("categories")};
 $("category-add").onclick=()=>{const cat=prompt("Nombre de la categoría");if(cat?.trim()){saveCategory(cat.trim());drawCategories()}};
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
- $(prefix+"-duration-mode").addEventListener("change",()=>changeDurationMode(prefix));
+ for(const field of ["hours","minutes"]){
+  $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromParts(prefix));
+ }
+ $(prefix+"-duration").addEventListener("input",()=>updateDurationFromTotal(prefix));
  for(const field of ["start","end"]){
-  $(prefix+"-"+field).addEventListener("input",()=>updateDurationUI(prefix));
+  $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromInterval(prefix));
  }
 }
 $("edit-energy").oninput=()=>{$("energy-enabled").checked=true;$("energy-number").textContent=$("edit-energy").value};

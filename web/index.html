@@ -40,13 +40,19 @@
 </section>
 <section id="categories" class="screen"><div class="section-heading"><span>Categorías</span><button id="category-add" class="icon-button" aria-label="Crear categoría">⊕</button></div><div id="category-list" class="history-list"></div><p class="muted">Las categorías son opcionales. El registro se guarda aunque no se categorice.</p></section>
 <section id="edit" class="screen"><div class="edit-voice-wrap"><textarea id="edit-text" aria-label="Descripción"></textarea><button id="edit-dictate" class="edit-mic" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button></div><p id="edit-voice-status" class="muted" role="status"></p><div id="edit-event-time" class="form-row"><label>Fecha<input id="edit-date" type="date"></label><label>Hora<input id="edit-time" type="time"></label></div><label>Categoría<select id="edit-category"></select></label><label class="section-label">Estado de ánimo</label><div id="moods" class="moods"><button data-mood="1">☹</button><button data-mood="3">🙁</button><button data-mood="5">😐</button><button data-mood="7">🙂</button><button data-mood="9">☺</button></div><div class="duration-editor">
- <label for="edit-duration-mode">Duración</label>
- <select id="edit-duration-mode" aria-label="Forma de registrar la duración"><option value="minutes">Minutos</option><option value="interval">Inicio y fin</option></select>
- <div id="edit-duration-minutes"><label for="edit-duration">Minutos</label><input id="edit-duration" type="number" min="0" step="1" placeholder="Opcional"></div>
- <div id="edit-duration-interval" class="hidden">
-  <label for="edit-start">Inicio</label><input id="edit-start" type="datetime-local">
-  <label for="edit-end">Fin</label><input id="edit-end" type="datetime-local">
-  <p id="edit-duration-preview" class="muted" role="status"></p>
+  <div class="section-label">Duración</div>
+  <div class="duration-parts">
+   <label for="edit-hours">Horas<input id="edit-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
+   <label for="edit-minutes">Minutos<input id="edit-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+  </div>
+  <label for="edit-duration">Total (minutos)</label>
+  <input id="edit-duration" type="number" inputmode="numeric" min="0" step="1" placeholder="Opcional">
+  <details id="edit-interval-details" class="duration-interval-details">
+   <summary>Calcular con inicio y fin</summary>
+   <label for="edit-start">Inicio</label><input id="edit-start" type="datetime-local">
+   <label for="edit-end">Fin</label><input id="edit-end" type="datetime-local">
+   <p id="edit-duration-preview" class="muted" role="status"></p>
+  </details>
  </div>
  </div><label>Energía <span id="energy-number">—</span>/10 <input type="range" id="edit-energy" min="0" max="10" value="5"></label><label><input id="energy-enabled" type="checkbox"> Registrar energía</label><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><button id="edit-save" class="main-button">Guardar cambios</button><button id="edit-delete" class="danger-button">Eliminar registro</button></section>
 <section id="summary" class="screen"><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
@@ -71,14 +77,20 @@
   <label class="option-check"><input id="entry-mood-enabled" type="checkbox"> Registrar cómo me sentí <output id="entry-mood-value">—</output></label>
   <input id="entry-mood" type="range" min="0" max="10" value="5" aria-label="Cómo me sentí">
   <div class="duration-editor">
-  <label for="entry-duration-mode">Duración</label>
-  <select id="entry-duration-mode" aria-label="Forma de registrar la duración"><option value="minutes">Minutos</option><option value="interval">Inicio y fin</option></select>
-  <div id="entry-duration-minutes"><label for="entry-duration">Minutos</label><input id="entry-duration" type="number" min="0" step="1" placeholder="Opcional"></div>
-  <div id="entry-duration-interval" class="hidden">
+  <div class="section-label">Duración</div>
+  <div class="duration-parts">
+   <label for="entry-hours">Horas<input id="entry-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
+   <label for="entry-minutes">Minutos<input id="entry-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+  </div>
+  <label for="entry-duration">Total (minutos)</label>
+  <input id="entry-duration" type="number" inputmode="numeric" min="0" step="1" placeholder="Opcional">
+  <details id="entry-interval-details" class="duration-interval-details">
+   <summary>Calcular con inicio y fin</summary>
    <label for="entry-start">Inicio</label><input id="entry-start" type="datetime-local">
    <label for="entry-end">Fin</label><input id="entry-end" type="datetime-local">
    <p id="entry-duration-preview" class="muted" role="status"></p>
-  </div>
+  </details>
+ </div>
  </div>
   <label for="entry-notes">Notas</label><textarea id="entry-notes" rows="2" placeholder="Opcional"></textarea>
  </details>
