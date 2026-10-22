@@ -188,6 +188,17 @@ grep -q 'id="categories"' "$PAGE"
 grep -q 'id="export-json"' "$PAGE"
 grep -q 'id="import-json"' "$PAGE"
 grep -q 'id="reminder-list"' "$PAGE"
+# Recordatorios use an accessible switch, not the oversized round icon buttons.
+grep -Fq 'const switchLabel=el("label","reminder-switch");' "$PAGE"
+grep -Fq 'toggle.type="checkbox";toggle.setAttribute("role","switch");' "$PAGE"
+grep -Fq 'toggle.checked=item.enabled!==false;' "$PAGE"
+grep -Fq 'toggle.onchange=async()=>{' "$PAGE"
+grep -Fq 'const track=el("span","sensory-switch-track");' "$PAGE"
+grep -Fq '.reminder-item .reminder-switch input:checked + .sensory-switch-track' "$ROOT/web/style.css"
+if grep -Fq '.reminder-item button.on{' "$ROOT/web/style.css"; then
+    echo 'Legacy circular reminder toggle CSS remains' >&2
+    exit 1
+fi
 grep -q 'const storage =' "$PAGE"
 grep -q 'function suggestCategory' "$PAGE"
 grep -q 'document.getElementById' "$PAGE"

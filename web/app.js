@@ -489,10 +489,27 @@ function drawReminders(){
   body.append(el("strong","",item.title),el("small","",
    (item.times?.length?item.times:[item.time]).join(" · ")+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));
   open.append(body);row.append(open);
-  const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");
-  toggle.type="button";toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");
-  toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders();$("reminder-status").textContent=reminderStore.status()}catch(e){$("reminder-status").textContent=e.message}};
-  row.append(toggle);root.append(row);
+  const switchLabel=el("label","reminder-switch");
+  const toggle=el("input");
+  toggle.type="checkbox";toggle.setAttribute("role","switch");
+  toggle.checked=item.enabled!==false;
+  toggle.setAttribute("aria-label",(toggle.checked?"Desactivar":"Activar")+" recordatorio: "+item.title);
+  const track=el("span","sensory-switch-track");
+  track.setAttribute("aria-hidden","true");
+  switchLabel.append(toggle,track);
+  toggle.onchange=async()=>{
+   const enabled=toggle.checked;
+   toggle.disabled=true;
+   try{
+    await reminderStore.setEnabled(item.id,enabled);
+    drawReminders();
+    $("reminder-status").textContent=reminderStore.status();
+   }catch(error){
+    toggle.checked=!enabled;
+    $("reminder-status").textContent=error.message;
+   }finally{toggle.disabled=false;}
+  };
+  row.append(switchLabel);root.append(row);
  }
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
