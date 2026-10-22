@@ -28,6 +28,7 @@
 .entry-dialog{width:min(calc(100vw - 26px),520px);max-height:min(88dvh,780px);overflow-y:auto;background:#16242b;border:1px solid #35505a;border-radius:20px;color:#e8f1f0;padding:18px;box-shadow:0 18px 50px #0009}
 .entry-modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .entry-modal-header h2{font-size:21px;margin:0}
+.entry-category-preview{display:inline-block;border:1px solid #365f52;background:#1e4439;border-radius:14px;padding:6px 11px;font-size:12px;color:#b4ebd3;margin:14px 0 0}
 #capture-text{min-height:125px;height:140px;width:100%;background:#1d2b33;border:1px solid #32464c;border-radius:14px;padding:16px;resize:vertical}
 .modal-voice{display:flex;align-items:center;gap:14px;margin:14px 0 16px}
 .modal-voice .mic-button{width:54px;height:54px;flex:0 0 54px}

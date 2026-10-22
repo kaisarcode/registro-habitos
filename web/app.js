@@ -76,10 +76,10 @@ function drawDashboard(){
  if(!names.length)grid.append(el("p","category-no-results","No hay categorías que coincidan."));
  for(const category of names){
   const button=el("button","quick-category");
-  button.type="button";button.setAttribute("aria-label","Registrar "+category);
+  button.type="button";button.setAttribute("aria-label","Nueva entrada de "+category);
   const badge=iconFor(category);badge.setAttribute("aria-hidden","true");
   button.append(badge,el("span","quick-name",category));
-  button.onclick=()=>saveQuickCategory(category);
+  button.onclick=()=>openEntryDialog(category);
   grid.append(button);
  }
  const today=entries.filter(e=>dayKey(e.occurredAt)===dayKey(Date.now()));
@@ -108,19 +108,6 @@ function createEntry(details){
   duration:details.duration??null,notes:details.notes||""
  };
 }
-async function saveQuickCategory(category){
- if(quickSaving)return;
- quickSaving=true;
- try{
-  const record=await storage.save(createEntry({
-   description:quickDescription(category),occurredAt:new Date().toISOString(),
-   category,categorySource:"manual"
-  }));
-  await reload();
-  showCaptureFeedback("Guardado: "+category+" · "+formatTime(record.occurredAt),record);
- }catch(error){showCaptureFeedback("No se pudo guardar: "+error.message);}
- finally{quickSaving=false;}
-}
 function resetEntryOptions(){
  $("capture-text").value="";
  $("entry-status").textContent="";
@@ -136,8 +123,17 @@ function resetEntryOptions(){
  $("entry-duration").value="";$("entry-notes").value="";
  $("entry-options").open=false;
 }
-function openEntryDialog(){
+function openEntryDialog(category=null){
  resetEntryOptions();
+ const chosen=canonicalCategory(category);
+ $("entry-dialog-title").textContent=chosen?"Registrar · "+chosen:"Nueva entrada";
+ $("entry-category").value=chosen||"";
+ const preview=$("entry-category-preview");
+ preview.classList.toggle("hidden",!chosen);
+ preview.textContent=chosen?"Categoría: "+chosen:"";
+ // A category button prepares an editable one-tap template, but never saves
+ // until the person explicitly confirms with Guardar.
+ if(chosen)$("capture-text").value=quickDescription(chosen);
  $("entry-dialog").showModal();
 }
 function closeEntryDialog(){
@@ -357,7 +353,7 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
 $("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
 $("category-search").addEventListener("input",drawDashboard);
-$("add-entry").onclick=openEntryDialog;
+$("add-entry").onclick=()=>openEntryDialog();
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
 $("entry-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});

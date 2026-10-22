@@ -19,7 +19,13 @@ grep -q 'id="entry-dialog"' "$PAGE"
 grep -q 'id="entry-status"' "$PAGE"
 grep -q 'id="add-entry"' "$PAGE"
 grep -q 'id="undo-quick"' "$PAGE"
-grep -q 'function saveQuickCategory(category)' "$PAGE"
+grep -q 'function openEntryDialog(category=null)' "$PAGE"
+grep -q 'id="entry-category-preview"' "$PAGE"
+grep -q 'button.onclick=()=>openEntryDialog(category)' "$PAGE"
+if grep -q 'function saveQuickCategory(category)' "$PAGE"; then
+    echo 'Category button must not save without confirmation' >&2
+    exit 1
+fi
 if grep -q 'id="suggestions"' "$PAGE"; then
     echo 'Old suggestions menu is still packaged' >&2
     exit 1

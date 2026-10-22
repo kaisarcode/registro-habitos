@@ -27,7 +27,7 @@
 <header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Mi día</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-gear"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
- <div class="dashboard-heading"><h2>Registrar con un toque</h2><p>Elegí una categoría para guardar una entrada ahora.</p></div>
+ <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elegí una categoría para completar y guardar tu entrada.</p></div>
  <input id="category-search" class="category-search" type="search" placeholder="Buscar categoría, por ej. fum" aria-label="Filtrar categorías para registrar" autocomplete="off" autocapitalize="off" spellcheck="false">
  <div id="quick-categories" class="category-grid" aria-label="Registrar por categoría"></div>
  <div class="today-heading"><h2>Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
@@ -48,6 +48,7 @@
 <button id="add-entry" class="add-entry-fab" type="button" aria-label="Nueva entrada" title="Nueva entrada">＋</button>
 <dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title">
  <div class="entry-modal-header"><h2 id="entry-dialog-title">Nueva entrada</h2><button id="entry-close" type="button" class="icon-button" aria-label="Cerrar sin guardar">×</button></div>
+ <p id="entry-category-preview" class="entry-category-preview hidden"></p>
  <label for="capture-text">¿Qué hiciste o cómo te sentís?</label>
  <textarea id="capture-text" rows="4" placeholder="Escribí o dictá lo que hiciste…"></textarea>
  <div class="modal-voice"><button id="mic" class="mic-button" type="button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Tocá para dictar</span></div>
