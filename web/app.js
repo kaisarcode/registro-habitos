@@ -13,12 +13,12 @@ let entries=[],current=null,mood=null,period="week",previous="capture",recogniti
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!=null)n.textContent=text;return n;}
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
-    if(page==="edit")previous="history";
-    ["capture","history","categories","edit","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",edit:"Editar registro",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
+    
+    ["capture","history","categories","summary","reminders","data","more"].forEach(s=>$(s).classList.toggle("active",s===page));
+    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
     $("top-action").textContent=page==="capture"?"⚙":page==="history"?"⋮":page==="reminders"?"＋":"";
-    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (page==="edit"&&b.dataset.page==="history") || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
+    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
@@ -251,7 +251,8 @@ function openEdit(e){
  populateDurationParts("edit",e.duration);
  $("energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;$("energy-number").textContent=e.energy??"—";
  document.querySelectorAll("#moods button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.mood)===mood));
- show("edit");
+ $("edit-voice-status").textContent="";
+ $("edit-dialog").showModal();
 }
 function drawHistory(){
  const q=$("search").value.trim().toLocaleLowerCase("es-AR");
@@ -265,7 +266,7 @@ function drawHistory(){
   if(e.category){small.append(el("span","pill",canonicalCategory(e.category)));}
   if(e.duration!=null)small.append(document.createTextNode(" · "+durationLabel(e.duration)));
   body.append(small);row.append(body);if(e.mood!=null)row.append(el("span","face",e.mood>=7?"●":e.mood<=3?"☹":"●"));
-  row.append(el("span","muted","⋮"));row.onclick=()=>openEdit(e);root.append(row);
+  row.type="button";row.setAttribute("aria-label","Editar registro: "+e.description);row.onclick=()=>openEdit(e);root.append(row);
  }
 }
 function drawCategories(){
@@ -431,11 +432,21 @@ function openReminderDialog(item=null){
  $("reminder-dialog").showModal();
 }
 function drawReminders(){
- const root=$("reminder-list");root.replaceChildren();const items=reminderStore.list();
- for(const item of items){const row=el("div","reminder-item");row.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
-  const body=el("span","item-main");body.append(el("strong","",item.title),el("small","",item.time+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));row.append(body);
-  const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders();$("reminder-status").textContent=reminderStore.status()}catch(e){$("reminder-status").textContent=e.message}};
-  const edit=el("button","reminder-edit","✎");edit.setAttribute("aria-label","Editar "+item.title);edit.title="Editar recordatorio";edit.onclick=()=>openReminderDialog(item);row.append(toggle,edit);root.append(row);
+ const root=$("reminder-list");root.replaceChildren();
+ const items=reminderStore.list();
+ for(const item of items){
+  const row=el("div","reminder-item");
+  const open=el("button","reminder-open");
+  open.type="button";open.setAttribute("aria-label","Editar recordatorio: "+item.title);
+  open.onclick=()=>openReminderDialog(item);
+  open.append(iconFor(item.title.toLowerCase().includes("agua")?"Salud":item.title.toLowerCase().includes("dorm")?"Sueño":"Personal"));
+  const body=el("span","item-main");
+  body.append(el("strong","",item.title),el("small","",item.time+" · "+(item.repeat==="weekdays"?"Lun a vie":item.daily?"Todos los días":"Una vez")));
+  open.append(body);row.append(open);
+  const toggle=el("button",item.enabled===false?"":"on",item.enabled===false?"○":"●");
+  toggle.type="button";toggle.setAttribute("aria-label",item.enabled===false?"Activar":"Desactivar");
+  toggle.onclick=async()=>{try{await reminderStore.setEnabled(item.id,item.enabled===false);drawReminders();$("reminder-status").textContent=reminderStore.status()}catch(e){$("reminder-status").textContent=e.message}};
+  row.append(toggle);root.append(row);
  }
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
@@ -554,11 +565,45 @@ async function startVoice(targetId = "capture-text") {
   voicePending = false;
  }
 }
+// Android back is always consumed here: close the topmost modal, leave an
+// auxiliary screen for Mi día, or request confirmation before exiting.
+let exitConfirmationOpen=false;
+function handleDeviceBack(){
+ const action=$("app-action-dialog");
+ if(action.open){
+  action.dispatchEvent(new Event("cancel",{cancelable:true}));
+  return true;
+ }
+ const openDialogs=[...document.querySelectorAll("dialog[open]")];
+ if(openDialogs.length){
+  const dialog=openDialogs[openDialogs.length-1];
+  if(dialog.id==="entry-dialog")closeEntryDialog();
+  else dialog.close();
+  return true;
+ }
+ const page=document.querySelector(".screen.active")?.id;
+ if(page!=="capture"){
+  show("capture");
+  return true;
+ }
+ if(!exitConfirmationOpen){
+  exitConfirmationOpen=true;
+  showAppDialog({title:"Salir de la app",message:"¿Querés salir de Registro Hábitos?",ok:"Salir"}).then(leave=>{
+   exitConfirmationOpen=false;
+   if(leave)window.AppNavigation?.exitApp();
+  });
+ }
+ return true;
+}
+window.registroHabitosBack=handleDeviceBack;
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
-$("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
+$("back").onclick=()=>show("capture");
 $("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
 $("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=()=>openEntryDialog();
+$("edit-close").onclick=()=>$("edit-dialog").close();
+$("edit-cancel").onclick=()=>$("edit-dialog").close();
+$("edit-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
 $("entry-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});
@@ -622,12 +667,13 @@ $("edit-save").onclick=async()=>{
    energy:$("energy-enabled").checked?Number($("edit-energy").value):null,
    notes:$("edit-notes").value
   });
-  await reload();show("history");
+  $("edit-dialog").close();
+  await reload();
  }catch(error){await appInfo(error.message,"No se pudieron guardar los cambios");}
 };
 $("edit-delete").onclick=async()=>{
  if(!current||!await appConfirm("¿Eliminar este registro?","Eliminar registro","Eliminar"))return;
- try{await storage.remove(current.id);await reload();show("history")}
+ try{await storage.remove(current.id);$("edit-dialog").close();await reload()}
  catch(error){await appInfo(error.message,"No se pudo eliminar")}
 };
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});

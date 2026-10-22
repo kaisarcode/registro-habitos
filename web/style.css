@@ -108,3 +108,13 @@
 .category-editor-actions button{height:50px;min-height:50px;width:100%;margin:0;display:grid;place-items:center}
 
 .category-page-actions{display:flex;justify-content:flex-end;margin:-7px 0 8px}
+
+/* Listed records and reminders have a full-width edit surface. */
+.reminder-item .reminder-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;background:transparent;text-align:left;border-radius:8px}
+.reminder-item .reminder-open .entry-icon{flex:none}
+.reminder-item .reminder-open:focus-visible{outline:2px solid var(--accent)}
+#edit-dialog{width:min(calc(100vw - 26px),520px);max-height:88dvh;overflow-y:auto}
+.edit-modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.edit-modal-title h2{font-size:20px;margin:0}
+.edit-modal-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.edit-modal-actions>button{width:100%;min-height:52px;height:52px;margin:0;display:grid;place-items:center}

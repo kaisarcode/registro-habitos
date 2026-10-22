@@ -108,3 +108,7 @@ La solapa **Categorías** es un administrador, no un lanzador de registros. Perm
 El perfil se guarda en `localStorage` bajo `rh-category-profiles-v1`. La exportación JSON incluye `categoryProfiles`, incluidos los íconos personalizados codificados como datos; el CSV conserva los registros por nombre de categoría. Las palabras clave intervienen en la búsqueda y en la categorización automática local. Al renombrar una categoría, se actualizan sus registros asociados. Eliminarla la quita de la botonera y del administrador, **sin eliminar registros históricos**; los datos anteriores continúan accesibles desde Historial. Los nombres viejos almacenados en `rh-categories` siguen admitidos sin migración destructiva.
 
 Licencia de terceros: `web/third-party/LUCIDE_LICENSE.txt`.
+
+## Navegación Android y edición de listas
+
+El botón físico Volver se maneja desde el WebView a través de `registroHabitosBack`. Cierra primero cualquier diálogo abierto (incluidos los de edición y confirmación); desde cualquier pantalla secundaria regresa a **Mi día**. Desde Mi día muestra un diálogo propio de confirmación para salir; la salida confirmada utiliza un puente Android limitado a la página local. Las entradas del Historial y los recordatorios se editan tocando su fila, con un diálogo oscuro; el interruptor de cada recordatorio conserva su acción independiente.
