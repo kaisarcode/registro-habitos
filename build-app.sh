@@ -18,6 +18,7 @@ cp -R "$ROOT/web/." "$WEB_OUT/"
     printf '%s\n' '// Classic WebView bundle'
     sed 's/^export const storage =/const storage =/' "$ROOT/web/storage.js"
     sed 's/^export function suggestCategory/function suggestCategory/' "$ROOT/web/classifier.js"
+    cat "$ROOT/web/reminders.js"
     sed '/^import /d' "$ROOT/web/app.js"
 } > "$WEB_OUT/app.bundle.js"
 # Keep the source template useful in browsers, but package a single inline
