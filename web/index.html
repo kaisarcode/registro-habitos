@@ -1,56 +1,24 @@
 <!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#151a20">
-  <title>Registro Hábitos</title>
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-  <main class="app">
-    <header><div><small id="date-label"></small><h1 id="screen-title">Mi día</h1></div><button class="icon-btn" id="menu-button" aria-label="Historial y exportaciones">☷</button></header>
-    <section id="home" class="screen active">
-      <button id="record" class="record" aria-label="Registrar actividad"><span class="mic">🎙</span><strong>Registrar</strong><small>Tocá para hablar o escribir</small></button>
-      <div class="section-header"><h2>Entradas recientes</h2><button class="link" id="view-all">Ver todas</button></div>
-      <div id="recent" class="entries"></div>
-    </section>
-    <section id="editor" class="screen">
-      <label for="description">¿Qué hiciste?</label>
-      <textarea id="description" rows="5" placeholder="Contá lo que hiciste o cómo te sentiste..."></textarea>
-      <div class="toolbar"><button id="dictate" class="secondary">🎙 Dictar</button><span id="voice-state" role="status"></span></div>
-      <details><summary>Detalles opcionales</summary>
-        <label for="when">Fecha y hora</label><input id="when" type="datetime-local">
-        <label for="category">Categoría (sugerida, editable)</label><input id="category" list="categories" placeholder="Sin categoría"><datalist id="categories"></datalist>
-        <label for="energy">Energía: <output id="energy-value">Sin registrar</output></label><input id="energy" type="range" min="0" max="10" value="5">
-        <div class="toolbar"><label><input id="use-energy" type="checkbox"> Registrar energía</label></div>
-        <label for="mood">Bienestar: <output id="mood-value">Sin registrar</output></label><input id="mood" type="range" min="0" max="10" value="5">
-        <div class="toolbar"><label><input id="use-mood" type="checkbox"> Registrar bienestar</label></div>
-      </details>
-      <div class="actions"><button id="cancel" class="secondary">Cancelar</button><button id="save" class="primary">Guardar</button></div>
-      <button id="delete" class="danger hidden">Eliminar entrada</button>
-    </section>
-    <section id="history" class="screen">
-      <input id="search" type="search" placeholder="Buscar en mis registros" aria-label="Buscar registros">
-      <div class="toolbar"><label for="filter-category">Categoría</label><select id="filter-category"><option value="">Todas</option></select></div>
-      <div id="all-entries" class="entries"></div>
-      <div class="exports"><button id="csv" class="secondary">Exportar CSV</button><button id="json" class="secondary">Exportar JSON</button></div>
-      <div class="exports"><button id="import-json" class="secondary">Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div>
-      <p class="note">Datos locales: respaldo JSON e intercambio CSV. Sin servidor.</p>
-    </section>
-    <section id="reminders" class="screen">
-      <p class="note">Sin avisos previos ni cuenta regresiva.</p>
-      <div id="reminder-list" class="entries"></div>
-      <details><summary>Nuevo recordatorio</summary>
-        <label for="reminder-title">Descripción</label><input id="reminder-title" type="text" placeholder="Pausa, tomar agua…">
-        <label for="reminder-time">Hora</label><input id="reminder-time" type="time" value="13:00">
-        <label><input id="reminder-daily" type="checkbox" checked> Repetir diariamente</label>
-        <button id="reminder-save" class="primary">Guardar recordatorio</button>
-      </details>
-      <p id="reminder-status" class="note" role="status"></p>
-    </section>
-    <nav><button id="nav-home" class="active">Hoy</button><button id="nav-history">Historial</button><button id="nav-reminders">Recordatorios</button></nav>
-  </main>
-  <script defer src="./app.bundle.js"></script>
-</body>
-</html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1419"><title>Registro Hábitos</title><link rel="stylesheet" href="./style.css"></head>
+<body><div class="app">
+<header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Nuevo registro</h1><button id="top-action" class="icon-button" aria-label="Opciones">⚙</button></header>
+<main>
+<section id="capture" class="screen active">
+ <textarea id="capture-text" placeholder="¿Qué hiciste o cómo te sentís?" aria-label="Descripción del registro"></textarea>
+ <div class="quick-row"><button id="mic" class="mic-button" aria-label="Dictar">♩</button><button id="today" class="chip">☼ Hoy</button><button id="now" class="chip">◷ Ahora</button><button id="notes" class="chip">▤ Nota</button></div>
+ <p class="section-label">Sugerencias</p><div id="suggestions" class="suggestions"></div>
+ <p id="capture-status" class="muted" role="status"></p><button id="capture-save" class="main-button">Registrar</button>
+</section>
+<section id="history" class="screen">
+ <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros"><button id="history-filter" class="icon-button" aria-label="Categorías">☷</button></div>
+ <div id="history-list" class="history-list"></div>
+</section>
+<section id="categories" class="screen"><div class="section-heading"><span>Categorías</span><button id="category-add" class="icon-button" aria-label="Crear categoría">⊕</button></div><div id="category-list" class="history-list"></div><p class="muted">Las categorías son opcionales. El registro se guarda aunque no se categorice.</p></section>
+<section id="edit" class="screen"><textarea id="edit-text" aria-label="Descripción"></textarea><div class="form-row"><label>Fecha<input id="edit-date" type="date"></label><label>Hora<input id="edit-time" type="time"></label></div><label>Categoría<select id="edit-category"></select></label><label class="section-label">Estado de ánimo</label><div id="moods" class="moods"><button data-mood="1">☹</button><button data-mood="3">🙁</button><button data-mood="5">😐</button><button data-mood="7">🙂</button><button data-mood="9">☺</button></div><label>Duración (min)<input id="edit-duration" type="number" min="0" placeholder="Opcional"></label><label>Energía <span id="energy-number">—</span>/10 <input type="range" id="edit-energy" min="0" max="10" value="5"></label><label><input id="energy-enabled" type="checkbox"> Registrar energía</label><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><button id="edit-save" class="main-button">Guardar cambios</button><button id="edit-delete" class="danger-button">Eliminar registro</button></section>
+<section id="summary" class="screen"><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
+<section id="reminders" class="screen"><div class="section-heading"><span>Recordatorios</span><button id="reminder-new" class="icon-button" aria-label="Nuevo recordatorio">＋</button></div><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2>Recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><label>Hora<input id="reminder-time" type="time" required></label><label>Frecuencia<select id="reminder-repeat"><option value="daily">Todos los días</option><option value="weekdays">Días de semana</option><option value="once">Una vez</option></select></label><label>Sonido<select id="reminder-sound"><option value="none">Silencioso</option><option value="glock">Glockenspiel</option><option value="alert">Notificación suave</option></select></label><p class="muted">Sin aviso previo. Los sonidos personalizados se reproducen en la vista previa; Android usa el canal de notificación disponible.</p><div class="dialog-actions"><button value="cancel" class="secondary">Cancelar</button><button id="reminder-confirm" value="save" class="main-button">Guardar</button></div></form></dialog></section>
+<section id="data" class="screen"><article class="panel"><h2>Exportar datos</h2><p>Guardá todos tus registros en un archivo para respaldo o análisis externo.</p><button id="export-json" class="utility-button">↧ &nbsp; Exportar JSON</button><button id="export-csv" class="utility-button">▦ &nbsp; Exportar CSV</button></article><article class="panel"><h2>Importar datos</h2><p>Restaurá registros desde un archivo anterior. No sobrescribe tus datos.</p><button id="import-json" class="utility-button accent">⇧ &nbsp; Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></article><article class="panel"><h2>Información</h2><p>JSON: respaldo completo con todos los datos originales.<br>CSV: tabla simple para análisis en otras herramientas.</p></article></section>
+<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="data">Importar / Exportar <span>›</span></button><article class="panel"><h2>Preferencias sensoriales</h2><label><input id="reduced-motion" type="checkbox" checked> Sin animaciones</label><p>Modo oscuro predeterminado. Sin avisos anticipados.</p></article></section>
+</main>
+<nav class="tabs"><button data-page="capture" class="active"><span>♧</span>Registro</button><button data-page="history"><span>▤</span>Historial</button><button data-page="reminders"><span>♧</span>Recordatorios</button><button data-page="more"><span>•••</span>Más</button></nav>
+</div><script defer src="./app.bundle.js"></script></body></html>
