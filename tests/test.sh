@@ -29,6 +29,9 @@ if grep -q 'id="reminder-new"' "$PAGE"; then
     echo 'Duplicate reminder add control was generated' >&2
     exit 1
 fi
+grep -q 'i-toilet' "$PAGE"
+grep -q 'i-vape' "$PAGE"
+grep -q 'i-glass' "$PAGE"
 grep -q 'const reminderStore =' "$PAGE"
 grep -q 'id="summary"' "$PAGE"
 grep -q 'id="categories"' "$PAGE"
