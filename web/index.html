@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#151a20">
+  <title>Registro Hábitos</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <header><div><small id="date-label"></small><h1 id="screen-title">Mi día</h1></div><button class="icon-btn" id="menu-button" aria-label="Historial y exportaciones">☷</button></header>
+    <section id="home" class="screen active">
+      <button id="record" class="record" aria-label="Registrar actividad"><span class="mic">🎙</span><strong>Registrar</strong><small>Tocá para hablar o escribir</small></button>
+      <div class="section-header"><h2>Entradas recientes</h2><button class="link" id="view-all">Ver todas</button></div>
+      <div id="recent" class="entries"></div>
+    </section>
+    <section id="editor" class="screen">
+      <label for="description">¿Qué hiciste?</label>
+      <textarea id="description" rows="5" placeholder="Contá lo que hiciste o cómo te sentiste..."></textarea>
+      <div class="toolbar"><button id="dictate" class="secondary">🎙 Dictar</button><span id="voice-state" role="status"></span></div>
+      <details><summary>Detalles opcionales</summary>
+        <label for="when">Fecha y hora</label><input id="when" type="datetime-local">
+        <label for="category">Categoría (sugerida, editable)</label><input id="category" list="categories" placeholder="Sin categoría"><datalist id="categories"></datalist>
+        <label for="energy">Energía: <output id="energy-value">Sin registrar</output></label><input id="energy" type="range" min="0" max="10" value="5">
+        <div class="toolbar"><label><input id="use-energy" type="checkbox"> Registrar energía</label></div>
+        <label for="mood">Bienestar: <output id="mood-value">Sin registrar</output></label><input id="mood" type="range" min="0" max="10" value="5">
+        <div class="toolbar"><label><input id="use-mood" type="checkbox"> Registrar bienestar</label></div>
+      </details>
+      <div class="actions"><button id="cancel" class="secondary">Cancelar</button><button id="save" class="primary">Guardar</button></div>
+      <button id="delete" class="danger hidden">Eliminar entrada</button>
+    </section>
+    <section id="history" class="screen">
+      <input id="search" type="search" placeholder="Buscar en mis registros" aria-label="Buscar registros">
+      <div class="toolbar"><label for="filter-category">Categoría</label><select id="filter-category"><option value="">Todas</option></select></div>
+      <div id="all-entries" class="entries"></div>
+      <div class="exports"><button id="csv" class="secondary">Exportar CSV</button><button id="json" class="secondary">Exportar JSON</button></div>
+      <p class="note">Datos locales. Esta versión utiliza IndexedDB, no SQLite.</p>
+    </section>
+    <nav><button id="nav-home" class="active">Hoy</button><button id="nav-history">Historial</button></nav>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
