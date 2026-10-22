@@ -434,7 +434,34 @@ async function saveCapture(){
  finally{quickSaving=false;$("capture-save").disabled=false;}
 }
 function csv(){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
-function download(name,text,type){const share=window.NativeBridge?.Android?.intents?.share;if(share){const ok=share({text,subject:name,title:name,chooserTitle:"Compartir datos",type:"text/plain"});if(ok)return;}const url=URL.createObjectURL(new Blob([text],{type}));const a=el("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function completeBackup(){
+ const preferences={
+  reducedMotion:$("reduced-motion").checked
+ };
+ return {version:1,kind:"registro-habitos-backup",exportedAt:new Date().toISOString(),
+  entries,reminders:reminderStore.list(),
+  categories:customCategories(),categoryProfiles:categoryStore.export(),preferences};
+}
+function analysisExport(){
+ return {version:1,kind:"registro-habitos-analysis",exportedAt:new Date().toISOString(),entries};
+}
+window.registroDocumentResult=(ok,message)=>{
+ $("document-status").textContent=message;
+};
+function saveDocument(name,content,type){
+ const docs=window.AppDocuments;
+ if(docs?.save){
+  $("document-status").textContent="Elegí dónde guardar el archivo.";
+  docs.save(name,content,type);
+  return;
+ }
+ // Browser fallback for development; Android always uses the native picker.
+ const url=URL.createObjectURL(new Blob([content],{type}));
+ const link=el("a");link.href=url;link.download=name;document.body.append(link);
+ link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
+ $("document-status").textContent="Descarga solicitada.";
+}
 function addReminderTimeRow(value=""){
  const list=$("reminder-times"),row=el("div","reminder-time-row");
  const input=el("input","reminder-time-input");
@@ -828,15 +855,10 @@ $("reminder-delete").onclick=async()=>{
  editingReminderId=null;$("reminder-dialog").close();drawReminders();
  $("reminder-status").textContent="Recordatorio eliminado.";
 };
-$("export-json").onclick=()=>download("registro-habitos.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries,reminders:reminderStore.list(),categories:customCategories(),categoryProfiles:categoryStore.export()},null,2),"application/json");
-$("export-csv").onclick=()=>download("registro-habitos.csv",csv(),"text/csv;charset=utf-8");
-$("import-json").onclick=()=>{if(window.NativeBridge?.Android?.clipboard){const copied=window.NativeBridge.Android.clipboard.get();if(copied?.trim().startsWith("{")){$("import-text").value=copied;$("import-dialog").showModal();return;}}$("import-file").click();};
-$("import-text-btn").onclick=()=>{$("import-dialog").showModal();};
-$("import-cancel").onclick=()=>$("import-dialog").close();
-$("import-confirm").onclick=async()=>{
- try{const content=$("import-text").value;await importBackup({text:async()=>content});$("import-dialog").close();$("import-text").value="";}
- catch(e){await appInfo("No se pudo importar: "+e.message,"Error de importación");}
-};
+$("backup-save").onclick=()=>saveDocument("registro-habitos-respaldo.json",JSON.stringify(completeBackup(),null,2),"application/json");
+$("export-json").onclick=()=>saveDocument("registro-habitos-datos.json",JSON.stringify(analysisExport(),null,2),"application/json");
+$("export-csv").onclick=()=>saveDocument("registro-habitos-datos.csv",csv(),"text/csv");
+$("import-json").onclick=()=>$("import-file").click();
 $("import-file").onchange=async e=>{
  const file=e.target.files?.[0];if(!file)return;
  try{await importBackup(file)}
