@@ -13,6 +13,8 @@ grep -q 'id="build-version"' "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="quick-categories"' "$PAGE"
+grep -q 'id="category-search"' "$PAGE"
+grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
 grep -q 'id="entry-status"' "$PAGE"
 grep -q 'id="add-entry"' "$PAGE"
@@ -61,6 +63,18 @@ if command -v node >/dev/null 2>&1; then
     node --check "$ROOT/build/web/app.bundle.js"
     node - "$ROOT" <<'NODE'
 const fs=require("fs"), root=process.argv[2];
+const source=fs.readFileSync(root+"/web/app.js","utf8");
+const searchHelpers=source.slice(source.indexOf("function quickDescription("),source.indexOf("function drawDashboard(){"));
+const matching=new Function(searchHelpers+"; return matchesCategorySearch")();
+const examplesSearch=[
+ ["fum","Tabaco",true],["cigarrillo","Tabaco",true],
+ ["vap","Vapeo",true],["pis","Ir al baño",true],
+ ["cafe","Cafeína",true],["FÍSICA","Actividad física",true],
+ ["fum","Vapeo",false],["cerveza","Tabaco",false]
+];
+for(const [query,category,expected] of examplesSearch){
+ if(matching(category,query)!==expected)throw Error("Category filter failed: "+query+" / "+category);
+}
 const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[

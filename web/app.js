@@ -45,9 +45,35 @@ function quickDescription(category){
 function categoryNames(){
  return unique([...preset.map(x=>x[0]),...customCategories().map(canonicalCategory),...entries.map(e=>canonicalCategory(e.category))]);
 }
+function normalizeCategorySearch(text){
+ return String(text||"").toLocaleLowerCase("es-AR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+}
+const categoryAliases={
+ "Ir al baño":["pis","orinar","orine","evacuar","defecar","inodoro","wc","caca"],
+ "Tabaco":["fumar","fume","fumando","cigarrillo","pucho","cigarro"],
+ "Vapeo":["vapear","vape","vaper","cigarrillo electronico"],
+ "Alcohol":["cerveza","vino","fernet","birra","trago"],
+ "Cafeína":["cafe","mate","energizante"],
+ "Hidratación":["agua","beber agua"],
+ "Alimentación":["comer","desayuno","almuerzo","merienda","cena"],
+ "Actividad física":["caminar","caminata","correr","ejercicio","entrenar"],
+ "Sueño":["dormir","siesta","despertar"],
+ "Medicación":["medicamento","pastilla","remedio"],
+ "Higiene":["ducha","duchar","lavar"],
+ "Social":["charlar","llamada","amigos"]
+};
+function matchesCategorySearch(category,query){
+ const terms=normalizeCategorySearch(query).split(/\s+/).filter(Boolean);
+ if(!terms.length)return true;
+ const haystack=normalizeCategorySearch([
+  category,quickDescription(category),...(categoryAliases[category]||[])
+ ].join(" "));
+ return terms.every(term=>haystack.includes(term));
+}
 function drawDashboard(){
  const grid=$("quick-categories");grid.replaceChildren();
- const names=categoryNames();
+ const names=categoryNames().filter(name=>matchesCategorySearch(name,$("category-search").value));
+ if(!names.length)grid.append(el("p","category-no-results","No hay categorías que coincidan."));
  for(const category of names){
   const button=el("button","quick-category");
   button.type="button";button.setAttribute("aria-label","Registrar "+category);
@@ -330,6 +356,7 @@ async function startVoice(targetId = "capture-text") {
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=()=>show(["categories","summary","data"].includes(document.querySelector(".screen.active").id)?"more":"history");
 $("top-action").onclick=()=>{const page=document.querySelector(".screen.active").id;if(page==="reminders")openReminderDialog();else show(page==="capture"?"more":"data")};
+$("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=openEntryDialog;
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
