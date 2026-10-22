@@ -36,9 +36,20 @@
       <div id="all-entries" class="entries"></div>
       <div class="exports"><button id="csv" class="secondary">Exportar CSV</button><button id="json" class="secondary">Exportar JSON</button></div>
       <div class="exports"><button id="import-json" class="secondary">Importar JSON</button><input type="file" id="import-file" accept=".json,application/json" hidden></div>
-      <p class="note">Datos locales. Esta versión utiliza IndexedDB, no SQLite.</p>
+      <p class="note">Datos locales: respaldo JSON e intercambio CSV. Sin servidor.</p>
     </section>
-    <nav><button id="nav-home" class="active">Hoy</button><button id="nav-history">Historial</button></nav>
+    <section id="reminders" class="screen">
+      <p class="note">Sin avisos previos ni cuenta regresiva.</p>
+      <div id="reminder-list" class="entries"></div>
+      <details><summary>Nuevo recordatorio</summary>
+        <label for="reminder-title">Descripción</label><input id="reminder-title" type="text" placeholder="Pausa, tomar agua…">
+        <label for="reminder-time">Hora</label><input id="reminder-time" type="time" value="13:00">
+        <label><input id="reminder-daily" type="checkbox" checked> Repetir diariamente</label>
+        <button id="reminder-save" class="primary">Guardar recordatorio</button>
+      </details>
+      <p id="reminder-status" class="note" role="status"></p>
+    </section>
+    <nav><button id="nav-home" class="active">Hoy</button><button id="nav-history">Historial</button><button id="nav-reminders">Recordatorios</button></nav>
   </main>
   <script defer src="./app.bundle.js"></script>
 </body>
