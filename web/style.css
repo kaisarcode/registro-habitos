@@ -106,3 +106,5 @@
 .category-error{min-height:1.2em;color:#f2b9b4;font-size:13px}
 .category-editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .category-editor-actions button{height:50px;min-height:50px;width:100%;margin:0;display:grid;place-items:center}
+
+.category-page-actions{display:flex;justify-content:flex-end;margin:-7px 0 8px}
