@@ -79,3 +79,30 @@
 #test-notification{font-size:13px;margin-top:12px}
 #test-notification:disabled{opacity:.5}
 #reminder-dialog-status{min-height:1.2em}
+
+/* Category manager: quiet edit controls, accessible consistent SVG icon grid. */
+.category-item{display:flex;align-items:center;gap:10px}
+.category-item .item-main{font-size:14px}
+.category-item .category-detail{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.category-item .category-count{font-size:12px;color:var(--muted);padding:0 2px}
+.category-item .category-edit,.category-item .category-remove{min-width:38px;height:40px;border-radius:11px;background:#293841;color:#cedfe0;font-size:15px}
+.category-item .category-remove{color:#f2b4b4}
+.category-editor{width:min(calc(100vw - 24px),520px);max-height:88dvh;overflow-y:auto;background:#14242c;border:1px solid #3b5159;color:#ecf0f1;padding:18px;border-radius:18px}
+.category-editor-title{display:flex;justify-content:space-between;align-items:center}
+.category-editor-title h2{font-size:20px;margin:0}
+.category-editor textarea{width:100%;min-height:75px}
+.category-editor label{margin-top:12px}
+.category-image-row{display:grid;grid-template-columns:55px minmax(0,1fr);gap:12px;align-items:center;margin-top:14px}
+.category-image-row .entry-icon{width:54px;height:54px}
+.category-image-row input{min-width:0;max-width:100%;font-size:12px}
+.category-image-row #cat-image-clear{font-size:12px;padding:8px 12px;margin-top:8px}
+.category-icon-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:10px 0 16px}
+.category-icon-grid button{min-height:46px;border:1px solid #364952;background:#20313a;border-radius:12px;display:grid;place-items:center}
+.category-icon-grid button.selected{border:2px solid var(--accent);background:#244d44}
+.category-icon-grid .icon{width:23px;height:23px}
+.icon.lucide-icon{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.entry-icon .icon.lucide-icon{width:26px;height:26px}
+.entry-icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.category-error{min-height:1.2em;color:#f2b9b4;font-size:13px}
+.category-editor-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.category-editor-actions button{height:50px;min-height:50px;width:100%;margin:0;display:grid;place-items:center}
