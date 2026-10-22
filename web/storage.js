@@ -41,5 +41,24 @@ export const storage = {
         await transact("readwrite", store => store.put(record));
         return record;
     },
+    async importEntries(records) {
+        const db = await connect();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(TABLE, "readwrite");
+            const store = tx.objectStore(TABLE);
+            let imported = 0, skipped = 0;
+            for (const record of records) {
+                const request = store.get(record.id);
+                request.onsuccess = () => {
+                    if (request.result) { skipped++; return; }
+                    store.add(record);
+                    imported++;
+                };
+            }
+            tx.oncomplete = () => resolve({ imported, skipped });
+            tx.onerror = () => reject(tx.error);
+            tx.onabort = () => reject(tx.error || new Error("Import cancelled"));
+        });
+    },
     async remove(id) { await transact("readwrite", store => store.delete(id)); },
 };

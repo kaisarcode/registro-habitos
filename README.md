@@ -4,7 +4,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Abrir `web/index.html` en un navegador moderno. Es una primera versión funcional de captura, historial, edición, búsqueda, sugerencias de categorías y exportación CSV/JSON. Funciona sin servidor y utiliza **IndexedDB temporalmente**. **Todavía no es SQLite**: la integración nativa y exportación de una base SQLite real son tareas pendientes.
+Abrir `web/index.html` en un navegador moderno. Es una primera versión funcional de captura, historial, edición, búsqueda, sugerencias de categorías y exportación CSV/JSON e importación de respaldos JSON. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado usa el motor de reconocimiento de voz disponible en el navegador/WebView; puede no estar disponible o requerir un servicio externo. Siempre es posible escribir.
 
@@ -28,7 +28,7 @@ Cada registro preserva fecha del evento, fecha de creación, texto original, cat
 
 ## Integración nativa prevista
 
-El siguiente incremento incorpora SQLite real detrás del adaptador, así como importación y copia del archivo `.sqlite`. KCAPK puede empaquetar una utilidad compilada aparte mediante `--exec`; eso requiere resolver dónde vive el archivo persistente y el protocolo de acceso. También ofrece `--api alarms` y `--api notifications`, pero hay que verificar cómo entregar los sonidos MP3 personalizados en las notificaciones nativas.
+La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK también ofrece `--api alarms` y `--api notifications`, pero hay que verificar cómo entregar los sonidos MP3 personalizados en las notificaciones nativas.
 
 Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c` permite medir similitud de textos; `libemb.c` genera embeddings locales (modelo BGE small **en inglés**), y `libhnsw.c` indexa vectores. Ninguno debe bloquear la creación de registros.
 
@@ -37,6 +37,10 @@ Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c
 `liblng.c` ofrece detección local sin estado y resultados ordenados por puntuación heurística (no probabilidades). La composición nativa prevista es: detectar idioma → consultar el perfil de ese idioma → sugerir categoría mediante precedentes/`libtpm.c` y, opcionalmente, `libemb.c` + `libhnsw.c`. Mantener índices y perfiles separados por idioma, versión de modelo y perfil de usuario. Si no se detecta idioma con seguridad, conservar el idioma como desconocido y guardar de todos modos. Los textos cortos son especialmente ambiguos.
 
 `web/classifier.js` ya acepta un código de idioma y evita mezclar precedentes con idiomas distintos cuando ambos están identificados. **La conexión real con `liblng.c` aún no está implementada**; por ahora las reglas locales corresponden a español. El modelo BGE disponible en `libemb.c` está entrenado para inglés: puede evaluarse sobre español, sin suponer resultados equivalentes ni traducir automáticamente datos sensibles.
+
+## Intercambio de datos
+
+El botón **Exportar JSON** produce un respaldo con `version`, `exportedAt` y `entries`. **Importar JSON** acepta ese mismo formato y combina las entradas por su ID, conservando las existentes sin reemplazarlas. La importación es transaccional: si falla, no confirma parcialmente la importación. **Exportar CSV** es una vista tabular para análisis y no se utiliza para restaurar, porque no representa necesariamente futuros campos anidados. La exportación no está filtrada por la búsqueda actual: incluye todos los registros.
 
 ## Privacidad
 

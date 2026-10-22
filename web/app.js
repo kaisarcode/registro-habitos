@@ -90,6 +90,39 @@ $("csv").onclick=()=>{
     const lines=[cols.join(","),...entries.map(e=>cols.map(c=>quote(e[c])).join(","))];
     download("registro-habitos.csv","\uFEFF"+lines.join("\r\n"),"text/csv;charset=utf-8");
 };
+$("import-json").onclick=()=> $("import-file").click();
+$("import-file").onchange=async event=>{
+    const file=event.target.files?.[0];
+    if (!file) return;
+    try {
+        const backup=JSON.parse(await file.text());
+        if (!backup || backup.version !== 1 || !Array.isArray(backup.entries)) {
+            throw new Error("Formato de respaldo no reconocido.");
+        }
+        const ids=new Set();
+        for (const entry of backup.entries) {
+            if (!entry || typeof entry !== "object" || Array.isArray(entry) ||
+                typeof entry.id !== "string" || !entry.id ||
+                ids.has(entry.id) || typeof entry.description !== "string" ||
+                !entry.description.trim() || typeof entry.occurredAt !== "string" ||
+                !Number.isFinite(Date.parse(entry.occurredAt)) ||
+                typeof entry.createdAt !== "string" || !Number.isFinite(Date.parse(entry.createdAt)) ||
+                ["energy","mood"].some(key => entry[key] != null &&
+                    (!Number.isInteger(entry[key]) || entry[key] < 0 || entry[key] > 10))) {
+                throw new Error("El archivo tiene registros duplicados o inválidos.");
+            }
+            ids.add(entry.id);
+        }
+        if (!confirm("Importar "+backup.entries.length+" entradas? Las existentes se conservarán; los ID repetidos se omitirán.")) return;
+        const result=await storage.importEntries(backup.entries);
+        await reload();
+        alert("Importadas: "+result.imported+". Omitidas por ID existente: "+result.skipped+".");
+    } catch(error) {
+        alert("No se pudo importar el archivo: "+error.message);
+    } finally {
+        event.target.value="";
+    }
+};
 $("dictate").onclick=()=>{
     const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!Recognition){$("voice-state").textContent="Dictado no disponible; podés escribir.";return;}
