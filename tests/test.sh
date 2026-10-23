@@ -514,3 +514,6 @@ grep -q 'id="app-language"' "$PAGE"
 grep -q 'function systemAppLanguage()' "$PAGE"
 grep -q 'function applyAppLanguage()' "$PAGE"
 grep -q 'language:languagePreference()' "$PAGE"
+
+grep -Fq 'Escuchando… puedes hacer pausas.' "$PAGE"
+grep -Fq '.item-main strong' "$PAGE"

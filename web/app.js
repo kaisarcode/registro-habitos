@@ -566,7 +566,7 @@ function drawReminders(){
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
 async function importBackup(file){
- if(!/\\.zip$/i.test(file.name||""))throw Error("Seleccioná un respaldo ZIP.");
+ if(!/\\.zip$/i.test(file.name||""))throw Error("Selecciona un respaldo ZIP.");
  const signature=new Uint8Array(await file.slice(0,4).arrayBuffer());
  if(signature.length!==4||signature[0]!==0x50||signature[1]!==0x4b||
     signature[2]!==0x03||signature[3]!==0x04)
@@ -594,7 +594,7 @@ async function importBackup(file){
    try{return !!reminderStore.normalizeTimes(r.times?.length?r.times:r.time)&&!existing.has(identity(r));}
    catch{return false;}
   });
-  if(add.length&&await appConfirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Querés programarlos en este dispositivo?","Restaurar recordatorios","Programar")){
+  if(add.length&&await appConfirm("El respaldo incluye "+add.length+" recordatorios nuevos. ¿Quieres programarlos en este dispositivo?","Restaurar recordatorios","Programar")){
    let done=0;
    for(const r of add){
     try{const item=await reminderStore.add(r.title,r.times?.length?r.times:r.time,r.repeat!=="once",r.repeat||"daily",r.sound||"none");if(r.enabled===false)await reminderStore.setEnabled(item.id,false);done++;}
@@ -724,7 +724,7 @@ async function startVoice(targetId = "capture-text") {
     // Interim-only words are not committed as the engine did not confirm them.
     field.value = session.committed;
     field.dispatchEvent(new Event("input", {bubbles:true}));
-    voiceFeedback(targetId, "Escuchando… podés hacer pausas. Toca para detener.");
+    voiceFeedback(targetId, "Escuchando… puedes hacer pausas. Toca para detener.");
     session.restartTimer = setTimeout(run, 350);
    };
    try { r.start(); }
@@ -773,7 +773,7 @@ function handleDeviceBack(){
  }
  if(!exitConfirmationOpen){
   exitConfirmationOpen=true;
-  showAppDialog({title:"Salir de la app",message:"¿Querés salir de Registro Hábitos?",ok:"Salir"}).then(leave=>{
+  showAppDialog({title:"Salir de la app",message:"¿Quieres salir de Registro Hábitos?",ok:"Salir"}).then(leave=>{
    exitConfirmationOpen=false;
    if(leave)window.AppNavigation?.exitApp();
   });
