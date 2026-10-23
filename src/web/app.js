@@ -640,9 +640,10 @@ function historyDateGroup(value,now=new Date()){
         const detail=new Intl.DateTimeFormat(locale,{day:"numeric",month:"short"}).format(date);
         return {key:"d-"+dateKey,title,detail,recent:true};
     }
-    const month=new Intl.DateTimeFormat(locale,{month:"long",year:"numeric"}).format(date);
+    const month=new Intl.DateTimeFormat(locale,{month:"long"}).format(date);
     return {key:"m-"+date.getFullYear()+"-"+date.getMonth(),
-        title:month.charAt(0).toLocaleUpperCase(locale)+month.slice(1),detail:"",recent:false};
+        title:month.charAt(0).toLocaleUpperCase(locale)+month.slice(1)+" "+date.getFullYear(),
+        detail:"",recent:false};
 }
 
 /** Make one history item, keeping the original edit behavior. */
@@ -682,7 +683,8 @@ async function loadHistoryPage(){
     if(historyState.loading||!historyState.hasMore||!$("history").classList.contains("active"))return;
     const generation=historyState.generation;
     historyState.loading=true;
-    $("history-indicator").textContent="Cargando registros…";
+    const english=currentAppLanguage()==="en";
+    $("history-indicator").textContent=english?"Loading entries…":"Cargando registros…";
     $("history-more").hidden=true;
     try{
         const {from,to}=historyBounds();
@@ -696,17 +698,17 @@ async function loadHistoryPage(){
         historyState.next=result.next;
         historyState.hasMore=result.hasMore;
         if(!historyState.loaded){
-            $("history-indicator").textContent="No hay registros para estos filtros.";
+            $("history-indicator").textContent=english?"No entries match these filters.":"No hay registros para estos filtros.";
         }else{
             $("history-indicator").textContent=historyState.hasMore
-                ?historyState.loaded+" registros cargados · Deslizá para ver más"
-                :historyState.loaded+" registros";
+                ?historyState.loaded+(english?" entries loaded · Scroll to see more":" registros cargados · Deslizá para ver más")
+                :historyState.loaded+(english?" entries":" registros");
         }
         $("history-more").hidden=!historyState.hasMore;
         $("history-sentinel").hidden=!historyState.hasMore;
     }catch(error){
         if(generation!==historyState.generation)return;
-        $("history-indicator").textContent=error.message||"No se pudo cargar el historial.";
+        $("history-indicator").textContent=error.message||(english?"Could not load history.":"No se pudo cargar el historial.");
         $("history-more").hidden=false;
         $("history-sentinel").hidden=true;
     }finally{
