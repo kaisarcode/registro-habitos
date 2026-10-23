@@ -56,18 +56,27 @@
 #category-search::placeholder{color:#93a6ad}
 .category-no-results{grid-column:1/-1;padding:18px 8px;color:var(--muted);font-size:13px;text-align:center}
 
-/* One time selector for both new and existing records; end is optional. */
+/* Duration is a single compact row; the native end-time picker sits beside it. */
 .time-editor{margin:14px 0;min-width:0}
 .time-editor .section-label{margin-bottom:12px}
 .time-datetime{display:block;min-width:0;margin:8px 0 14px;color:#c0cdd1}
 .time-datetime input[type=datetime-local]{display:block;width:100%;min-width:0;margin-top:8px}
-.time-optional{font-size:12px;color:var(--muted);font-weight:400}
 .time-duration{margin:12px 0 0}
 .time-duration .section-label{margin-bottom:5px}
-.duration-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.duration-parts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 55px;gap:10px;align-items:end}
 .duration-parts label{min-width:0;margin:6px 0 12px}
-.duration-parts input{width:100%;min-width:0}
-html.theme-light .time-optional{color:#526a73}
+.duration-parts input[type=number]{width:100%;min-width:0}
+.time-end-picker{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.time-end-trigger{position:relative;display:grid;place-items:center;width:55px;height:52px;border:1px solid #33464e;border-radius:13px;background:#20313a;color:#d8e7e7}
+.time-end-trigger .icon{width:23px;height:23px;pointer-events:none}
+.time-end-trigger input[type=datetime-local]{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;opacity:0;padding:0;margin:0;cursor:pointer}
+.time-end-trigger:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.time-end-caption{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin:-1px 0 12px;padding:0 1px}
+.time-end-caption[hidden]{display:none!important}
+.time-end-caption output{overflow-wrap:anywhere}
+.time-end-caption button{font-size:22px;line-height:1;border-radius:8px;min-width:32px;min-height:32px;color:var(--muted)}
+html.theme-light .time-end-trigger{background:#e6eff1;color:#263e46;border-color:#aebfc5}
+html.theme-light .time-end-caption{color:#526a73}
 
 /* Both actions in the entry popup have identical hit targets and dimensions. */
 .entry-modal-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:stretch;margin-top:16px}

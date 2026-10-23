@@ -328,7 +328,7 @@ function durationLabel(total){
     return h?(h+" h"+(m?" "+m+" min":"")):(m+" min");
 }
 
-/** Read one combined local date-time field, preserving local calendar times. */
+/** Read local date/time selected with the native compact picker. */
 function selectedDateTime(prefix,point){
     const source=$(prefix+"-"+point+"-at").value;
     const label=point==="start"?"inicio":"fin";
@@ -339,76 +339,112 @@ function selectedDateTime(prefix,point){
     return value;
 }
 
-/** Read an optional manually entered duration in minutes. */
+/** Duration is optional, but supports entering minutes without hours. */
 function readDurationParts(prefix){
     const rawHours=$(prefix+"-hours").value.trim();
     const rawMinutes=$(prefix+"-minutes").value.trim();
-    if(rawHours==="" && rawMinutes==="")return null;
+    if(rawHours===""&&rawMinutes==="")return null;
     const hours=rawHours===""?0:Number(rawHours);
     const minutes=rawMinutes===""?0:Number(rawMinutes);
     if(!Number.isSafeInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59)
         throw Error("Usá horas positivas y minutos entre 0 y 59.");
-    return hours*60+minutes;
+    const total=hours*60+minutes;
+    if(!Number.isSafeInteger(total))throw Error("La duración es demasiado grande.");
+    return total;
 }
 
-/** Display minutes in the two editable duration fields. */
 function populateDurationParts(prefix,total){
     $(prefix+"-hours").value=total==null?"":String(Math.floor(total/60));
     $(prefix+"-minutes").value=total==null?"":String(total%60);
 }
 
-/** End and duration are alternatives: the most recently edited one wins. */
-const timeInputMode={entry:"none",edit:"none"};
-function updateTimeEditor(prefix,source){
+/** Show the chosen or inferred end without adding a second form field. */
+function refreshTimeEndCaption(prefix){
+    const caption=$(prefix+"-end-caption");
     const endField=$(prefix+"-end-at");
-    if(source==="duration"){
-        // Manual duration never invents a finishing time.
-        if(endField.value)endField.value="";
-        try{
-            timeInputMode[prefix]=readDurationParts(prefix)===null?"none":"duration";
-        }catch(_){
-            // The field can be temporarily incomplete while the user types;
-            // validate it when saving rather than throwing from an input event.
-            timeInputMode[prefix]="duration";
-        }
+    if(!endField.value){
+        caption.hidden=true;
+        $(prefix+"-end-summary").textContent="";
         return;
     }
-    if(source==="end"){
-        const previous=timeInputMode[prefix];
-        timeInputMode[prefix]=endField.value?"end":"none";
-        if(!endField.value && previous==="end")populateDurationParts(prefix,null);
-    }
-    if(timeInputMode[prefix]!=="end")return;
     try{
-        const minutes=Math.round((selectedDateTime(prefix,"end")-selectedDateTime(prefix,"start"))/60000);
-        populateDurationParts(prefix,minutes>0?minutes:null);
+        const end=selectedDateTime(prefix,"end");
+        const english=currentAppLanguage()==="en";
+        const formatted=end.toLocaleString(english?"en-US":"es-AR",{dateStyle:"short",timeStyle:"short"});
+        $(prefix+"-end-summary").textContent=(english?"End: ":"Fin: ")+formatted;
+        caption.hidden=false;
     }catch(_){
-        populateDurationParts(prefix,null);
+        caption.hidden=true;
     }
 }
 
-/** Set both editing paths from the stored start, optional end and duration. */
+/** Maintain the last edited value: duration sets end; end sets duration. */
+const timeInputMode={entry:"none",edit:"none"};
+function updateTimeEditor(prefix,source){
+    const endField=$(prefix+"-end-at");
+    if(source==="duration"||(source==="start"&&timeInputMode[prefix]==="duration")){
+        timeInputMode[prefix]="duration";
+        try{
+            const minutes=readDurationParts(prefix);
+            if(minutes===null){
+                timeInputMode[prefix]="none";
+                endField.value="";
+            }else{
+                const start=selectedDateTime(prefix,"start");
+                endField.value=localTime(new Date(start.getTime()+minutes*60000));
+            }
+        }catch(_){
+            // Incomplete numbers stay editable; saving validates them.
+            endField.value="";
+        }
+    }else if(source==="end"){
+        timeInputMode[prefix]=endField.value?"end":"none";
+        if(!endField.value){
+            populateDurationParts(prefix,null);
+        }else{
+            try{
+                const minutes=Math.round((selectedDateTime(prefix,"end")-selectedDateTime(prefix,"start"))/60000);
+                populateDurationParts(prefix,minutes>=0?minutes:null);
+            }catch(_){
+                populateDurationParts(prefix,null);
+            }
+        }
+    }else if(source==="start"&&timeInputMode[prefix]==="end"){
+        // The user chose a specific end: retain it as the start changes.
+        updateTimeEditor(prefix,"end");
+        return;
+    }
+    refreshTimeEndCaption(prefix);
+}
+
 function populateTimeEditor(prefix,start,end=null,duration=null){
     $(prefix+"-start-at").value=localTime(start);
     $(prefix+"-end-at").value=end?localTime(end):"";
     timeInputMode[prefix]=end?"end":duration!=null?"duration":"none";
-    populateDurationParts(prefix,end?null:duration);
+    populateDurationParts(prefix,duration);
     if(end)updateTimeEditor(prefix,"end");
+    else if(duration!=null)updateTimeEditor(prefix,"duration");
+    else refreshTimeEndCaption(prefix);
 }
 
-/** Keep occurredAt aligned with the start, and preserve the chosen time mode. */
+/** Save start, optional end and its duration using existing data fields. */
 function timeDetails(prefix){
     const start=selectedDateTime(prefix,"start");
     const startedAt=start.toISOString();
     const endInput=$(prefix+"-end-at").value;
     if(endInput){
         const end=selectedDateTime(prefix,"end");
-        if(end.getTime()<=start.getTime())
-            throw Error("El fin debe ser posterior al inicio.");
+        if(end.getTime()<start.getTime())
+            throw Error("El fin no puede ser anterior al inicio.");
         const duration=Math.round((end.getTime()-start.getTime())/60000);
         return {occurredAt:startedAt,startedAt,endedAt:end.toISOString(),duration};
     }
-    return {occurredAt:startedAt,startedAt,endedAt:null,duration:readDurationParts(prefix)};
+    const duration=readDurationParts(prefix);
+    if(duration===null)return {occurredAt:startedAt,startedAt,endedAt:null,duration:null};
+    // Keep the derived end consistent even if the browser hasn't emitted change.
+    const derivedEnd=new Date(start.getTime()+duration*60000);
+    if(!Number.isFinite(derivedEnd.getTime()))throw Error("La duración es demasiado grande.");
+    return {occurredAt:startedAt,startedAt,endedAt:derivedEnd.toISOString(),duration};
 }
 
 /**
@@ -1315,6 +1351,12 @@ for(const prefix of ["entry","edit"]){
         input.addEventListener("input",()=>updateTimeEditor(prefix,"duration"));
         input.addEventListener("change",()=>updateTimeEditor(prefix,"duration"));
     }
+    $(prefix+"-clear-time").addEventListener("click",()=>{
+        end.value="";
+        populateDurationParts(prefix,null);
+        timeInputMode[prefix]="none";
+        refreshTimeEndCaption(prefix);
+    });
 }
 
 $("edit-save").onclick=async()=>{

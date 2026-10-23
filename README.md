@@ -83,9 +83,11 @@ La vista **Mi día** presenta las categorías como botones permanentes. Tocar un
 
 ## Horario: inicio y fin opcional
 
-Crear y editar usan un **Inicio** combinado de fecha y hora, precargado con el momento actual, y un campo **Fin** igualmente combinado que puede quedar vacío. **Duración** conserva sus campos rápidos y editables de **Horas** y **Minutos** (admite solamente minutos). Al completar el fin, se calculan las horas y minutos automáticamente; al editar la duración manualmente, el fin vuelve a quedar vacío para registrar inicio y duración sin inventar una hora de finalización. Si solo cambia el inicio de un intervalo con fin, se actualiza la duración; si se registra duración sin fin, esta se mantiene. Se admiten intervalos que cruzan la medianoche.
+Crear y editar usan un **Inicio** combinado de fecha y hora, precargado con el momento actual. Debajo hay una sola fila de **Duración**: **Horas**, **Minutos** y un botón de calendario **Fin** a la derecha. El calendario permite elegir la fecha y hora final sin añadir un segundo campo de formulario. Cuando existe un fin, aparece discretamente debajo de la fila y se puede borrar.
 
-`occurredAt` y `startedAt` guardan el inicio. Si se define fin, `endedAt` guarda el fin y `duration` contiene su diferencia en minutos. Si solo se define duración, `endedAt` queda en `null` y `duration` conserva los minutos ingresados. Con ambos vacíos, `endedAt` y `duration` quedan en `null`. El historial y las exportaciones JSON/CSV mantienen los mismos campos, sin migraciones.
+Al escribir horas o minutos se calcula y actualiza el Fin a partir del Inicio; al elegir Fin en el calendario se calculan Horas y Minutos. Cambiar Inicio conserva la última referencia usada (duración escrita o fin seleccionado). Borrar la duración elimina el fin calculado, y borrar el fin elimina la duración. Sirve para cualquier categoría, incluidos intervalos nocturnos que cruzan la medianoche.
+
+`occurredAt` y `startedAt` guardan el inicio. `endedAt` y `duration` guardan el fin definido o calculado y la duración en minutos; con ambos vacíos quedan en `null`. El historial y las exportaciones JSON/CSV mantienen los campos existentes, sin migraciones.
 
 ## Botones del formulario
 

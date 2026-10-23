@@ -214,14 +214,21 @@
   <label class="time-datetime" for="edit-start-at">Inicio
    <input id="edit-start-at" type="datetime-local" step="60">
   </label>
-  <label class="time-datetime" for="edit-end-at">Fin <span class="time-optional">(opcional)</span>
-   <input id="edit-end-at" type="datetime-local" step="60">
-  </label>
   <div class="time-duration">
    <div class="section-label">Duración</div>
    <div class="duration-parts">
     <label for="edit-hours">Horas<input id="edit-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
     <label for="edit-minutes">Minutos<input id="edit-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+    <label class="time-end-picker" for="edit-end-at">Fin
+     <span class="time-end-trigger">
+      <input id="edit-end-at" type="datetime-local" step="60" aria-label="Seleccionar fecha y hora de fin">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+     </span>
+    </label>
+   </div>
+   <div class="time-end-caption" id="edit-end-caption" hidden>
+    <output id="edit-end-summary" aria-live="polite"></output>
+    <button id="edit-clear-time" type="button" aria-label="Borrar fin y duración" title="Borrar fin y duración">×</button>
    </div>
   </div>
  </div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="edit-energy">Energía <output id="edit-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="edit-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="edit-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><div class="edit-modal-footer"><div class="edit-modal-actions"><button type="button" id="edit-cancel" class="secondary">Cerrar</button><button type="button" id="edit-save" class="main-button">Guardar</button></div><button type="button" id="edit-delete" class="edit-delete-action"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v7M14 11v7M6 7l1 14h10l1-14M9 7V4h6v3"/></svg><span>Eliminar registro</span></button></div></dialog>
@@ -260,14 +267,21 @@
   <label class="time-datetime" for="entry-start-at">Inicio
    <input id="entry-start-at" type="datetime-local" step="60">
   </label>
-  <label class="time-datetime" for="entry-end-at">Fin <span class="time-optional">(opcional)</span>
-   <input id="entry-end-at" type="datetime-local" step="60">
-  </label>
   <div class="time-duration">
    <div class="section-label">Duración</div>
    <div class="duration-parts">
     <label for="entry-hours">Horas<input id="entry-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
     <label for="entry-minutes">Minutos<input id="entry-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+    <label class="time-end-picker" for="entry-end-at">Fin
+     <span class="time-end-trigger">
+      <input id="entry-end-at" type="datetime-local" step="60" aria-label="Seleccionar fecha y hora de fin">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M7 3v4M17 3v4M3 10h18"></path></svg>
+     </span>
+    </label>
+   </div>
+   <div class="time-end-caption" id="entry-end-caption" hidden>
+    <output id="entry-end-summary" aria-live="polite"></output>
+    <button id="entry-clear-time" type="button" aria-label="Borrar fin y duración" title="Borrar fin y duración">×</button>
    </div>
   </div>
  </div>
