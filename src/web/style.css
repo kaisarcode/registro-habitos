@@ -705,3 +705,10 @@ html.theme-light .category-grid .quick-category,html.theme-light .category-grid 
 .history-item .item-main,.category-item .item-main,.reminder-item .item-main{flex:1 1 0;min-width:0;max-width:100%;overflow:hidden}
 .history-item .item-main strong,.category-item .item-main strong,.reminder-item .item-main strong{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-item .item-main small{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Save confirmation is a self-contained bottom toast, clear of the header. */
+#quick-feedback{position:fixed;top:auto;bottom:calc(88px + env(safe-area-inset-bottom));left:max(16px,calc((100vw - 560px)/2 + 16px));right:max(16px,calc((100vw - 560px)/2 + 16px));width:auto;max-width:528px;margin:0;padding:12px 14px;min-height:54px;max-height:none;overflow:visible;display:none;align-items:center;justify-content:flex-start;gap:10px;z-index:20;box-sizing:border-box;font-size:14px;line-height:1.35;-webkit-text-size-adjust:100%;text-size-adjust:100%;border-radius:14px}
+#quick-feedback.has-message{display:flex}
+#quick-feedback #capture-status{flex:1 1 0;display:block;min-width:0;max-width:100%;margin:0;font-size:14px;line-height:1.35;white-space:normal;overflow-wrap:break-word}
+#quick-feedback .undo-button{flex:0 0 auto;white-space:nowrap;margin:0}
+#quick-feedback .dismiss-feedback{flex:0 0 38px;margin:0}
