@@ -561,3 +561,7 @@ grep -Fq 'Tus registros, a tu disposición' "$PAGE"
 
 grep -Fq 'capture:"i-help"' "$PAGE"
 grep -Fq 'else if(page==="capture")show("help");' "$PAGE"
+
+# History search has no misleading shortcut to category management.
+grep -q 'id="search" type="search"' "$PAGE"
+if grep -q 'id="history-filter"' "$PAGE"; then echo "Obsolete history category shortcut" >&2; exit 1; fi
