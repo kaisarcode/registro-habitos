@@ -870,22 +870,11 @@ $("preview-sound").onclick=()=>{
  if(previewAudio){previewAudio.pause();previewAudio=null;}
  if(name==="none")return;
  previewAudio=new Audio(name==="glock"?"./sounds/glock.mp3":"./sounds/alert.mp3");
- previewAudio.volume=Number($("preview-volume").value)/100;
+ // Preview at the selected listening volume; previously capped at 60% and started at 25%.
+ previewAudio.volume=Math.max(0,Math.min(1,Number($("preview-volume").value)/100));
  previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
 };
 $("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
-$("test-closed-notification").onclick=async()=>{
- const button=$("test-closed-notification");
- button.disabled=true;
- $("reminder-dialog-status").textContent="";
- try{
-  const exact=await reminderStore.testClosed($("reminder-name").value.trim(),$("reminder-sound").value);
-  $("reminder-dialog-status").textContent=exact
-   ?"Prueba programada. Cerrá la app normalmente; Android entregará una notificación."
-   :"Prueba programada con horario aproximado. Para mejorar la precisión, permití Alarmas y recordatorios en Android.";
- }catch(error){$("reminder-dialog-status").textContent=error.message;}
- finally{button.disabled=false;}
-};
 $("test-notification").onclick=async()=>{
  const button=$("test-notification");
  button.disabled=true;

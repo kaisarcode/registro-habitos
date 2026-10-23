@@ -141,3 +141,5 @@ El selector de restauración de Android muestra únicamente archivos ZIP; el gua
 ## Tema claro opcional
 
 El switch **Modo oscuro** en Más → Preferencias sensoriales está activado por defecto. Desactivarlo aplica una paleta clara suave, también en los formularios y modales. Se guarda localmente y se incluye en el respaldo completo ZIP.
+
+El botón de prueba con la app cerrada fue retirado del formulario. La preescucha ahora inicia al 90 % y permite ajustar del 0 al 100 %, sin alterar el volumen de las notificaciones Android, que depende del canal y del teléfono.

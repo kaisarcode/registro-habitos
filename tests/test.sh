@@ -168,8 +168,11 @@ if grep -q 'id="reminder-confirm"[^>]*>Guardar cambios' "$PAGE"; then
 fi
 grep -q 'id="app-action-dialog"' "$PAGE"
 grep -q 'id="test-notification"' "$PAGE"
-grep -q 'id="test-closed-notification"' "$PAGE"
-grep -q 'async testClosed(title,sound)' "$PAGE"
+grep -q 'id="preview-volume" type="range" min="0" max="100" value="90"' "$PAGE"
+if grep -q 'id="test-closed-notification"' "$PAGE"; then
+ echo "Removed closed-app diagnostic remains" >&2
+ exit 1
+fi
 grep -q -- '--permission exactAlarm' "$ROOT/build.sh"
 grep -q 'AlarmBridge.schedule(context, options, true)' "$ROOT/native/AlarmReceiver.java.in"
 grep -q 'JSONObject recurrence = scheduled.optJSONObject("recurrence")' "$ROOT/native/AlarmReceiver.java.in"
@@ -416,7 +419,6 @@ const once=alarms[1];
 if(!once||once.recurrence!==null)throw Error("A once-only reminder must not repeat");
 if(!remindersSource.includes('permissions.request("exactAlarm")'))
  throw Error("Exact alarm permission is never requested");
-if(!remindersSource.includes('async testClosed(title,sound)'))
  throw Error("No closed-app alarm test is available");
 // Multi-time reminders reserve a distinct Android alarm ID for every hour.
 (async()=>{
