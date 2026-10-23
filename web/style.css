@@ -423,3 +423,15 @@ html.theme-light .language-preferences select{background:#f3f7f7;color:#263e46;b
 html.theme-light .analysis-filter-toggle{color:#263e46}
 html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
 html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track::after{background:#fff}
+
+/* Consistent inset caret for language selector on Android WebView. */
+.language-preferences{position:relative}
+.language-preferences #app-language{
+ appearance:none;-webkit-appearance:none;
+ padding-right:58px!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23a6b6bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+ background-repeat:no-repeat;background-position:right 20px center;background-size:20px 20px;
+}
+html.theme-light .language-preferences #app-language{
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23465d65' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
