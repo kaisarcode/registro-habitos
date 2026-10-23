@@ -253,7 +253,7 @@ function openEntryDialog(category=null){
  $("entry-dialog").showModal();
 }
 function closeEntryDialog(){
- if(recognition){try{recognition.stop()}catch(_){}}
+ if(voiceSession)stopVoice()
  $("entry-dialog").close();
 }
 async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawDashboard();}
@@ -585,6 +585,7 @@ async function importBackup(file){
 // Browser speech engines may use a remote service when on-device recognition is
 // unavailable; the app itself does not upload or store the microphone audio.
 let voicePending = false;
+let voiceSession = null;
 function voiceFeedback(targetId, message) {
  const status = $(targetId === "edit-text" ? "edit-voice-status" : "entry-status");
  if (status) status.textContent = message;
@@ -594,16 +595,27 @@ function voiceButtons(active) {
   const button = $(id);
   button.classList.toggle("listening", active);
   button.setAttribute("aria-pressed", active ? "true" : "false");
-  button.setAttribute("aria-label", active ? "Detener dictado" : "Dictar");
+  button.setAttribute("aria-label", active ? "Detener dictado" : "Iniciar dictado");
  }
 }
-async function startVoice(targetId = "capture-text") {
- const field = $(targetId);
+function stopVoice() {
+ const session = voiceSession;
+ if (!session) return;
+ session.active = false;
+ voiceSession = null;
+ if (session.restartTimer) clearTimeout(session.restartTimer);
  if (recognition) {
-  try { recognition.stop(); } catch (_) { /* Already stopping. */ }
-  return;
+  const current = recognition;
+  recognition = null;
+  try { current.stop(); } catch (_) { /* Recognizer already stopped. */ }
  }
+ voiceButtons(false);
+ voiceFeedback(session.targetId, "Dictado detenido.");
+}
+async function startVoice(targetId = "capture-text") {
+ if (voiceSession) { stopVoice(); return; }
  if (voicePending) return;
+ const field = $(targetId);
  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
  if (typeof Rec !== "function") {
   voiceFeedback(targetId, "Este navegador no ofrece reconocimiento de voz.");
@@ -612,8 +624,6 @@ async function startVoice(targetId = "capture-text") {
  }
  voicePending = true;
  try {
-  // KCAPK has RECORD_AUDIO in its Manifest; ask for the runtime permission
-  // through the tested Android bridge before invoking browser recognition.
   const permissions = window.NativeBridge?.Android?.permissions;
   if (permissions && !permissions.has("microphone")) {
    voiceFeedback(targetId, "Solicitando permiso de micrófono…");
@@ -622,50 +632,81 @@ async function startVoice(targetId = "capture-text") {
     return;
    }
   }
-  const r = new Rec();
-  r.lang = "es-AR";
-  r.interimResults = true;
-  r.continuous = false;
-  r.maxAlternatives = 1;
-  // Use the browser's configured recognizer, including its online/offline
-  // preference. Requiring processLocally would disable voice on Android.
-  const original = field.value.trim();
-  r.onstart = () => { voiceButtons(true); voiceFeedback(targetId, "Escuchando… Tocá otra vez para terminar."); };
-  r.onresult = event => {
-   let transcript = "";
-   for (let i = 0; i < event.results.length; i++) {
-    if (event.results[i][0]) transcript += event.results[i][0].transcript + " ";
-   }
-   field.value = [original, transcript.trim()].filter(Boolean).join(" ");
-   field.dispatchEvent(new Event("input", { bubbles: true }));
-  };
-  r.onerror = event => {
-   const messages = {
-    "not-allowed": "El navegador rechazó el dictado. Si ya permitiste el micrófono en Android, comprobá el servicio de voz del dispositivo.",
-    "service-not-allowed": "El servicio de voz está bloqueado en este navegador.",
-    "audio-capture": "No se pudo acceder al micrófono.",
-    "no-speech": "No se detectó voz. Podés intentarlo de nuevo.",
-    "network": "El motor de voz del navegador necesita conexión.",
-    "language-not-supported": "El motor de voz no admite español (Argentina)."
+  const session = {targetId,field,active:true,committed:field.value.trim(),restartTimer:null};
+  voiceSession = session;
+  // Some browser speech engines end recognition after silence even in
+  // continuous mode. Recreate the recognizer while the user hasn't stopped it.
+  const run = () => {
+   if (!session.active || voiceSession !== session) return;
+   const r = new Rec();
+   recognition = r;
+   r.lang = "es-AR";
+   r.interimResults = true;
+   r.continuous = true;
+   r.maxAlternatives = 1;
+   let finalized = "";
+   let interim = "";
+   const updateField = () => {
+    field.value = [session.committed,finalized,interim].filter(Boolean).join(" ").trim();
+    field.dispatchEvent(new Event("input", {bubbles:true}));
    };
-   voiceFeedback(targetId, messages[event.error] || "Error de dictado: " + event.error);
-   voiceButtons(false);
+   r.onstart = () => {
+    if (session.active) {
+     voiceButtons(true);
+     voiceFeedback(targetId, "Escuchando… Tocá otra vez para detener.");
+    }
+   };
+   r.onresult = event => {
+    if (!session.active || recognition !== r) return;
+    finalized = ""; interim = "";
+    for (let i = 0; i < event.results.length; i++) {
+     const result = event.results[i];
+     if (!result?.[0]) continue;
+     if (result.isFinal) finalized += result[0].transcript.trim() + " ";
+     else interim += result[0].transcript.trim() + " ";
+    }
+    finalized = finalized.trim();
+    interim = interim.trim();
+    updateField();
+   };
+   r.onerror = event => {
+    if (!session.active) return;
+    const messages = {
+     "not-allowed": "El navegador rechazó el micrófono.",
+     "service-not-allowed": "El servicio de voz está bloqueado.",
+     "audio-capture": "No se pudo acceder al micrófono.",
+     "network": "El motor de voz necesita conexión.",
+     "language-not-supported": "El motor de voz no admite español (Argentina)."
+    };
+    if (event.error === "no-speech" || event.error === "aborted") return;
+    // Fatal errors must not cause an endless permission/network retry loop.
+    session.active = false;
+    voiceSession = null;
+    recognition = null;
+    voiceButtons(false);
+    voiceFeedback(targetId, messages[event.error] || "Error de dictado: " + event.error);
+   };
+   r.onend = () => {
+    if (recognition === r) recognition = null;
+    if (!session.active || voiceSession !== session) return;
+    session.committed = [session.committed,finalized].filter(Boolean).join(" ").trim();
+    // Interim-only words are not committed as the engine did not confirm them.
+    field.value = session.committed;
+    field.dispatchEvent(new Event("input", {bubbles:true}));
+    voiceFeedback(targetId, "Escuchando… podés hacer pausas. Tocá para detener.");
+    session.restartTimer = setTimeout(run, 350);
+   };
+   try { r.start(); }
+   catch (error) {
+    if (recognition === r) recognition = null;
+    session.active = false;
+    voiceSession = null;
+    voiceButtons(false);
+    voiceFeedback(targetId, "No se pudo reiniciar el dictado: " + (error.message || error));
+   }
   };
-  r.onend = () => {
-   if (recognition === r) recognition = null;
-   voiceButtons(false);
-   const status = $(targetId === "edit-text" ? "edit-voice-status" : "entry-status");
-   if (status?.textContent.startsWith("Escuchando")) status.textContent = field.value.trim() ? "Dictado terminado." : "No se registró texto.";
-  };
-  recognition = r;
-  try {
-   r.start();
-  } catch (error) {
-   recognition = null;
-   voiceButtons(false);
-   voiceFeedback(targetId, "No se pudo iniciar el dictado: " + (error.message || error));
-   field.focus();
-  }
+  voiceButtons(true);
+  run();
  } catch (error) {
   voiceFeedback(targetId, "No se pudo iniciar el micrófono: " + (error.message || error));
   field.focus();
@@ -720,10 +761,10 @@ $("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=()=>openEntryDialog();
 $("edit-close").onclick=()=>$("edit-dialog").close();
 $("edit-cancel").onclick=()=>$("edit-dialog").close();
-$("edit-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});
+$("edit-dialog").addEventListener("close",()=>{if(voiceSession)stopVoice()});
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
-$("entry-dialog").addEventListener("close",()=>{if(recognition){try{recognition.stop()}catch(_){}}});
+$("entry-dialog").addEventListener("close",()=>{if(voiceSession)stopVoice()});
 $("capture-save").onclick=saveCapture;
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
