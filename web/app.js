@@ -865,16 +865,24 @@ $("edit-delete").onclick=async()=>{
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
 
 let previewAudio=null;
+function stopPreview(){
+ window.AppSoundPreview?.stop();
+ if(previewAudio){previewAudio.pause();previewAudio=null;}
+}
 $("preview-sound").onclick=()=>{
  const name=$("reminder-sound").value;
- if(previewAudio){previewAudio.pause();previewAudio=null;}
+ stopPreview();
  if(name==="none")return;
+ if(window.AppSoundPreview?.play){
+  window.AppSoundPreview.play(name);
+  return;
+ }
+ // Development browsers use multimedia output; the APK uses notification audio.
  previewAudio=new Audio(name==="glock"?"./sounds/glock.mp3":"./sounds/alert.mp3");
- // Preview at the selected listening volume; previously capped at 60% and started at 25%.
- previewAudio.volume=Math.max(0,Math.min(1,Number($("preview-volume").value)/100));
- previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
+ previewAudio.volume=1;
+ previewAudio.play().catch(error=>$("reminder-dialog-status").textContent=error.message);
 };
-$("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
+$("reminder-dialog").addEventListener("close",stopPreview);
 $("reminder-add-time").onclick=()=>{
  if($("reminder-times").children.length>=REMINDER_MAX_TIMES)return;
  const input=addReminderTimeRow("");

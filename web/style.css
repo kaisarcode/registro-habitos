@@ -300,5 +300,3 @@ dialog p,dialog label,dialog .muted{overflow-wrap:anywhere}
 #reminder-dialog .reminder-sound-controls>select{box-sizing:border-box;width:100%;min-width:0;height:52px;min-height:52px;margin:0;padding:0 12px}
 #reminder-dialog .sound-play-button{box-sizing:border-box;display:grid;place-items:center;width:52px;min-width:52px;height:52px;min-height:52px;margin:0;padding:0;border-radius:13px}
 #reminder-dialog .sound-play-button svg{display:block}
-#reminder-dialog .preview-volume-label{display:block;margin:22px 0 12px}
-#reminder-dialog #preview-volume{display:block;width:100%;margin:0 0 18px}

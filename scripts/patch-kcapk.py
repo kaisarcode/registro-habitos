@@ -29,7 +29,7 @@ replace_once(main_file,
     '        webView.clearCache(true);')
 replace_once(main_file,
     'private JSBridge bridge;',
-    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;\n    private AppNavigationBridge appNavigation;\n    private AppDocumentBridge appDocuments;')
+    'private JSBridge bridge;\n    private AppWebChromeClient appChromeClient;\n    private AppNavigationBridge appNavigation;\n    private AppDocumentBridge appDocuments;\n    private AppSoundPreview appSoundPreview;')
 replace_once(main_file,
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));',
     'webView.setWebViewClient(new TrustedWebViewClient(this, TRUSTED_ORIGINS, bridge));\n'
@@ -46,6 +46,7 @@ replace_once(main_file,
     '        if (webView != null) {\n'
     '            webView.removeJavascriptInterface(JS_INTERFACE_NAME);',
     '        if (appChromeClient != null) appChromeClient.cancelFileChooser();\n'
+    '        if (appSoundPreview != null) appSoundPreview.stop();\n'
     '        if (webView != null) {\n'
     '            webView.removeJavascriptInterface(JS_INTERFACE_NAME);')
 # Hardware Back is always handled by the app UI; don't pop a WebView history
@@ -56,7 +57,9 @@ replace_once(main_file,
     '        appNavigation = new AppNavigationBridge(this, webView);\n'
     '        webView.addJavascriptInterface(appNavigation, "AppNavigation");\n'
     '        appDocuments = new AppDocumentBridge(this, webView);\n'
-    '        webView.addJavascriptInterface(appDocuments, "AppDocuments");')
+    '        webView.addJavascriptInterface(appDocuments, "AppDocuments");\n'
+    '        appSoundPreview = new AppSoundPreview(this);\n'
+    '        webView.addJavascriptInterface(appSoundPreview, "AppSoundPreview");')
 replace_once(main_file,
     'if (webView.canGoBack()) { webView.goBack(); } else { super.onBackPressed(); }',
     '''if (webView == null) { super.onBackPressed(); return; }

@@ -169,9 +169,7 @@ fi
 grep -q 'id="app-action-dialog"' "$PAGE"
 grep -q 'id="preview-sound"' "$PAGE"
 grep -q 'class="reminder-sound-controls"' "$PAGE"
-grep -q 'class="preview-volume-label"' "$PAGE"
 if grep -q 'id="test-notification"' "$PAGE"; then echo "Old system notification test remains" >&2; exit 1; fi
-grep -q 'id="preview-volume" type="range" min="0" max="100" value="90"' "$PAGE"
 if grep -q 'id="test-closed-notification"' "$PAGE"; then
  echo "Removed closed-app diagnostic remains" >&2
  exit 1
@@ -490,3 +488,8 @@ for(const [sentence,expected] of examples){
 NODE
 fi
 echo 'Packaged WebView HTML smoke test passed'
+
+if grep -q 'id="preview-volume"' "$PAGE"; then echo "Preview volume slider remains" >&2; exit 1; fi
+grep -Fq 'window.AppSoundPreview.play(name)' "$PAGE"
+grep -Fq 'AppSoundPreview.java.in' "$ROOT/build.sh"
+grep -Fq 'AudioAttributes.USAGE_NOTIFICATION' "$ROOT/native/AppSoundPreview.java.in"
