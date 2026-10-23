@@ -1,4 +1,4 @@
-# Registro de Hábitos
+# Registro de Habitos
 
 Registro de Hábitos is an Android habit and activity journal designed for quick, optional daily logging. Record an activity by choosing a category, writing, or using voice input; review your history, set reminders, and export your own data.
 

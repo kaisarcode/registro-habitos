@@ -1,4 +1,4 @@
-# Using Registro de Hábitos
+# Using Registro de Habitos
 
 Registro de Hábitos is intended for voluntary, quick activity logging. No mood, energy, duration, or other optional detail is required to save an entry.
 
