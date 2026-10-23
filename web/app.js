@@ -15,13 +15,13 @@ function toast(message){const id=$("capture-status");if(id)id.textContent=messag
 function show(page){
     if(voiceSession || voicePending)stopVoice();
     
-    ["capture","history","categories","summary","reminders","backup","analysis","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Registro de Hábitos",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de"};
+    ["capture","history","categories","summary","reminders","backup","analysis","more","about","help"].forEach(s=>$(s).classList.toggle("active",s===page));
+    const labels={capture:"Registro de Hábitos",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de",help:"Ayuda"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",page==="capture");
     $("home-app-icon").classList.toggle("hidden",page!=="capture");
     // Always render the same bundled SVG icons. Assigning textContent here
     // replaces the initial settings SVG with a font-dependent Unicode gear.
-    const headerIcon={capture:"i-gear",history:"i-more-vertical",reminders:"i-plus",categories:"i-plus"}[page];
+    const headerIcon={capture:"i-help",history:"i-more-vertical",reminders:"i-plus",categories:"i-plus"}[page];
     const topAction=$("top-action");
     topAction.classList.toggle("hidden",!headerIcon);
     const svgNamespace="http://www.w3.org/2000/svg";
@@ -34,7 +34,7 @@ function show(page){
         svg.append(use);
         topAction.replaceChildren(svg);
     }else topAction.replaceChildren();
-    $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Más opciones":page==="history"?"Opciones del historial":"Opciones");
+    $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Ayuda":page==="history"?"Opciones del historial":"Opciones");
     document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","backup","analysis","about"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
@@ -840,7 +840,8 @@ $("top-action").onclick=()=>{
  const page=document.querySelector(".screen.active").id;
  if(page==="categories")openCategoryEditor();
  else if(page==="reminders")openReminderDialog();
- else show(page==="capture"?"more":"data");
+ else if(page==="capture")show("help");
+ else if(page==="history")show("more");
 };
 $("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=()=>openEntryDialog();

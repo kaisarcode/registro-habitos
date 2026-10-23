@@ -553,3 +553,7 @@ grep -Fq -- '--display-name "Registro de Hábitos"' "$ROOT/build.sh"
 grep -Fq -- '--icon "$ROOT/assets/launcher-icon.svg"' "$ROOT/build.sh"
 grep -Fq 'translate(61.44 61.44) scale(0.76)' "$ROOT/assets/launcher-icon.svg"
 grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
+
+grep -q 'id="help" class="screen"' "$PAGE"
+grep -Fq 'capture:"i-help"' "$PAGE"
+grep -Fq 'else if(page==="capture")show("help");' "$PAGE"

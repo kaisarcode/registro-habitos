@@ -457,3 +457,5 @@ html.theme-light .language-preferences #app-language{
 /* Home uses the actual launcher artwork in the Back control slot. */
 .topbar .home-app-icon{display:block;width:38px;height:38px;flex:0 0 38px;object-fit:contain;border-radius:9px}
 .topbar .home-app-icon.hidden{display:none!important}
+
+.help-panel{line-height:1.55}.help-panel h2{margin:0 0 14px}.help-panel h3{font-size:16px;margin:22px 0 6px;color:var(--accent)}.help-panel p{margin:0 0 12px;color:#b7c8ce}html.theme-light .help-panel h3{color:#167f67}html.theme-light .help-panel p{color:#526a73}

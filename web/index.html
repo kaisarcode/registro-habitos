@@ -6,6 +6,7 @@
 <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10ZM10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
 <symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-1.2 1-1.8 1.4-1.8 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></symbol>
 <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10 2h4l1 3 3 1 3-1 2 4-2 2v3l2 2-2 4-3-1-3 1-1 3h-4l-1-3-3-1-3 1-2-4 2-2v-3L1 9l2-4 3 1 3-1z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
 <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="12" cy="3.5" r="2" fill="currentColor"/><path d="m11 7 4 4m-4-4-3 5-4 3m7-8 2 7-3 7m3-7 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
 <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 3v8m3-8v8M2 4v5q0 3 4 3v9M16 21V3q5 2 5 9v1h-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -101,7 +102,7 @@
 <symbol id="li-leaf" viewBox="0 0 24 24"><path d="M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20" />
   <path d="M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13" /></symbol>
 </defs></svg><div class="app">
-<header class="topbar"><img id="home-app-icon" class="home-app-icon" src="./icon.svg" alt="" aria-hidden="true"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Registro de Hábitos</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-gear"/></svg></button></header>
+<header class="topbar"><img id="home-app-icon" class="home-app-icon" src="./icon.svg" alt="" aria-hidden="true"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Registro de Hábitos</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-help"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
  <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elige una categoría para completar y guardar tu entrada.</p></div>
@@ -182,6 +183,24 @@
  </label>
  <p>Sin avisos anticipados.</p>
 </article></section>
+<section id="help" class="screen">
+ <article class="panel help-panel">
+  <h2>¿Cómo usar Registro de Hábitos?</h2>
+  <p>Puedes anotar lo que haces durante el día, cómo te sientes y cuánta energía tienes. No necesitas completar todo: registra solo lo que quieras.</p>
+  <h3>Agregar un registro</h3>
+  <p>Elige una categoría en la pantalla principal o toca el botón +. Escribe lo que hiciste o utiliza el micrófono para dictarlo. Pulsa Guardar cuando termines.</p>
+  <h3>¿Quieres añadir más detalles?</h3>
+  <p>En el formulario puedes indicar la hora, la duración, tu estado de ánimo, tu energía y alguna nota. Todos estos datos son opcionales.</p>
+  <h3>Consultar y corregir</h3>
+  <p>En Historial puedes buscar tus registros. Toca uno para verlo, editarlo o eliminarlo. En Más puedes consultar un resumen de tus actividades.</p>
+  <h3>Recordatorios tranquilos</h3>
+  <p>En Recordatorios puedes crear avisos, elegir uno o varios horarios y escuchar los sonidos antes de guardarlos. También puedes activar o desactivar cada recordatorio.</p>
+  <h3>Adaptar la aplicación a tus necesidades</h3>
+  <p>En Más puedes organizar las categorías, elegir el idioma, cambiar entre modo oscuro y claro o desactivar las animaciones.</p>
+  <h3>Guardar y compartir tus registros</h3>
+  <p>En Más, Respaldo y restauración te permite guardar una copia de seguridad en el teléfono. Exportar para análisis te permite obtener tus registros para utilizarlos en otras herramientas.</p>
+ </article>
+</section>
 <section id="about" class="screen">
  <article class="panel about-panel">
   <h2>Registro Hábitos</h2>
