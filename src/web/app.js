@@ -546,7 +546,12 @@ function closeEntryDialog(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
-async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawSummaryPreview();drawDashboard();}
+async function reload(){
+    entries=await storage.list();
+    populateHistoryYears();
+    if($("history").classList.contains("active"))drawHistory();
+    drawCategories();drawSummary();drawSummaryPreview();drawDashboard();
+}
 
 /**
  * Provides the associated interface operation.
@@ -568,24 +573,180 @@ function openEdit(e){
     $("edit-dialog").showModal();
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
-function drawHistory(){
-    const q=$("search").value.trim().toLocaleLowerCase("es-AR");
-    const root=$("history-list");root.replaceChildren();
-    const matches=entries.filter(e=>(!categoryFilter||canonicalCategory(e.category)===categoryFilter)&&(!q||[e.description,e.notes,e.category].join(" ").toLocaleLowerCase("es-AR").includes(q)));
-    if(!matches.length){root.append(el("p","muted","Todavía no hay registros para mostrar."));return;}
-    for(const e of matches){
-        const row=el("button","history-item");row.append(iconFor(e.category));
-        const body=el("span","item-main");body.append(el("strong","",e.description));
-        const small=el("small","",(dayKey(e.occurredAt)===dayKey(Date.now())?"Hoy ":"")+formatTime(e.occurredAt));
-        if(e.category){small.append(el("span","pill",canonicalCategory(e.category)));}
-        if(e.duration!=null)small.append(document.createTextNode(" · "+durationLabel(e.duration)));
-        body.append(small);row.append(body);if(e.mood!=null)row.append(el("span","face",e.mood>=7?"●":e.mood<=3?"☹":"●"));
-        row.type="button";row.setAttribute("aria-label","Editar registro: "+e.description);row.onclick=()=>openEdit(e);root.append(row);
+/** History fetches 25 matching records per request, directly from IndexedDB. */
+const HISTORY_PAGE_SIZE=25;
+const historyState={generation:0,loading:false,hasMore:false,next:null,loaded:0,groupKey:null,groupList:null,observer:null};
+let historySearchTimer=null;
+
+/** Fill year choices from existing entries, retaining the selected year. */
+function populateHistoryYears(){
+    const select=$("history-year");
+    const chosen=select.value;
+    const current=new Date().getFullYear();
+    const years=new Set([current]);
+    for(const e of entries){
+        const year=new Date(e.occurredAt).getFullYear();
+        if(Number.isInteger(year)&&year>=1900&&year<=9999)years.add(year);
     }
+    select.replaceChildren(...[...years].sort((a,b)=>b-a).map(y=>new Option(String(y),String(y))));
+    select.value=years.has(Number(chosen))?chosen:String(current);
+}
+
+/** Return inclusive local calendar bounds as an IndexedDB UTC time window. */
+function historyBounds(){
+    const mode=$("history-period").value;
+    const fromLocal=d=>new Date(d+"T00:00:00");
+    const asIso=d=>{
+        if(!Number.isFinite(d.getTime()))throw Error("Revisá las fechas del filtro.");
+        return d.toISOString();
+    };
+    if(mode==="year"){
+        const year=Number($("history-year").value);
+        if(!Number.isInteger(year)||year<1900||year>9998)throw Error("Elegí un año válido.");
+        return {from:asIso(new Date(year,0,1)),to:asIso(new Date(year+1,0,1))};
+    }
+    if(mode==="month"){
+        const month=$("history-month").value;
+        if(!/^\d{4}-\d{2}$/.test(month))throw Error("Elegí un mes.");
+        const [year,m]=month.split("-").map(Number);
+        if(m<1||m>12)throw Error("Elegí un mes válido.");
+        return {from:asIso(new Date(year,m-1,1)),to:asIso(new Date(year,m,1))};
+    }
+    if(mode==="range"){
+        const from=$("history-from").value,to=$("history-to").value;
+        if(from&&to&&from>to)throw Error("Desde no puede ser posterior a Hasta.");
+        const end=to?fromLocal(to):null;
+        if(end)end.setDate(end.getDate()+1);
+        return {from:from?asIso(fromLocal(from)):null,to:end?asIso(end):null};
+    }
+    return {from:null,to:null};
+}
+
+/** Calendar-aware headings: Hoy, Ayer, weekday, or e.g. Agosto 2026. */
+function historyDateGroup(value,now=new Date()){
+    const date=new Date(value);
+    const day=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const diff=Math.round((Date.UTC(today.getFullYear(),today.getMonth(),today.getDate())-
+        Date.UTC(day.getFullYear(),day.getMonth(),day.getDate()))/86400000);
+    const locale=currentAppLanguage()==="en"?"en-US":"es-AR";
+    const es=locale==="es-AR";
+    const dateKey=dayKey(value);
+    if(diff===0)return {key:"d-"+dateKey,title:es?"Hoy":"Today",detail:"",recent:true};
+    if(diff===1)return {key:"d-"+dateKey,title:es?"Ayer":"Yesterday",detail:"",recent:true};
+    if(diff>=2&&diff<=6){
+        const weekday=new Intl.DateTimeFormat(locale,{weekday:"long"}).format(date);
+        const title=weekday.charAt(0).toLocaleUpperCase(locale)+weekday.slice(1);
+        const detail=new Intl.DateTimeFormat(locale,{day:"numeric",month:"short"}).format(date);
+        return {key:"d-"+dateKey,title,detail,recent:true};
+    }
+    const month=new Intl.DateTimeFormat(locale,{month:"long",year:"numeric"}).format(date);
+    return {key:"m-"+date.getFullYear()+"-"+date.getMonth(),
+        title:month.charAt(0).toLocaleUpperCase(locale)+month.slice(1),detail:"",recent:false};
+}
+
+/** Make one history item, keeping the original edit behavior. */
+function appendHistoryEntry(entry){
+    const group=historyDateGroup(entry.occurredAt);
+    const root=$("history-list");
+    if(historyState.groupKey!==group.key){
+        const section=el("section","history-group");
+        const heading=el("h3","history-group-heading");
+        heading.append(el("span","",group.title));
+        if(group.detail)heading.append(el("small","",group.detail));
+        const list=el("div","history-group-items");
+        section.append(heading,list);root.append(section);
+        historyState.groupKey=group.key;
+        historyState.groupList=list;
+    }
+    const row=el("button","history-item");
+    row.type="button";
+    row.append(iconFor(entry.category));
+    const body=el("span","item-main");
+    body.append(el("strong","",entry.description));
+    const date=new Date(entry.occurredAt);
+    const dateText=group.recent?"":new Intl.DateTimeFormat(currentAppLanguage()==="en"?"en-US":"es-AR",
+        {day:"numeric",month:"short"}).format(date)+" · ";
+    const sub=el("small","",dateText+formatTime(entry.occurredAt));
+    if(entry.category)sub.append(el("span","pill",canonicalCategory(entry.category)));
+    if(entry.duration!=null)sub.append(document.createTextNode(" · "+durationLabel(entry.duration)));
+    body.append(sub);row.append(body);
+    if(entry.mood!=null)row.append(el("span","face",entry.mood>=7?"●":entry.mood<=3?"☹":"●"));
+    row.setAttribute("aria-label","Editar registro: "+entry.description);
+    row.onclick=()=>openEdit(entry);
+    historyState.groupList.append(row);
+}
+
+/** Read the next matching cursor page; discard results after a filter change. */
+async function loadHistoryPage(){
+    if(historyState.loading||!historyState.hasMore||!$("history").classList.contains("active"))return;
+    const generation=historyState.generation;
+    historyState.loading=true;
+    $("history-indicator").textContent="Cargando registros…";
+    $("history-more").hidden=true;
+    try{
+        const {from,to}=historyBounds();
+        const result=await storage.listPage({
+            limit:HISTORY_PAGE_SIZE,after:historyState.next,from,to,
+            query:$("search").value,category:categoryFilter
+        });
+        if(generation!==historyState.generation)return;
+        for(const entry of result.items)appendHistoryEntry(entry);
+        historyState.loaded+=result.items.length;
+        historyState.next=result.next;
+        historyState.hasMore=result.hasMore;
+        if(!historyState.loaded){
+            $("history-indicator").textContent="No hay registros para estos filtros.";
+        }else{
+            $("history-indicator").textContent=historyState.hasMore
+                ?historyState.loaded+" registros cargados · Deslizá para ver más"
+                :historyState.loaded+" registros";
+        }
+        $("history-more").hidden=!historyState.hasMore;
+        $("history-sentinel").hidden=!historyState.hasMore;
+    }catch(error){
+        if(generation!==historyState.generation)return;
+        $("history-indicator").textContent=error.message||"No se pudo cargar el historial.";
+        $("history-more").hidden=false;
+        $("history-sentinel").hidden=true;
+    }finally{
+        if(generation===historyState.generation)historyState.loading=false;
+    }
+}
+
+/** Reset pagination, then load only the first matching group of entries. */
+function drawHistory(){
+    ++historyState.generation;
+    historyState.observer?.disconnect();
+    historyState.observer=null;
+    historyState.loading=false;
+    historyState.hasMore=true;
+    historyState.next=null;
+    historyState.loaded=0;
+    historyState.groupKey=null;
+    historyState.groupList=null;
+    $("history-list").replaceChildren();
+    $("history-more").hidden=true;
+    $("history-sentinel").hidden=false;
+    $("history-indicator").textContent="";
+    for(const mode of ["year","month","range"]){
+        const fields=$("history-"+mode+"-fields");
+        fields.hidden=$("history-period").value!==mode;
+    }
+    if(!$("history").classList.contains("active"))return;
+    try{historyBounds()}catch(error){
+        historyState.hasMore=false;
+        $("history-sentinel").hidden=true;
+        $("history-indicator").textContent=error.message;
+        return;
+    }
+    if("IntersectionObserver" in window){
+        historyState.observer=new IntersectionObserver(entries=>{
+            if(entries.some(entry=>entry.isIntersecting))loadHistoryPage();
+        },{rootMargin:"250px 0px"});
+        historyState.observer.observe($("history-sentinel"));
+    }
+    loadHistoryPage();
 }
 
 /**
@@ -1411,7 +1572,17 @@ $("cat-image").onchange=async event=>{
     try{categoryImage=await readCategoryImage(file);updateCategoryPreview();}
     catch(error){$("cat-error").textContent=error.message;}
 };
-$("search").oninput=drawHistory;
+$("search").oninput=()=>{
+    clearTimeout(historySearchTimer);
+    historySearchTimer=setTimeout(drawHistory,180);
+};
+$("history-period").onchange=drawHistory;
+for(const id of ["history-year","history-month","history-from","history-to"]){
+    $(id).onchange=drawHistory;
+}
+$("history-more").onclick=loadHistoryPage;
+$("history-month").value=localTime(new Date()).slice(0,7);
+populateHistoryYears();
 for(const prefix of ["entry","edit"]){
     const start=$(prefix+"-start-at");
     const end=$(prefix+"-end-at");

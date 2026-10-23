@@ -552,3 +552,26 @@ html.theme-light .settings-button.active{background:#d8e9e5;color:#167f67}
 .home-summary-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 html.theme-light .home-summary-total strong{color:#20383f}
 html.theme-light .home-summary-open{background:#e1f0ea;color:#176d55;border-color:#bbd7ce}
+
+
+/* History: compact date filters and grouped, progressively loaded entries. */
+.history-filters{padding:12px 14px;background:var(--surface);border:1px solid #30434a;border-radius:15px;margin-bottom:13px}
+.history-filters .search-line{margin-bottom:10px}
+.history-filters .search-line input{min-width:0}
+.history-period-label{display:block;margin:4px 0 0;color:#becdd1;font-size:13px}
+.history-period-label select{margin-top:7px}
+.history-filter-fields{margin-top:10px}
+.history-filter-fields[hidden],.history-sentinel[hidden],.history-more[hidden]{display:none!important}
+.history-filter-fields label{margin:0;min-width:0}
+.history-filter-fields input,.history-filter-fields select{width:100%;min-width:0;margin-top:7px}
+.history-date-range{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.history-indicator{font-size:12px;min-height:18px;color:var(--muted);margin:7px 0 15px}
+.history-group{margin:0 0 23px}
+.history-group-heading{display:flex;gap:10px;align-items:baseline;color:#dce9e9;font-size:16px;font-weight:650;margin:0 0 10px}
+.history-group-heading small{font-size:12px;font-weight:400;color:var(--muted)}
+.history-group-items{display:grid;gap:5px}
+.history-sentinel{height:6px;pointer-events:none}
+.history-more{width:100%;padding:13px;margin:5px 0 22px;border:1px solid #34554f;border-radius:12px;background:#213b36;color:#9ae7cc}
+html.theme-light .history-filters{background:#fff;border-color:#d1dfe1}
+html.theme-light .history-period-label,html.theme-light .history-group-heading{color:#263e46}
+html.theme-light .history-more{background:#e1f0ea;color:#176d55;border-color:#bbd7ce}

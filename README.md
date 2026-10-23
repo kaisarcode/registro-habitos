@@ -164,3 +164,9 @@ Las vistas usan títulos pequeños y una descripción debajo; las flechas Volver
 ## Resumen en la pantalla principal
 
 Debajo de **Hoy**, la pantalla **Registro** muestra una tarjeta compacta **Resumen**, con el total de registros de los últimos 7 días, una pequeña vista previa de las barras y un botón **Ver resumen**. Ese botón abre la vista completa **Resumen**, que conserva sus filtros Semana/Mes/Año, el gráfico detallado y los totales por categoría. Volver regresa a Registro. No hay un acceso redundante desde Configuración. Ambos resúmenes se actualizan cuando cambian los registros.
+
+## Historial: filtro de fechas y carga progresiva
+
+Historial combina la búsqueda por texto (descripción, notas y categoría) con filtros **Todas las fechas**, **Año**, **Mes** y **Rango personalizado** (Desde/Hasta inclusivos). Los títulos separan entradas recientes por **Hoy**, **Ayer** y día de la semana; los registros más antiguos se agrupan por mes y año (por ejemplo, **Agosto 2026**) y muestran fecha y hora individualmente.
+
+La lista de Historial consulta IndexedDB mediante el índice `occurredAt` y carga **25 coincidencias por lote**, no todos los resultados de la búsqueda. Al desplazarse se solicita el siguiente lote; también está disponible el botón **Mostrar más** como alternativa accesible. Cambiar los filtros reinicia la paginación y descarta respuestas obsoletas. Las demás vistas mantienen su lógica y el esquema de la base no cambia.
