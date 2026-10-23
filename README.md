@@ -8,7 +8,7 @@ Para ver la interfaz en un navegador, ejecutar `./build.sh --prepare-only` y abr
 
 El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
-## Comprobación rápida\n\n```sh\nsh ./tests/test.sh\n```\n\nEsto genera la misma página HTML local que se empaquetará y comprueba sus controles y JavaScript (también su sintaxis cuando Node está instalado). No sustituye una prueba manual del APK en Android.\n\n## Construir con KCAPK externo
+## Construir con KCAPK externo
 
 ```sh
 KCAPK_DIR=../kcapk ./build.sh
