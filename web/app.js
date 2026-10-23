@@ -875,17 +875,6 @@ $("preview-sound").onclick=()=>{
  previewAudio.play().catch(err=>$("reminder-status").textContent="No se pudo reproducir el audio: "+err.message);
 };
 $("reminder-dialog").addEventListener("close",()=>{if(previewAudio){previewAudio.pause();previewAudio=null}});
-$("test-notification").onclick=async()=>{
- const button=$("test-notification");
- button.disabled=true;
- $("reminder-dialog-status").textContent="";
- try{
-  await reminderStore.test($("reminder-name").value.trim()||"Prueba de recordatorio",$("reminder-sound").value);
-  $("reminder-dialog-status").textContent="Notificación enviada a Android. Comprobá el volumen de notificaciones.";
- }catch(error){$("reminder-dialog-status").textContent=error.message;}
- finally{button.disabled=false;}
-};
-
 $("reminder-add-time").onclick=()=>{
  if($("reminder-times").children.length>=REMINDER_MAX_TIMES)return;
  const input=addReminderTimeRow("");

@@ -122,7 +122,17 @@
  <div class="section-label">Horarios del día</div>
  <div id="reminder-times" class="reminder-times-list" aria-label="Horarios del recordatorio"></div>
  <button id="reminder-add-time" type="button" class="reminder-add-time">+ Agregar horario</button>
-</div><label>Frecuencia<select id="reminder-repeat"><option value="daily">Todos los días</option><option value="weekdays">Días de semana</option><option value="once">Una vez</option></select></label><label>Sonido<select id="reminder-sound"><option value="glock">Glockenspiel</option><option value="alert">Notificación suave</option><option value="none">Silencioso</option></select></label><div class="sound-preview"><button id="preview-sound" type="button" class="secondary">▶ Escuchar audio</button><label>Volumen de vista previa <input id="preview-volume" type="range" min="0" max="100" value="90"></label><button id="test-notification" type="button" class="utility-button">Probar notificación del sistema</button></div><p class="muted">Sin avisos anticipados. Android usa el volumen de notificaciones del teléfono.</p><p id="reminder-dialog-status" class="muted" role="status"></p><div class="reminder-dialog-footer"><div class="reminder-dialog-actions"><button id="reminder-cancel" type="button" class="secondary">Cancelar</button><button id="reminder-confirm" type="button" class="main-button">Guardar</button></div><button id="reminder-delete" type="button" class="reminder-delete-action hidden">Eliminar</button></div></form></dialog></section>
+</div><label>Frecuencia<select id="reminder-repeat"><option value="daily">Todos los días</option><option value="weekdays">Días de semana</option><option value="once">Una vez</option></select></label><div class="reminder-sound-layout">
+ <div class="reminder-sound-row">
+  <label for="reminder-sound">Sonido</label>
+  <div class="reminder-sound-controls">
+   <select id="reminder-sound"><option value="glock">Glockenspiel</option><option value="alert">Notificación suave</option><option value="none">Silencioso</option></select>
+   <button id="preview-sound" type="button" class="secondary sound-play-button" aria-label="Escuchar audio" title="Escuchar audio"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M8 5.5v13l10-6.5z"/></svg></button>
+  </div>
+ </div>
+ <label class="preview-volume-label" for="preview-volume">Volumen de vista previa</label>
+ <input id="preview-volume" type="range" min="0" max="100" value="90">
+</div><p class="muted">Sin avisos anticipados. Android usa el volumen de notificaciones del teléfono.</p><p id="reminder-dialog-status" class="muted" role="status"></p><div class="reminder-dialog-footer"><div class="reminder-dialog-actions"><button id="reminder-cancel" type="button" class="secondary">Cancelar</button><button id="reminder-confirm" type="button" class="main-button">Guardar</button></div><button id="reminder-delete" type="button" class="reminder-delete-action hidden">Eliminar</button></div></form></dialog></section>
 <section id="backup" class="screen">
  <article class="panel">
   <h2>Respaldo y restauración</h2>

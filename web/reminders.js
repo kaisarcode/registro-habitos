@@ -112,17 +112,6 @@ const reminderStore={
   }
   return true;
  },
- async test(title,sound){
-  await this.permission();
-  const selected=sound||"none",channel=this.channel(selected);
-  const notifications=window.NativeBridge.Android.notifications;
-  const ok=notifications.post({
-   id:19002026,channel,title:title||"Prueba de recordatorio",
-   text:"Prueba de notificación",importance:selected==="none"?"low":"default",
-   sound:this.soundUri(selected),onlyAlertOnce:false
-  });
-  if(!ok)throw Error("Android rechazó la notificación de prueba.");
- },
  async add(title,timesValue,daily,repeat,sound){
   const titleText=String(title||"").trim();
   const times=this.normalizeTimes(timesValue),cadence=repeat||(daily?"daily":"once");

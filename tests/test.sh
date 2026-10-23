@@ -167,7 +167,10 @@ if grep -q 'id="reminder-confirm"[^>]*>Guardar cambios' "$PAGE"; then
     exit 1
 fi
 grep -q 'id="app-action-dialog"' "$PAGE"
-grep -q 'id="test-notification"' "$PAGE"
+grep -q 'id="preview-sound"' "$PAGE"
+grep -q 'class="reminder-sound-controls"' "$PAGE"
+grep -q 'class="preview-volume-label"' "$PAGE"
+if grep -q 'id="test-notification"' "$PAGE"; then echo "Old system notification test remains" >&2; exit 1; fi
 grep -q 'id="preview-volume" type="range" min="0" max="100" value="90"' "$PAGE"
 if grep -q 'id="test-closed-notification"' "$PAGE"; then
  echo "Removed closed-app diagnostic remains" >&2
