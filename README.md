@@ -36,13 +36,13 @@ Este cambio corrige la configuración de permisos y origen del WebView. La dispo
 
 Cada registro preserva fecha del evento, fecha de creación, texto original, categoría opcional, energía y bienestar opcionales (0–10). Los datos no se sincronizan. La exportación sólo ocurre a pedido.
 
-## Integración nativa prevista
+## Integracion nativa prevista
 
 La aplicación conserva IndexedDB. El JSON versionado contiene las entradas completas con sus campos originales y es el formato de respaldo e intercambio; el CSV está orientado al análisis externo. La importación JSON valida el archivo completo y agrega solamente identificadores nuevos, sin modificar registros existentes. Exportar el JSON y guardarlo fuera del dispositivo es importante porque borrar los datos de la aplicación puede eliminar IndexedDB. KCAPK ofrece `--api alarms` y `--api notifications`, usados para entregar alertas nativas y sus audios empaquetados.
 
 Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c` permite medir similitud de textos; `libemb.c` genera embeddings locales (modelo BGE small **en inglés**), y `libhnsw.c` indexa vectores. Ninguno debe bloquear la creación de registros.
 
-### Clasificación por idioma
+### Clasificacion por idioma
 
 `liblng.c` ofrece detección local sin estado y resultados ordenados por puntuación heurística (no probabilidades). La composición nativa prevista es: detectar idioma → consultar el perfil de ese idioma → sugerir categoría mediante precedentes/`libtpm.c` y, opcionalmente, `libemb.c` + `libhnsw.c`. Mantener índices y perfiles separados por idioma, versión de modelo y perfil de usuario. Si no se detecta idioma con seguridad, conservar el idioma como desconocido y guardar de todos modos. Los textos cortos son especialmente ambiguos.
 
@@ -52,11 +52,11 @@ Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c
 
 El botón **Exportar JSON** produce un respaldo con `version`, `exportedAt` y `entries`. **Importar JSON** acepta ese mismo formato y combina las entradas por su ID, conservando las existentes sin reemplazarlas. La importación es transaccional: si falla, no confirma parcialmente la importación. **Exportar CSV** es una vista tabular para análisis y no se utiliza para restaurar, porque no representa necesariamente futuros campos anidados. La exportación no está filtrada por la búsqueda actual: incluye todos los registros.
 
-## Interfaz, recursos y modo sin conexión
+## Interfaz, recursos y modo sin conexion
 
 Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build.sh` configura `src/assets/launcher-icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo. Al importar, las alarmas se vuelven a programar sólo con confirmación explícita. Las alarmas nativas necesitan permisos de notificación. El APK solicita el permiso especial **Alarmas y recordatorios** cuando el usuario crea o activa un recordatorio, si Android lo requiere. El receptor nativo programa el siguiente evento diario o de días hábiles después de cada entrega, independientemente del WebView, sin una ventana limitada a 28 días.
 
-## Límites de integración Android
+## Limites de integracion Android
 
 - La app no carga librerías, CDN ni recursos externos. El dictado depende del motor del navegador y puede requerir conexión externa; el registro escrito y el resto de la aplicación siguen disponibles offline.
 - Los dos MP3 suministrados se incluyen como archivos web para vista previa y como recursos `res/raw` de Android para las **notificaciones del sistema**; la alarma se entrega desde `AlarmReceiver`, aunque el WebView esté cerrado. Se usan canales separados con importancia predeterminada para cada sonido, evitando canales silenciosos de versiones anteriores. El volumen final depende del canal de notificaciones y los ajustes de Android. El botón **Probar notificación del sistema** permite comprobar el permiso, el canal y el sonido en el dispositivo; el botón **Escuchar audio** solo prueba el archivo web.
@@ -67,7 +67,7 @@ Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN n
 
 La información puede contener datos sensibles: se mantiene local, sin telemetría ni backend. Una exportación genera un archivo legible por terceros; compartilo sólo cuando lo decidas.
 
-## Comprobación de versión del APK
+## Comprobacion de version del APK
 
 La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador produce `.build/web/app.bundle.js` a partir de los módulos en `src/web/`, sin escribir archivos generados en `src/`, y empaqueta el HTML inline desde `.build/web/index.html`. KCAPK aplica `LOAD_NO_CACHE` y devuelve `Cache-Control: no-store` al servir los assets locales por HTTPS sin borrar IndexedDB. El APK incrementa `versionCode` a `20261022`.
 
@@ -77,11 +77,11 @@ Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina
 
 Categorías disponibles: **Ir al baño**, **Tabaco**, **Vapeo**, **Alcohol**, **Higiene**, **Medicación** y **Cafeína**, además de las actividades habituales. El clasificador local reconoce frases naturales como “fui al baño”, “hice pis”, “fumé un cigarrillo”, “vapeé” o “tomé cerveza”. Guardar sigue siendo inmediato; ninguna medición adicional es obligatoria. Las categorías se pueden corregir desde Editar y los datos se exportan con las categorías elegidas. El registro rápido mantiene un máximo de seis sugerencias que se adaptan al historial.
 
-## Inicio: registro por categorías y botón flotante
+## Inicio registro por categorias y boton flotante
 
 La vista **Mi día** presenta las categorías como botones permanentes. Tocar una categoría abre el formulario con esa categoría y una descripción sugerida ya seleccionadas; **Guardar** confirma la entrada con la fecha y hora actuales (editable). No se guarda nada antes de confirmar. **Deshacer** permite revertir la última entrada guardada. El botón flotante `+` abre un diálogo con texto, dictado del navegador y detalles opcionales (fecha, hora, categoría, energía, bienestar, duración, notas). Cerrar el diálogo no guarda nada. Los registros, clasificaciones, filtros y exportaciones existentes se mantienen sin migraciones de esquema.
 
-## Duración opcional: minutos o inicio/fin
+## Duracion opcional minutos o inicio y fin
 
 Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, sin selector de modo. Completar `4` horas y `0` minutos actualiza automáticamente un campo interno **oculto** con el total de `240` minutos, sin mostrar un tercer campo ni requerir edición manual. No se muestran los controles de inicio y fin. `duration` sigue almacenando minutos; los registros históricos con `startedAt` y `endedAt` mantienen esos datos para las exportaciones JSON y CSV.
 
@@ -89,7 +89,7 @@ Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, 
 
 Los botones Cerrar y Guardar comparten dos columnas iguales y altura de 52 px. El margen superior antiguo de Guardar se eliminó.
 
-## Diálogos de confirmación
+## Dialogos de confirmacion
 
 Los mensajes de eliminación, creación de categorías, importación y errores utilizan un único diálogo propio, de colores oscuros y botones consistentes. No se emplean `window.alert`, `window.confirm` ni `window.prompt`. Los cambios destructivos siempre requieren confirmación. Los permisos nativos de Android siguen siendo ventanas del sistema operativo, no diálogos HTML.
 
@@ -101,7 +101,7 @@ Al compilar, `build.sh` incorpora `glock.mp3` y `alert.mp3` como recursos Androi
 
 El botón **Probar con la app cerrada** programa una notificación del sistema de prueba a través de `AlarmBridge` y `AlarmReceiver`, para verificar la entrega sin WebView en ejecución. La app puede cerrarse normalmente, pero **Forzar detención** desde los ajustes de Android impide las alarmas hasta que se vuelva a iniciar. En Android 12+ y especialmente Android 14+, para minimizar retrasos es necesario habilitar el acceso especial **Alarmas y recordatorios** cuando el sistema lo solicita. Si no se concede, el APK utiliza `setAndAllowWhileIdle` (inexacta), que Android puede diferir en reposo. El `AlarmReceiver` propio reprograma de forma nativa los recordatorios diarios y de lunes a viernes, y KCAPK restaura repeticiones vencidas después de un reinicio o de conceder permisos. La prueba del botón tiene un intervalo corto y es deliberadamente iniciada por el usuario: no hay avisos anticipados en los recordatorios normales.
 
-## Administrar categorías e íconos
+## Administrar categorias e iconos
 
 La solapa **Categorías** es un administrador, no un lanzador de registros. Permite crear categorías y editar su nombre, palabras clave (separadas por comas o saltos de línea), color e ícono. Se incluye una selección consistente de **24 íconos Lucide (licencia ISC)** en el HTML del APK; no hay CDN ni dependencias de red. También podés elegir una foto o imagen PNG/JPG/WebP desde el celular: el selector de archivos se integra con el WebView de Android, la imagen se convierte localmente a WebP de 192×192 y se guarda con la configuración de la categoría. No se sube a internet.
 
@@ -109,16 +109,15 @@ El perfil se guarda en `localStorage` bajo `rh-category-profiles-v1`. La exporta
 
 Licencia de terceros: `src/web/third-party/LUCIDE_LICENSE.txt`.
 
-## Navegación Android y edición de listas
+## Navegacion Android y edicion de listas
 
 El botón físico Volver se maneja desde el WebView a través de `registroHabitosBack`. Cierra primero cualquier diálogo abierto (incluidos los de edición y confirmación); desde cualquier pantalla secundaria regresa a **Mi día**. Desde Mi día muestra un diálogo propio de confirmación para salir; la salida confirmada utiliza un puente Android limitado a la página local. Las entradas del Historial y los recordatorios se editan tocando su fila, con un diálogo oscuro; el interruptor de cada recordatorio conserva su acción independiente.
 
-
-## Diagnóstico de instalación de APK
+## Diagnostico de instalacion de APK
 
 El APK no descarga dependencias ni recursos de CDN. El script elimina los archivos generados de `.build/web/` antes de empaquetar, comprueba la integridad ZIP del APK y muestra el tamaño final. Cada commit posterior al 45101558 incrementa automáticamente el `versionCode`, de modo que una actualización nueva no tenga el mismo identificador de versión que la anterior. `kcapk` firma con `~/.android/debug.keystore`: si se cambia de computadora, cuenta o keystore, Android puede rechazar la actualización sobre la instalación anterior por incompatibilidad de firma. **No desinstales la app sin exportar primero el respaldo JSON**, ya que los datos están guardados localmente. Si el instalador permanece en «Instalando», un log de PackageInstaller o una prueba con `adb install -r` permite obtener la causa concreta; el código web por sí solo no puede determinarla.
 
-## Acerca de y navegación de configuración
+## Acerca de y navegacion de configuracion
 
 El menú **Más** incorpora **Acerca de**, con versión y `versionCode` del APK, revisión de compilación, autor **KaisarCode** y enlace externo a `https://kaisarcode.com`. Los metadatos se sustituyen durante `build.sh`, que también usa la misma versión para el APK de Android. No requiere conectividad para ver esta información. En Categorías, Resumen, Importar/Exportar y Acerca de, tanto la flecha superior como Volver de Android regresan a **Más**; desde Más regresan a Mi día, y únicamente Mi día solicita confirmación para salir.
 
@@ -126,7 +125,7 @@ El menú **Más** incorpora **Acerca de**, con versión y `versionCode` del APK,
 
 Un recordatorio admite entre 1 y 29 horarios en el mismo día. El editor abre con una hora, permite agregar nuevas horas con **Agregar horario** y quitar las adicionales individualmente. Antes de guardar, valida que todos los horarios estén completos y no se repitan. La lista muestra las horas de cada recordatorio. Cada hora crea un identificador de alarma Android independiente, dentro del bloque reservado para ese recordatorio; todas continúan disparándose y repitiéndose sin el WebView abierto. Se conservan `time` (primer horario, compatibilidad con versiones anteriores) y `times` (todos los horarios) en los respaldos JSON. Para recordatorios de una sola vez se registran fechas absolutas por horario (`onceAts`) para que un horario ya disparado no vuelva a programarse al reabrir la app. Al editar, desactivar o borrar se cancelan los horarios anteriores antes de instalar los nuevos. Los recordatorios anteriores con una sola hora se siguen leyendo automáticamente.
 
-## Respaldo externo y exportación de hábitos
+## Respaldo externo y exportacion de habitos
 
 **Guardar respaldo en el teléfono** utiliza el selector de documentos nativo de Android (Storage Access Framework / ACTION_CREATE_DOCUMENT) para escribir un JSON en una carpeta elegida por el usuario, como Descargas. Ese archivo se guarda fuera del almacenamiento privado del APK y no se borra al desinstalarlo. Incluye entradas, recordatorios, categorías, sus imágenes/perfiles y preferencias sensoriales. **Restaurar desde un respaldo** abre el selector de archivos y combina datos sin sobrescribir entradas de IDs existentes; permite volver a programar los recordatorios importados. Tras reinstalar, elegí el archivo manualmente y concedé los permisos de alarmas/notificaciones que solicite Android.
 

@@ -1,8 +1,20 @@
-// Storage interface: replace this adapter with SQLite without changing capture.
+/**
+ * storage.js - Habit register capability.
+ * Summary: Provides a browser capability for the habit register.
+ *
+ * Author:  KaisarCode
+ * Website: https://kaisarcode.com
+ * License: https://www.gnu.org/licenses/lgpl-3.0.html
+ */
+
 const DB_NAME = "registro-habitos";
 const TABLE = "entries";
 let dbPromise;
 
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
 function connect() {
     if (!dbPromise) {
         dbPromise = new Promise((resolve, reject) => {
@@ -20,6 +32,11 @@ function connect() {
     }
     return dbPromise;
 }
+
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
 async function transact(mode, action) {
     const db = await connect();
     return new Promise((resolve, reject) => {
@@ -31,16 +48,31 @@ async function transact(mode, action) {
     });
 }
 export const storage = {
+
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
     async list() {
         const entries = await transact("readonly", store => store.getAll());
         return entries.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
     },
+
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
     async save(entry) {
         const now = new Date().toISOString();
         const record = { ...entry, id: entry.id || (globalThis.crypto && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : "entry-" + Date.now() + "-" + Math.random().toString(36).slice(2)), createdAt: entry.createdAt || now, updatedAt: now };
         await transact("readwrite", store => store.put(record));
         return record;
     },
+
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
     async importEntries(records) {
         const db = await connect();
         return new Promise((resolve, reject) => {
@@ -60,5 +92,10 @@ export const storage = {
             tx.onabort = () => reject(tx.error || new Error("Import cancelled"));
         });
     },
+
+/**
+ * Provides the associated interface operation.
+ * @return The operation result.
+ */
     async remove(id) { await transact("readwrite", store => store.delete(id)); },
 };
