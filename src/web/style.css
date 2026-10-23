@@ -4,7 +4,7 @@
 .edit-voice-wrap{position:relative}.edit-voice-wrap textarea{padding-right:58px}.edit-mic{position:absolute;right:10px;bottom:14px;border-radius:12px;background:#214a47;color:#88e1c5;width:42px;height:42px;display:grid;place-items:center}
 
 /* Voice is controlled by the browser; no new sound or animation. */
-.mic-button.listening,.edit-mic.listening{outline:2px solid #b5eedc;outline-offset:3px;background:#4fae94;color:#061a17}
+.mic-button.listening{outline:2px solid #ffb9be;outline-offset:3px;background:#8b343c;color:#fff0f0}
 #edit-voice-status{min-height:1.1em;margin:6px 0 12px}
 
 /* Reminder editing is distinct from deleting. The topbar owns the page title. */
@@ -237,6 +237,7 @@ html.theme-light .sensory-switch-track::after{background:#fff}
 html.theme-light .sensory-preferences input:checked+.sensory-switch-track,html.theme-light .reminder-item .reminder-switch input:checked+.sensory-switch-track,html.theme-light .wellbeing-energy-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
 html.theme-light .sensory-preferences input:checked+.sensory-switch-track::after,html.theme-light .reminder-item .reminder-switch input:checked+.sensory-switch-track::after,html.theme-light .wellbeing-energy-toggle input:checked+.sensory-switch-track::after{background:#fff}
 html.theme-light .main-button,html.theme-light .mic-button,html.theme-light .utility-button.accent,html.theme-light #edit-save,html.theme-light #reminder-confirm{background:#16836a;color:#fff}
+html.theme-light .mic-button.listening{background:#a63a43;color:#fff}
 html.theme-light .secondary,html.theme-light .utility-button,html.theme-light .chip,html.theme-light .segments,html.theme-light .reminder-time-remove,html.theme-light #edit-cancel,html.theme-light #reminder-cancel{background:#e7eff0;color:#294650;border-color:#c6d7d9}
 html.theme-light dialog,html.theme-light .category-editor,html.theme-light .app-action-dialog{background:#fff;color:#213941;border-color:#c0d1d5}
 html.theme-light dialog label,html.theme-light .app-action-dialog p{color:#4f6872}

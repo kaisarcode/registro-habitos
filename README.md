@@ -6,7 +6,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 Para ver la interfaz en un navegador, ejecutar `./build.sh --prepare-only` y abrir `.build/web/index.html`. `src/web/index.html` es una plantilla de código fuente, no una página autónoma. `build.sh` genera `.build/web/index.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
-El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView, con reconocimiento Android nativo como alternativa si esos motores no están disponibles. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
+En Android, el dictado usa primero el reconocedor nativo mediante `NativeBridge.Android.voice.recognize()`. `SpeechRecognition` o `webkitSpeechRecognition` quedan como respaldo cuando esa API no está disponible. La compatibilidad depende del WebView o del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
 ## Construir con KCAPK externo
 
@@ -20,7 +20,7 @@ La compilación deja el APK final en **`bin/registro-habitos.apk`**. Los archivo
 
 ## Voz del navegador
 
-KCAPK proporciona el `WebChromeClient` genérico para permisos de audio y selección de archivos. El dictado del navegador mantiene el permiso Android explícito y, cuando Web Speech no existe, la aplicación puede usar el reconocedor del sistema mediante `NativeBridge.Android.voice.recognize()`. La navegación, la exportación nativa de documentos y la preescucha de sonidos se mantienen como extensiones propias bajo `src/native/`.
+KCAPK proporciona el reconocedor del sistema mediante `NativeBridge.Android.voice.recognize()`. El dictado del navegador mantiene el permiso Android explícito sólo como respaldo cuando la API nativa no está disponible. La navegación, la exportación nativa de documentos y la preescucha de sonidos se mantienen como extensiones propias bajo `src/native/`.
 
 Con `--local-https-assets`, KCAPK abre directamente `https://appassets.androidplatform.net/index.html`, un **origen HTTPS local servido desde los assets del APK**. No se necesitan pantallas de transición ni transferencias entre orígenes, y el HTML/CSS/JS/MP3 se cargan sin servidor.
 

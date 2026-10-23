@@ -972,7 +972,9 @@ function voiceFeedback(targetId, message) {
 function voiceButtons(active) {
     for (const id of ["mic", "edit-dictate"]) {
         const button = $(id);
+        const icon = button.querySelector("use");
         button.classList.toggle("listening", active);
+        icon.setAttribute("href", active ? "#i-stop" : "#i-mic");
         button.setAttribute("aria-pressed", active ? "true" : "false");
         button.setAttribute("aria-label", active ? "Detener dictado" : "Iniciar dictado");
     }
@@ -1007,14 +1009,8 @@ async function startVoice(targetId = "capture-text") {
     if (voiceSession) { stopVoice(); return; }
     if (voicePending) return;
     const field = $(targetId);
-    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (typeof Rec !== "function") {
-        const native = window.NativeBridge?.Android?.voice;
-        if (!native?.recognize) {
-            voiceFeedback(targetId, "Este dispositivo no ofrece reconocimiento de voz.");
-            field.focus();
-            return;
-        }
+    const native = window.NativeBridge?.Android?.voice;
+    if (native?.recognize) {
         voicePending = true;
         const requestId = ++voiceRequestId;
         try {
@@ -1033,6 +1029,12 @@ async function startVoice(targetId = "capture-text") {
         }finally{
             if(requestId===voiceRequestId)voicePending=false;
         }
+        return;
+    }
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (typeof Rec !== "function") {
+        voiceFeedback(targetId, "Este dispositivo no ofrece reconocimiento de voz.");
+        field.focus();
         return;
     }
     voicePending = true;
