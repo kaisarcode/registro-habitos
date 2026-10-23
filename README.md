@@ -175,6 +175,6 @@ La lista de Historial consulta IndexedDB mediante el índice `occurredAt` y carg
 
 La búsqueda y los filtros de fecha comparten un panel **Buscar y filtrar**, cerrado por defecto. El encabezado compacto indica cuando hay filtros activos, aunque el panel esté cerrado. Al desplegarlo aparecen el texto de búsqueda y los controles por año, mes o rango personalizado. El botón **Limpiar** borra texto y fechas, restaura **Todas las fechas** y reinicia la paginación, sin necesidad de cerrar la sección.
 
-## Identidad visual: Calma contemporánea
+## Identidad visual: Pausa
 
-Paleta cálida y distintiva, sin verde sanitario: base tinta ciruela en dark (`#14131c`), superficies violeta grafito (`#211e2b`), lavanda `#c6adff` para acciones y acentos melocotón `#f2ba9d`. Light usa marfil cálido `#f7f3f0`, superficies blancas suaves y violeta `#7652a4` para contraste. Se aplican tonos complementarios en barras, tarjetas, categorías, navegación, modales y controles sin cambiar su disposición ni funcionamiento. Logo horizontal e íconos comparten violetas y melocotón en versiones dark/light.
+La app usa una paleta azul noche y marfil cálido, con acento coral suave y matices azul niebla. Se mantiene la estructura funcional. El logotipo oscuro y claro está convertido íntegramente a geometría SVG: no usa texto ni depende de fuentes instaladas en Android. El icono del launcher reutiliza el mismo símbolo y respeta la zona de seguridad.

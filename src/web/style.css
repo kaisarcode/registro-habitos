@@ -602,106 +602,83 @@ html.theme-light .brand-home .brand-logo-light{display:block}
 
 
 
-/* BRAND SYSTEM / CALMA CONTEMPORÁNEA
-   Ink-plum + muted violet + apricot. Intentional warm surfaces instead of
-   clinical teal. Layout, sizes, motion and app interaction stay unchanged. */
+/* BRAND SYSTEM / PAUSA — midnight blue, soft porcelain, warm coral.
+   Color and texture only. Structure, layout, functionality remain unchanged. */
 :root{
- color-scheme:dark;
- --page:#14131c;--page-glow:#211c2d;--surface:#24212f;--surface2:#302b40;
- --panel:#211e2b;--line:#3a3447;--ink:#f4f0f5;--muted:#b1a9bb;
- --accent:#c6adff;--accent-ink:#22192f;--subaccent:#f2ba9d;
- background:var(--page);color:var(--ink);
+ color-scheme:dark;--page:#101b26;--surface:#1c2b39;--surface2:#263749;
+ --ink:#f1f3f2;--muted:#aebdc6;--accent:#f0bba0;--accent-ink:#30212a;
+ --line:#334655;--panel:#1b2936;--subaccent:#8fbbd5;
+ background:var(--page);color:var(--ink)
 }
 body,.app{background:var(--page);color:var(--ink)}
-.app{background:radial-gradient(ellipse 450px 270px at 82% 0%,rgba(141,106,189,.13),transparent 80%),var(--page)}
-.topbar{background:linear-gradient(110deg,rgba(119,88,159,.09),transparent 65%)}
-.tabs{background:#191622;border-top-color:var(--line)}
-.tabs button{color:#c0b9c9}
-.tabs button.active{color:var(--accent)}
-.panel{background:var(--panel);border-color:var(--line);box-shadow:0 9px 25px rgba(5,3,12,.08)}
-.home-today-panel{background:linear-gradient(133deg,#2b2437,#241f2e 75%);border-color:#473750}
-.home-summary-panel{background:linear-gradient(145deg,#262136,#201d2b 82%);border-color:#3d3451}
-.menu-item,.history-item,.category-item,.reminder-item,.category-tile,.category-card{
- background:#272331;color:var(--ink);border-color:var(--line)
-}
-.menu-item span,.item-main .pill{color:var(--accent)}
-.menu-item:active,.history-item:active{background:#30293d}
+.app{background:radial-gradient(ellipse 440px 210px at 85% 0%,rgba(84,122,157,.12),transparent 80%),var(--page)}
+.topbar{background:linear-gradient(110deg,rgba(110,148,172,.08),transparent 70%)}
+.tabs{background:#14212c;border-top-color:var(--line)}
+.tabs button{color:#b7c4cb}.tabs button.active{color:var(--accent)}
+.panel{background:var(--panel);border-color:var(--line);box-shadow:0 9px 24px rgba(3,10,17,.07)}
+.home-today-panel{background:linear-gradient(135deg,#223443,#1b2a37 80%);border-color:#3b5361}
+.home-summary-panel{background:linear-gradient(135deg,#253646,#1b2b39 80%);border-color:#3c5261}
+.menu-item,.history-item,.category-item,.reminder-item,.category-tile,.category-card{background:#1e2d39;color:var(--ink);border-color:var(--line)}
+.menu-item span{color:var(--accent)}
 .dashboard-heading p,.view-heading p,.home-summary-heading p,.panel p{color:var(--muted)}
 .history-group-heading,.history-period-label{color:var(--ink)}
-.history-filters{background:var(--panel);border-color:var(--line)}
-.history-filters-content{border-color:var(--line)}
-.history-more,.home-summary-open{background:#342a46;border-color:#5d4a79;color:#ebdfff}
+.history-filters{background:var(--panel);border-color:var(--line)}.history-filters-content{border-color:var(--line)}
+.history-more,.home-summary-open{background:#304151;border-color:#526879;color:#ffe0ce}
 .home-summary-total strong{color:var(--ink)}
-.home-summary-bar{background:var(--accent)}
-.home-summary-bar:nth-child(3n){background:var(--subaccent)}
-.quick-category{background:#2b253a;border-color:#4a3a59;color:var(--ink)}
-.quick-category:nth-child(3n+2){background:#2d2635;border-color:#5a4155}
-.quick-category:nth-child(3n){background:#302735;border-color:#654c54}
-.entry-icon.green{color:#c3adfb;background:#403359}
-.entry-icon.blue{color:#aebcff;background:#303958}
-.entry-icon.purple{color:#d4b1f9;background:#45315c}
-.entry-icon.orange{color:#f2bd9f;background:#533d42}
-.entry-icon.grey{color:#c4b6ce;background:#403848}
+.home-summary-bar{background:var(--subaccent)}.home-summary-bar:nth-child(3n){background:var(--accent)}
+.quick-category{background:#20303d;border-color:#3a5160;color:var(--ink)}
+.quick-category:nth-child(3n+2){background:#23313e;border-color:#465360}
+.quick-category:nth-child(3n){background:#28323c;border-color:#564e53}
+.entry-icon.green{color:#a0d5bf;background:#244538}
+.entry-icon.blue{color:#9bc9ef;background:#23435c}
+.entry-icon.purple{color:#c9ace9;background:#413453}
+.entry-icon.orange{color:#f6b784;background:#563c2b}
+.entry-icon.grey{color:#c6ced4;background:#3b4753}
 .add-entry-fab,.main-button,.mic-button{background:var(--accent);color:var(--accent-ink)}
-.sensory-switch-track, .sensory-switch-track::after{border-color:#5c526c}
-.sensory-setting input:checked+.sensory-switch-track{background:#9574cf;border-color:#9574cf}
-.segments{background:#2c2738}
-.segments .selected{background:#514069;color:#f0e6ff}
-.bars{background:#211d2d}
-.bar{background:#b7a0ef}
-.bar-cell:nth-child(2n) .bar{background:#f2ba9d}
-.bar-cell:nth-child(3n) .bar{background:#9cb1e5}
-input:not([type=checkbox]):not([type=range]),textarea,select{
- background:#292433;color:var(--ink);border-color:#484055
-}
-input::placeholder,textarea::placeholder{color:#aaa1b6}
-dialog{background:#25202f;color:var(--ink);border-color:#51435e}
-.secondary,.utility-button{background:#352d43;color:var(--ink);border-color:#51435e}
-.settings-button.active{background:#42344f;color:var(--accent)}
-.about-website{background:#352b45;color:#d9c8ff}
+.segments{background:#2a3946}.segments .selected{background:#3c5362;color:#e9f5fc}
+.bars{background:#192b39}.bar{background:#8fb4d6}
+.bar-cell:nth-child(2n) .bar{background:#edb191}.bar-cell:nth-child(3n) .bar{background:#a7b9d2}
+input:not([type=checkbox]):not([type=range]),textarea,select{background:#223441;color:var(--ink);border-color:#3e5361}
+input::placeholder,textarea::placeholder{color:#9baeb8}
+dialog{background:#1d2b38;color:var(--ink);border-color:#435867}
+.secondary,.utility-button{background:#30414d;color:var(--ink);border-color:#526572}
+.settings-button.active{background:#2b4050;color:var(--accent)}
 .history-group-heading small,.period-label,.bar-cell{color:var(--muted)}
-/* Light is warm paper, not an inverted dark teal. */
 html.theme-light{
- color-scheme:light;
- --page:#f7f3f0;--page-glow:#ede7ef;--surface:#fffdfa;--surface2:#f2eaf5;
- --panel:#fffefa;--line:#e4dbe5;--ink:#30273c;--muted:#716779;
- --accent:#7652a4;--accent-ink:#fffaf9;--subaccent:#cf8263;
+ color-scheme:light;--page:#f8f5ef;--surface:#fffdf9;--surface2:#f0eee9;
+ --ink:#293b4c;--muted:#687c87;--accent:#965c64;--accent-ink:#fffaf6;
+ --line:#dedfdc;--panel:#fffcf7;--subaccent:#426b92;
  background:var(--page);color:var(--ink)
 }
 html.theme-light body,html.theme-light .app{background:var(--page);color:var(--ink)}
-html.theme-light .app{background:radial-gradient(ellipse 470px 250px at 85% 0%,rgba(187,153,204,.17),transparent 80%),var(--page)}
-html.theme-light .topbar{background:linear-gradient(110deg,rgba(181,146,201,.08),transparent 70%)}
-html.theme-light .tabs{background:#fffcfa;border-top-color:var(--line)}
-html.theme-light .tabs button{color:#6f6376}
+html.theme-light .app{background:radial-gradient(ellipse 440px 240px at 88% 0%,rgba(194,165,142,.12),transparent 80%),var(--page)}
+html.theme-light .topbar{background:linear-gradient(120deg,rgba(188,166,147,.09),transparent 70%)}
+html.theme-light .tabs{background:#fffaf5;border-top-color:var(--line)}
+html.theme-light .tabs button{color:#65747c}.tabs button.active{color:var(--accent)}
 html.theme-light .tabs button.active{color:var(--accent)}
-html.theme-light .panel,html.theme-light .history-filters{background:var(--panel);border-color:var(--line);color:var(--ink);box-shadow:0 9px 25px rgba(70,44,75,.045)}
-html.theme-light .home-today-panel{background:linear-gradient(138deg,#fbf4f7,#fffdfa 72%);border-color:#e7d5e3}
-html.theme-light .home-summary-panel{background:linear-gradient(138deg,#f4edfa,#fffdfa 82%);border-color:#e2d9ef}
-html.theme-light .menu-item,html.theme-light .history-item,html.theme-light .category-item,html.theme-light .reminder-item,html.theme-light .category-tile,html.theme-light .category-card{background:#fffdfa;color:var(--ink);border-color:var(--line)}
-html.theme-light .quick-category{background:#f6effa;color:var(--ink);border-color:#e0d4eb}
-html.theme-light .quick-category:nth-child(3n+2){background:#fbf1f1;border-color:#ead7db}
-html.theme-light .quick-category:nth-child(3n){background:#fff4ec;border-color:#ebddcd}
-html.theme-light .entry-icon.green{background:#ede1f9;color:#7652a4}
-html.theme-light .entry-icon.blue{background:#e9ecfc;color:#596bb1}
-html.theme-light .entry-icon.purple{background:#f0e4f7;color:#8a65ae}
-html.theme-light .entry-icon.orange{background:#fae8df;color:#a96547}
-html.theme-light .entry-icon.grey{background:#ede9f1;color:#746785}
-html.theme-light .dashboard-heading p,html.theme-light .view-heading p,html.theme-light .home-summary-heading p,
-html.theme-light .panel p,html.theme-light .muted,html.theme-light .home-summary-heading span{color:var(--muted)}
+html.theme-light .panel,html.theme-light .history-filters{background:var(--panel);border-color:var(--line);color:var(--ink);box-shadow:0 9px 24px rgba(44,55,68,.045)}
+html.theme-light .home-today-panel{background:linear-gradient(138deg,#f6f1e9,#fffdf9 75%);border-color:#e6dacf}
+html.theme-light .home-summary-panel{background:linear-gradient(138deg,#edf2f6,#fffdf9 80%);border-color:#d6e0e7}
+html.theme-light .menu-item,html.theme-light .history-item,html.theme-light .category-item,html.theme-light .reminder-item,html.theme-light .category-tile,html.theme-light .category-card{background:#fffdf9;color:var(--ink);border-color:var(--line)}
+html.theme-light .quick-category{background:#f0f4f6;color:var(--ink);border-color:#d7e1e6}
+html.theme-light .quick-category:nth-child(3n+2){background:#fcf2ec;border-color:#eadbce}
+html.theme-light .quick-category:nth-child(3n){background:#f8f2f3;border-color:#e8dbde}
+html.theme-light .entry-icon.green{background:#dfefe6;color:#26765e}
+html.theme-light .entry-icon.blue{background:#e1eef6;color:#3e769d}
+html.theme-light .entry-icon.purple{background:#efe7f5;color:#8066a0}
+html.theme-light .entry-icon.orange{background:#f7e6d8;color:#a56743}
+html.theme-light .entry-icon.grey{background:#e9edf0;color:#607281}
+html.theme-light .dashboard-heading p,html.theme-light .view-heading p,html.theme-light .home-summary-heading p,html.theme-light .panel p,html.theme-light .muted{color:var(--muted)}
 html.theme-light .home-summary-total strong,html.theme-light .history-group-heading,html.theme-light .history-period-label{color:var(--ink)}
-html.theme-light .home-summary-open,html.theme-light .history-more{background:#eee4f6;color:#614083;border-color:#d8c5e8}
-html.theme-light .home-summary-bar{background:var(--accent)}
-html.theme-light .home-summary-bar:nth-child(3n){background:#dc967b}
-html.theme-light .segments{background:#f2eaf5;color:var(--ink)}
-html.theme-light .segments .selected{background:#e3d4f2;color:#5c3a80}
-html.theme-light .bars{background:#f3ecf6}
-html.theme-light .bar{background:#9074c4}
-html.theme-light .bar-cell:nth-child(2n) .bar{background:#d79c81}
-html.theme-light .bar-cell:nth-child(3n) .bar{background:#869bd0}
-html.theme-light .add-entry-fab,html.theme-light .main-button,html.theme-light .mic-button{background:#7652a4;color:#fff}
-html.theme-light .settings-button.active{background:#ebe0f2;color:#7652a4}
-html.theme-light .about-website{background:#eee3f7;color:#64428b}
-html.theme-light dialog{background:#fffefa;color:var(--ink);border-color:#dfd4e6}
+html.theme-light .home-summary-open,html.theme-light .history-more{background:#ecf0f3;color:#375b79;border-color:#cedde6}
+html.theme-light .home-summary-bar{background:#6b96b6}
+html.theme-light .home-summary-bar:nth-child(3n){background:#ca8e75}
+html.theme-light .segments{background:#e9eff2;color:var(--ink)}html.theme-light .segments .selected{background:#d7e4ee;color:#2f5878}
+html.theme-light .bars{background:#edf1f3}html.theme-light .bar{background:#749ab9}
+html.theme-light .bar-cell:nth-child(2n) .bar{background:#cf9477}
+html.theme-light .bar-cell:nth-child(3n) .bar{background:#9aacc7}
+html.theme-light .add-entry-fab,html.theme-light .main-button,html.theme-light .mic-button{background:#965c64;color:#fff}
+html.theme-light .settings-button.active{background:#f3e7e3;color:#965c64}
+html.theme-light dialog{background:#fffcf7;color:var(--ink);border-color:#dedbd4}
 html.theme-light .history-filters-content{border-color:var(--line)}
 html.theme-light .history-filters.has-filters .history-filter-state{color:var(--accent)}
-html.theme-light .history-clear{color:var(--accent)}
