@@ -446,6 +446,7 @@ function completeBackup(){
   categories:customCategories(),categoryProfiles:categoryStore.export(),preferences};
 }
 function filteredAnalysisEntries(){
+ if(!$("analysis-filter-enabled").checked)return entries;
  const from=$("analysis-from").value,to=$("analysis-to").value;
  if(from&&to&&from>to)throw Error("La fecha Desde no puede ser posterior a Hasta.");
  const start=from?Date.parse(from+"T00:00:00"):null;
@@ -458,6 +459,13 @@ function filteredAnalysisEntries(){
   return true;
  });
 }
+function updateAnalysisDateFilter(){
+ const enabled=$("analysis-filter-enabled").checked;
+ $("analysis-date-fields").hidden=!enabled;
+ $("analysis-filter-enabled").setAttribute("aria-expanded",String(enabled));
+}
+$("analysis-filter-enabled").onchange=updateAnalysisDateFilter;
+updateAnalysisDateFilter();
 function analysisExport(selectedEntries=filteredAnalysisEntries()){
  return {version:1,kind:"registro-habitos-analysis",exportedAt:new Date().toISOString(),entries:selectedEntries};
 }

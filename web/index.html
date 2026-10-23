@@ -146,11 +146,18 @@
  <article class="panel">
   <h2>Exportar para análisis</h2>
   <p>Exporta solamente tus registros de hábitos, sin configuraciones ni recordatorios. Puedes usarlos en otras herramientas.</p>
-  <div class="form-row analysis-date-range">
-   <label for="analysis-from">Desde<input id="analysis-from" type="date"></label>
-   <label for="analysis-to">Hasta<input id="analysis-to" type="date"></label>
+  <label class="sensory-setting analysis-filter-toggle" for="analysis-filter-enabled">
+   <span>Filtrar por fecha</span>
+   <input id="analysis-filter-enabled" type="checkbox" role="switch" aria-controls="analysis-date-fields" aria-expanded="false">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <div id="analysis-date-fields" class="analysis-date-fields" hidden>
+   <div class="form-row analysis-date-range">
+    <label for="analysis-from">Desde<input id="analysis-from" type="date"></label>
+    <label for="analysis-to">Hasta<input id="analysis-to" type="date"></label>
+   </div>
+   <p class="muted">Puedes dejar una fecha vacía. Ambos días están incluidos.</p>
   </div>
-  <p class="muted">Deja las fechas vacías para incluir todos los registros. Ambos días están incluidos.</p>
   <button id="export-json" type="button" class="utility-button">Exportar hábitos JSON</button>
   <button id="export-csv" type="button" class="utility-button">Exportar hábitos CSV</button>
  </article>

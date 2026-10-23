@@ -410,3 +410,16 @@ html.theme-light .muted{color:var(--light-muted)}
 .language-preferences select{display:block;width:100%;margin-top:10px}
 .language-preferences label{margin:10px 0 4px}
 html.theme-light .language-preferences select{background:#f3f7f7;color:#263e46;border-color:#bacdd0}
+
+/* Optional, no-motion date filter. Only reveal fields when explicitly enabled. */
+.analysis-filter-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:17px 0 6px;min-height:48px;cursor:pointer;color:#dce7e7}
+.analysis-filter-toggle input[type=checkbox]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;margin:0}
+.analysis-filter-toggle input:checked+.sensory-switch-track{background:#55cfaa;border-color:#55cfaa}
+.analysis-filter-toggle input:checked+.sensory-switch-track::after{left:23px;background:#102b29}
+.analysis-filter-toggle input:focus-visible+.sensory-switch-track{outline:2px solid var(--accent);outline-offset:3px}
+.analysis-date-fields[hidden]{display:none!important}
+.analysis-date-fields{margin:12px 0 17px}
+.analysis-date-fields .form-row label{min-width:0}
+html.theme-light .analysis-filter-toggle{color:#263e46}
+html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
+html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track::after{background:#fff}
