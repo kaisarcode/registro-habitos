@@ -453,3 +453,7 @@ html.theme-light .language-preferences #app-language{
 .bar-cell .bar{flex:0 0 auto;min-height:0}
 .bar-cell>span{flex:0 0 auto;min-height:20px;white-space:nowrap}
 .bars.empty .chart-empty-message{position:absolute;top:40%;left:12px;right:12px;text-align:center;color:var(--muted);font-size:14px}
+
+/* Home uses the actual launcher artwork in the Back control slot. */
+.topbar .home-app-icon{display:block;width:38px;height:38px;flex:0 0 38px;object-fit:contain;border-radius:9px}
+.topbar .home-app-icon.hidden{display:none!important}

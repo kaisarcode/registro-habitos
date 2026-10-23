@@ -542,3 +542,9 @@ grep -Fq 'function summaryBuckets(records, selectedPeriod, now=new Date())' "$PA
 grep -Fq 'const {totals,inPeriod}=summaryBuckets(entries,period,now);' "$PAGE"
 grep -Fq 'inPeriod.forEach(entry=>' "$PAGE"
 grep -Fq 'No hay registros en este período.' "$PAGE"
+
+# Home icon and consistent Android launcher label.
+grep -Fq 'id="home-app-icon"' "$PAGE"
+grep -Fq '$("home-app-icon").classList.toggle("hidden",page!=="capture");' "$PAGE"
+grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
+grep -Fq -- '--display-name "Registro de Hábitos"' "$ROOT/build.sh"

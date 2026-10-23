@@ -15,6 +15,7 @@ WEB_OUT="$ROOT/build/web"
 rm -rf "$WEB_OUT"
 mkdir -p "$WEB_OUT"
 cp -R "$ROOT/web/." "$WEB_OUT/"
+cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"
 # The KCAPK integration test uses classic, inline JavaScript in a local HTML
 # page. Match that tested loading pattern instead of using ES modules from file:.
 # Regenerate the source bundle as well: direct KCAPK builds pointing at
@@ -91,7 +92,7 @@ cp "$ROOT/web/sounds/alert.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_ale
 python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
 cd "$KCAPK_STAGE"
 sh ./build.sh \
-    --display-name "Registro Hábitos" \
+    --display-name "Registro de Hábitos" \
     --project-name registro-habitos \
     --package-name com.kaisarcode.registrohabitos \
     --webview-url "$WEB_OUT/index.html" \
