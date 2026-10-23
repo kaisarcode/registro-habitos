@@ -34,6 +34,8 @@ grep -Fq 's/@APP_VERSION@/$APP_VERSION/g' "$ROOT/build.sh"
 grep -Fq -- '--version-name "$APP_VERSION"' "$ROOT/build.sh"
 grep -Fq '["categories","summary","backup","analysis","about"].includes(page)' "$PAGE"
 grep -Fq '$("back").onclick=handleDeviceBack' "$PAGE"
+grep -Fq '$("back").classList.toggle("hidden",page==="capture");' "$PAGE"
+
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
 grep -q 'id="quick-categories"' "$PAGE"
