@@ -1,4 +1,4 @@
-# registro-habitos
+# Registro de Hábitos
 
 Registro personal de actividades y estados para seguimiento cotidiano y terapia ocupacional. La prioridad es registrar algo en segundos: tocar, hablar o escribir, guardar; clasificar después.
 
