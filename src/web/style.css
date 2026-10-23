@@ -691,3 +691,9 @@ html.theme-light .save-feedback{background:#e8f0eb;color:#253a38;border-color:#a
 /* Category cards are deliberately uniform and flat; icon badges carry category color. */
 .category-grid .quick-category,.category-grid .quick-category:nth-child(n){background:#20303d;border-color:#405665;background-image:none;box-shadow:none}
 html.theme-light .category-grid .quick-category,html.theme-light .category-grid .quick-category:nth-child(n){background:#fffdfa;border-color:#c9d6dc;background-image:none;box-shadow:none}
+
+/* Constrain entry rows to the available column width, including on WebView. */
+#today-entries,.history-list,.home-today-panel{min-width:0;max-width:100%}
+#today-entries .history-item,.history-list .history-item{display:flex;width:100%;min-width:0;max-width:100%;overflow:hidden}
+#today-entries .history-item .item-main,.history-list .history-item .item-main{display:block;flex:1 1 0;min-width:0;max-width:100%;overflow:hidden}
+#today-entries .history-item .item-main strong,.history-list .history-item .item-main strong{display:block;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
