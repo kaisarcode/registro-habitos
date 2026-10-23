@@ -137,3 +137,7 @@ Un recordatorio admite entre 1 y 29 horarios en el mismo día. El editor abre co
 El respaldo completo se guarda ahora como `registro-habitos-respaldo.zip`, creado mediante `java.util.zip.ZipOutputStream` en Android. Contiene un único `registro-habitos.json` compactado mediante `JSON.stringify` sin espacios ni indentación y comprimido con DEFLATE (nivel 9). El selector de restauración admite ZIP y respaldos JSON antiguos. Los archivos CSV y JSON para análisis siguen sin comprimir y conservan su formato. El ZIP no está cifrado: guardalo en un lugar privado.
 
 El selector de restauración de Android muestra únicamente archivos ZIP; el guardado del respaldo también usa el tipo MIME `application/zip`. Las exportaciones de análisis mantienen sus formatos JSON y CSV.
+
+## Tema claro opcional
+
+El switch **Modo oscuro** en Más → Preferencias sensoriales está activado por defecto. Desactivarlo aplica una paleta clara suave, también en los formularios y modales. Se guarda localmente y se incluye en el respaldo completo ZIP.

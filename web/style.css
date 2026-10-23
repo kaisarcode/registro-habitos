@@ -218,3 +218,40 @@
 #edit-dialog .edit-delete-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:flex-start;border:1px solid #694047;background:#2b242a;color:#efafb1;padding:10px 14px;border-radius:12px}
 #edit-dialog .edit-delete-action .icon{width:17px;height:17px}
 #edit-dialog .modal-voice{margin:10px 0}
+
+/* Optional soft light palette. Keep dark as the installed default. */
+html.theme-light{color-scheme:light;--surface:#fff;--surface2:#e8f0f1;--accent:#16836a;--muted:#61757c;background:#eff3f3;color:#213941}
+html.theme-light body,html.theme-light .app{background:#eff3f3;color:#213941}
+html.theme-light .app{background-image:none}
+html.theme-light .topbar,html.theme-light .screen{color:#213941}
+html.theme-light .icon-button{color:#45616a}
+html.theme-light .tabs{background:#fff;border-color:#c7d7db}
+html.theme-light .tabs button{color:#586c74}
+html.theme-light .tabs button.active{color:#16836a}
+html.theme-light textarea,html.theme-light input:not([type=checkbox]):not([type=range]),html.theme-light select{background:#fff;color:#213941;border-color:#b8cdd0}
+html.theme-light input::placeholder,html.theme-light textarea::placeholder{color:#71868c}
+html.theme-light .panel,html.theme-light .menu-item,html.theme-light .history-item,html.theme-light .category-item,html.theme-light .reminder-item,html.theme-light .category-card,html.theme-light .category-tile{background:#fff;color:#213941;border-color:#d1dfe1}
+html.theme-light label,html.theme-light .sensory-preferences .sensory-setting,html.theme-light .section-label,html.theme-light .item-main small,html.theme-light .category-detail,html.theme-light .category-count,html.theme-light .muted,html.theme-light .panel p{color:#526a73}
+html.theme-light .sensory-switch-track{background:#d6e0e3;border-color:#a7b9be}
+html.theme-light .sensory-switch-track::after{background:#fff}
+html.theme-light .sensory-preferences input:checked+.sensory-switch-track,html.theme-light .reminder-item .reminder-switch input:checked+.sensory-switch-track,html.theme-light .wellbeing-energy-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
+html.theme-light .sensory-preferences input:checked+.sensory-switch-track::after,html.theme-light .reminder-item .reminder-switch input:checked+.sensory-switch-track::after,html.theme-light .wellbeing-energy-toggle input:checked+.sensory-switch-track::after{background:#fff}
+html.theme-light .main-button,html.theme-light .mic-button,html.theme-light .utility-button.accent,html.theme-light #edit-save,html.theme-light #reminder-confirm{background:#16836a;color:#fff}
+html.theme-light .secondary,html.theme-light .utility-button,html.theme-light .chip,html.theme-light .segments,html.theme-light .reminder-time-remove,html.theme-light #edit-cancel,html.theme-light #reminder-cancel{background:#e7eff0;color:#294650;border-color:#c6d7d9}
+html.theme-light dialog,html.theme-light .category-editor,html.theme-light .app-action-dialog{background:#fff;color:#213941;border-color:#c0d1d5}
+html.theme-light dialog label,html.theme-light .app-action-dialog p{color:#4f6872}
+html.theme-light .wellbeing-energy,html.theme-light .bars,html.theme-light .category-icon-grid button{background:#edf3f3;border-color:#ccdadd;color:#213941}
+html.theme-light .moods button{color:#4a646d;border-color:#b9cbd0}
+html.theme-light .moods button.selected{background:#d8eee6;color:#116954;border-color:#16836a}
+html.theme-light .reminder-add-time,html.theme-light .about-website{background:#d8eee6;color:#116954}
+html.theme-light .about-details>div{border-color:#d6e1e3}
+html.theme-light .about-details dd{color:#294650}
+html.theme-light .pill{background:#e8eff0;color:#405d66}
+html.theme-light .entry-icon.green{background:#d7f0e4;color:#177a53}
+html.theme-light .entry-icon.blue{background:#dceefb;color:#276e9e}
+html.theme-light .entry-icon.purple{background:#e9ddf7;color:#7655a0}
+html.theme-light .entry-icon.orange{background:#ffeedc;color:#a86324}
+html.theme-light .entry-icon.grey{background:#e5edf1;color:#4f6b80}
+html.theme-light .category-grid button{background:#fff;color:#213941;border-color:#cbdadc}
+html.theme-light #edit-dialog .edit-delete-action{background:#fff0f1;color:#974752;border-color:#e6bec3}
+html.theme-light .bar-cell,html.theme-light .period-label{color:#526a73}

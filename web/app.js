@@ -436,7 +436,8 @@ async function saveCapture(){
 function csv(){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function completeBackup(){
  const preferences={
-  reducedMotion:$("reduced-motion").checked
+  reducedMotion:$("reduced-motion").checked,
+  darkMode:$("dark-mode").checked
  };
  return {version:1,kind:"registro-habitos-backup",exportedAt:new Date().toISOString(),
   entries,reminders:reminderStore.list(),
@@ -551,6 +552,7 @@ async function importBackup(file){
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
+ if(backup.preferences && typeof backup.preferences.darkMode==="boolean")applyDarkMode(backup.preferences.darkMode);
  if(backup.preferences && typeof backup.preferences.reducedMotion==="boolean"){
   $("reduced-motion").checked=backup.preferences.reducedMotion;
   document.documentElement.classList.toggle("reduce-motion",backup.preferences.reducedMotion);
@@ -877,6 +879,22 @@ $("import-file").onchange=async e=>{
  catch(error){await appInfo("No se pudo importar: "+error.message,"Error de importación")}
  finally{e.target.value=""}
 };
+const darkModeInput=$("dark-mode");
+const darkModeKey="registro-habitos-dark-mode";
+function applyDarkMode(enabled){
+ const dark=!!enabled;
+ darkModeInput.checked=dark;
+ document.documentElement.classList.toggle("theme-light",!dark);
+ document.documentElement.style.colorScheme=dark?"dark":"light";
+ const themeMeta=document.querySelector('meta[name="theme-color"]');
+ if(themeMeta)themeMeta.content=dark?"#0b1419":"#eff3f3";
+ try{localStorage.setItem(darkModeKey,String(dark));}catch(error){console.warn(error);}
+}
+try{
+ const stored=localStorage.getItem(darkModeKey);
+ applyDarkMode(stored===null?true:stored==="true");
+}catch(error){applyDarkMode(true);}
+darkModeInput.onchange=()=>applyDarkMode(darkModeInput.checked);
 const reducedMotionInput=$("reduced-motion");
 const reducedMotionKey="registro-habitos-reduced-motion";
 try{
