@@ -73,28 +73,21 @@ function toast(message){const id=$("capture-status");if(id)id.textContent=messag
  */
 function show(page){
     if(voiceSession || voicePending)stopVoice();
-    
-    ["capture","history","categories","summary","reminders","backup","analysis","more","language","sensory","about","help"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Registro de Hábitos",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",language:"Idioma",sensory:"Preferencias sensoriales",about:"Acerca de",help:"Ayuda"};
-    $("title").textContent=labels[page];$("back").classList.toggle("hidden",page==="capture");
-    $("home-app-icon").classList.toggle("hidden",page!=="capture");
-    const headerIcon={capture:"i-help",history:"i-more-vertical",reminders:"i-plus",categories:"i-plus"}[page];
-    const topAction=$("top-action");
-    topAction.classList.toggle("hidden",!headerIcon);
-    const svgNamespace="http://www.w3.org/2000/svg";
-    if(headerIcon){
-        const svg=document.createElementNS(svgNamespace,"svg");
-        svg.setAttribute("class","icon");
-        svg.setAttribute("viewBox","0 0 24 24");
-        const use=document.createElementNS(svgNamespace,"use");
-        use.setAttribute("href","#"+headerIcon);
-        svg.append(use);
-        topAction.replaceChildren(svg);
-    }else topAction.replaceChildren();
-    $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Ayuda":page==="history"?"Opciones del historial":"Opciones");
-    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","backup","analysis","language","sensory","about"].includes(page)&&b.dataset.page==="more")));
-    $("add-entry").classList.toggle("hidden",page!=="capture");
-    if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
+    ["capture","history","categories","summary","reminders","backup","analysis","settings","language","sensory","about","help"]
+        .forEach(id=>$(id).classList.toggle("active",id===page));
+    document.querySelectorAll(".tabs button")
+        .forEach(button=>button.classList.toggle("active",button.dataset.page===page));
+    const settingsPage=["settings","summary","backup","analysis","language","sensory","about","help"].includes(page);
+    $("settings-button").classList.toggle("active",settingsPage);
+    const actions={capture:"Nueva entrada",categories:"Crear categoría",reminders:"Nuevo recordatorio"};
+    const action=$("add-entry"),label=actions[page];
+    action.classList.toggle("hidden",!label);
+    if(label){action.setAttribute("aria-label",label);action.title=label;}
+    if(page==="capture")drawDashboard();
+    if(page==="history")drawHistory();
+    if(page==="categories")drawCategories();
+    if(page==="summary")drawSummary();
+    if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
 }
 
@@ -1284,8 +1277,8 @@ function handleDeviceBack(){
         return true;
     }
     const page=document.querySelector(".screen.active")?.id;
-    if(["categories","summary","backup","analysis","language","sensory","about"].includes(page)){
-        show("more");
+    if(["summary","backup","analysis","language","sensory","about","help"].includes(page)){
+        show("settings");
         return true;
     }
     if(page!=="capture"){
@@ -1307,17 +1300,17 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("pagehide",stopVoice);
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
-$("back").onclick=handleDeviceBack;
-$("top-action").onclick=()=>{
-    const page=document.querySelector(".screen.active").id;
-    if(page==="categories")openCategoryEditor();
-    else if(page==="reminders")openReminderDialog();
-    else if(page==="capture")show("help");
-    else if(page==="history")show("more");
-};
+document.querySelectorAll(".view-back").forEach(b=>b.onclick=handleDeviceBack);
+$("brand-home").onclick=()=>show("capture");
+$("settings-button").onclick=()=>show("settings");
 $("category-search").addEventListener("input",drawDashboard);
 $("categories-search").addEventListener("input",drawCategories);
-$("add-entry").onclick=()=>openEntryDialog();
+$("add-entry").onclick=()=>{
+    const page=document.querySelector(".screen.active")?.id;
+    if(page==="categories")openCategoryEditor();
+    else if(page==="reminders")openReminderDialog();
+    else if(page==="capture")openEntryDialog();
+};
 $("edit-close").onclick=()=>dismissDialog($("edit-dialog"));
 $("edit-cancel").onclick=()=>dismissDialog($("edit-dialog"));
 $("edit-dialog").addEventListener("close",stopVoice);

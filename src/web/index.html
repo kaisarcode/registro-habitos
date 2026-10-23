@@ -3,6 +3,7 @@
 <body><svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true" width="0" height="0"><defs>
 <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C9 4 4 9 4 16c0 3 2 4 4 4 7 0 12-5 12-16Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c2-4 6-7 11-10" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
 <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 6h2M3 12h2M3 18h2" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
 <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10ZM10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
 <symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
@@ -103,7 +104,7 @@
 <symbol id="li-leaf" viewBox="0 0 24 24"><path d="M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20" />
   <path d="M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13" /></symbol>
 </defs></svg><div class="app">
-<header class="topbar"><img id="home-app-icon" class="home-app-icon" src="./icon.svg" alt="" aria-hidden="true"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Registro de Hábitos</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-help"/></svg></button></header>
+<header class="topbar"><h1 class="app-brand"><button id="brand-home" class="brand-home" type="button" aria-label="Ir a Registro"><img id="app-icon" src="./icon.svg" alt="" aria-hidden="true"><span>Registro de Hábitos</span></button></h1><button id="settings-button" class="icon-button settings-button" type="button" aria-label="Configuración" title="Configuración"><svg class="icon" aria-hidden="true"><use href="#i-gear"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
  <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elige una categoría para completar y guardar tu entrada.</p></div>
@@ -114,17 +115,20 @@
  <div class="save-feedback" id="quick-feedback" role="status" aria-live="polite"><span id="capture-status"></span><button type="button" id="undo-quick" class="undo-button hidden">Deshacer</button><button type="button" id="dismiss-feedback" class="dismiss-feedback" aria-label="Cerrar aviso" title="Cerrar aviso">×</button></div>
 </section>
 <section id="history" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Historial</h2><p>Busca y revisa tus registros.</p></div></div>
  <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros"></div>
  <div id="history-list" class="history-list"></div>
 </section>
 <section id="categories" class="screen">
- <p class="muted">Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p>
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Categorías</h2><p>Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p></div></div>
  <input id="categories-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Buscar categoría" autocomplete="off" autocapitalize="off" spellcheck="false">
  <div id="category-list" class="history-list"></div>
 </section>
 
-<section id="summary" class="screen"><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
-<section id="reminders" class="screen"><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">
+<section id="summary" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Resumen</h2><p>Explora tus hábitos a lo largo del tiempo.</p></div></div><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
+<section id="reminders" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Recordatorios</h2><p>Organiza tus avisos y sus horarios.</p></div></div><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">
  <div class="section-label">Horarios del día</div>
  <div id="reminder-times" class="reminder-times-list" aria-label="Horarios del recordatorio"></div>
  <button id="reminder-add-time" type="button" class="reminder-add-time">+ Agregar horario</button>
@@ -138,9 +142,9 @@
  </div>
 </div><p class="muted">Android usa el volumen de notificaciones del teléfono.</p><p id="reminder-dialog-status" class="muted" role="status"></p><div class="reminder-dialog-footer"><div class="reminder-dialog-actions"><button id="reminder-cancel" type="button" class="secondary">Cancelar</button><button id="reminder-confirm" type="button" class="main-button">Guardar</button></div><button id="reminder-delete" type="button" class="reminder-delete-action hidden">Eliminar</button></div></form></dialog></section>
 <section id="backup" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Respaldo y restauración</h2><p>Guarda una copia de tus datos o recupera un respaldo.</p></div></div>
  <article class="panel">
-  <h2>Respaldo y restauración</h2>
-  <p>Guarda una copia completa fuera de la app, por ejemplo en Descargas. El archivo permanece aunque desinstales Registro Hábitos.</p>
+  <p>El archivo permanece fuera de la aplicación, por ejemplo en Descargas, aunque la desinstales.</p>
   <button id="backup-save" type="button" class="utility-button accent">Guardar respaldo en el teléfono</button>
   <button id="import-json" type="button" class="utility-button">Restaurar desde un respaldo</button>
   <input type="file" id="import-file" accept=".zip,application/zip,application/x-zip-compressed" hidden>
@@ -149,9 +153,9 @@
  <p id="document-status" class="muted" role="status"></p>
 </section>
 <section id="analysis" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Exportar para análisis</h2><p>Exporta tus registros para analizarlos en otras herramientas.</p></div></div>
  <article class="panel">
-  <h2>Exportar para análisis</h2>
-  <p>Exporta solamente tus registros de hábitos, sin configuraciones ni recordatorios. Puedes usarlos en otras herramientas.</p>
+  <p>Incluye solo hábitos, sin configuraciones ni recordatorios.</p>
   <label class="sensory-setting analysis-filter-toggle" for="analysis-filter-enabled">
    <span>Filtrar por fecha</span>
    <input id="analysis-filter-enabled" type="checkbox" role="switch" aria-controls="analysis-date-fields" aria-expanded="false">
@@ -169,16 +173,18 @@
  </article>
  <p id="analysis-status" class="muted" role="status"></p>
 </section>
-<section id="more" class="screen">
+<section id="settings" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Configuración</h2><p>Personaliza la aplicación y administra tus datos.</p></div></div>
  <button class="menu-item" data-page="language">Idioma <span>›</span></button>
  <button class="menu-item" data-page="sensory">Preferencias sensoriales <span>›</span></button>
- <button class="menu-item" data-page="categories">Categorías <span>›</span></button>
  <button class="menu-item" data-page="summary">Resumen <span>›</span></button>
  <button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button>
  <button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button>
+ <button class="menu-item" data-page="help">Ayuda <span>›</span></button>
  <button class="menu-item" data-page="about">Acerca de <span>›</span></button>
 </section>
 <section id="language" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Idioma</h2><p>Elige el idioma de la aplicación.</p></div></div>
  <article class="panel language-preferences">
   <label for="app-language">Idioma de la aplicación</label>
   <select id="app-language"><option value="system">Sistema operativo</option><option value="es">Español</option><option value="en">English</option></select>
@@ -186,6 +192,7 @@
  </article>
 </section>
 <section id="sensory" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Preferencias sensoriales</h2><p>Ajusta la apariencia y las animaciones a tu gusto.</p></div></div>
  <article class="panel sensory-preferences">
   <label class="sensory-setting" for="dark-mode">
    <span>Modo oscuro</span>
@@ -200,6 +207,7 @@
  </article>
 </section>
 <section id="help" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Ayuda</h2><p>Descubre cómo registrar y consultar tus actividades.</p></div></div>
  <article class="panel help-panel">
   <h2>Un espacio para registrar tu día</h2>
   <p>Registro de Hábitos es una forma sencilla de recordar lo que haces, cómo te sientes y cómo cambia tu energía a lo largo del tiempo.</p>
@@ -213,8 +221,8 @@
  </article>
 </section>
 <section id="about" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Información de la aplicación y su versión.</p></div></div>
  <article class="panel about-panel">
-  <h2>Registro Hábitos</h2>
   <dl class="about-details">
    <div><dt>Versión</dt><dd id="about-version">—</dd></div>
    <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
@@ -267,7 +275,7 @@
   <button id="app-action-ok" type="button" class="main-button">Aceptar</button>
  </div>
 </dialog>
-<button id="add-entry" class="add-entry-fab" type="button" aria-label="Nueva entrada" title="Nueva entrada">＋</button>
+<button id="add-entry" class="add-entry-fab" type="button" aria-label="Nueva entrada" title="Nueva entrada"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
 <dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title">
  <div class="entry-modal-header"><h2 id="entry-dialog-title">Nueva entrada</h2><button id="entry-close" type="button" class="icon-button" aria-label="Cerrar sin guardar">×</button></div>
  <p id="entry-category-preview" class="entry-category-preview hidden"></p>
@@ -308,5 +316,5 @@
  </details>
  <div class="entry-modal-actions"><button type="button" id="entry-cancel" class="secondary">Cerrar</button><button type="button" id="capture-save" class="main-button">Guardar</button></div>
 </dialog>
-<nav class="tabs"><div class="tabs-inner"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="more"><span>•••</span>Más</button></div></nav>
+<nav class="tabs" aria-label="Navegación principal"><div class="tabs-inner"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="categories"><span><svg class="icon"><use href="#i-grid"/></svg></span>Categorías</button></div></nav>
 </div><script defer src="./app.bundle.js"></script></body></html>

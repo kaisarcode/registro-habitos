@@ -154,3 +154,9 @@ El botón de prueba con la app cerrada fue retirado del formulario. La preescuch
 La pantalla Exportar para análisis incluye un rango opcional **Desde/Hasta** (ambos días incluidos), que filtra por la fecha local de `occurredAt` y aplica igual a CSV y JSON. La base de datos y el respaldo completo no se filtran.
 
 El idioma de la interfaz se elige en Más → Idioma (Sistema operativo, Español o English). Sistema usa la configuración regional del dispositivo; otros idiomas se muestran en inglés. La preferencia queda guardada y se incluye en los respaldos ZIP. Los registros ingresados por el usuario no se traducen.
+
+## Navegación principal y encabezado común
+
+Todas las vistas comparten un encabezado con el logo y nombre **Registro de Hábitos** y el engranaje de **Configuración**. Tocar la marca vuelve a Registro. En el pie hay cuatro pestañas: **Registro**, **Historial**, **Recordatorios** y **Categorías**. Las demás opciones se encuentran en Configuración; la sección Categorías ya no aparece allí. Ayuda también se encuentra en Configuración.
+
+Las vistas usan títulos pequeños y una descripción debajo; las flechas Volver permiten regresar desde las vistas secundarias a Configuración o desde las pestañas principales a Registro. El mismo botón flotante **+**, con ícono vectorial centrado, abre **Nueva entrada** en Registro, **Crear categoría** en Categorías y **Nuevo recordatorio** en Recordatorios. No se modifican datos ni preferencias guardadas.
