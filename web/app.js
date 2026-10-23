@@ -889,7 +889,7 @@ for(const prefix of ["entry","edit"]){
   button.onclick=()=>setMood(prefix,button.classList.contains("selected")?null:Number(button.dataset.mood));
  }
 }
-$("history-filter").onclick=()=>{categoryFilter="";show("categories")};
+
 $("category-dialog-close").onclick=()=>$("category-dialog").close();
 $("cat-cancel").onclick=()=>$("category-dialog").close();
 $("cat-color").onchange=updateCategoryPreview;
