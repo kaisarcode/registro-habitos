@@ -42,7 +42,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
     }
     { print }
     END { if (!found) exit 1 }
-' "$ROOT/src/web/index.html" > "$WEB_OUT/app.html"
+' "$ROOT/src/web/index.html" > "$WEB_OUT/index.html"
 # Embed the commit ID and use a monotonically increasing Android versionCode.
 # Reusing the same versionCode across many APK updates makes device diagnosis
 # difficult and can result in stale copies being installed. The version code is
@@ -56,12 +56,9 @@ if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then
     VERSION_CODE=$((20261026 + VERSION_INCREMENT))
 fi
 printf 'APK versionCode: %s (source %s)\n' "$VERSION_CODE" "$APP_BUILD"
-sed -e "s/@APP_BUILD@/$APP_BUILD/g" -e "s/@APP_VERSION_CODE@/$VERSION_CODE/g" -e "s/@APP_VERSION@/$APP_VERSION/g" "$WEB_OUT/app.html" > "$WEB_OUT/app.versioned.html"
-mv "$WEB_OUT/app.versioned.html" "$WEB_OUT/app.html"
+sed -e "s/@APP_BUILD@/$APP_BUILD/g" -e "s/@APP_VERSION_CODE@/$VERSION_CODE/g" -e "s/@APP_VERSION@/$APP_VERSION/g" "$WEB_OUT/index.html" > "$WEB_OUT/index.versioned.html"
+mv "$WEB_OUT/index.versioned.html" "$WEB_OUT/index.html"
 printf 'Bundled app revision: %s\n' "$APP_BUILD"
-# The original file:///android_asset/index.html can read older IndexedDB.
-cp "$ROOT/src/web/migrate.html" "$WEB_OUT/index.html"
-
 if [ "$PREPARE_ONLY" = true ]; then
     printf 'Prepared local WebView page: %s\n' "$WEB_OUT/index.html"
     exit 0

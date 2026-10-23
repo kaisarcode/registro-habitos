@@ -1042,31 +1042,11 @@ reducedMotionInput.onchange=()=>{
  try{localStorage.setItem(reducedMotionKey,String(reducedMotionInput.checked));}
  catch(error){console.warn("Unable to save sensory preference",error);}
 };
-// A one-time, same-APK migration preserves records from the old file:// origin
-// when switching to the synthetic HTTPS origin required for Web Speech.
-if (window.top !== window && location.search === "?migration=1") {
- window.addEventListener("message", async event => {
-  if (event.source !== window.parent || event.origin !== "null" || event.data?.type !== "rh-migrate") return;
-  try {
-   const backup = event.data.backup;
-   if (!backup || !Array.isArray(backup.entries)) throw new Error("Respaldo inválido");
-   await storage.importEntries(backup.entries);
-   if (Array.isArray(backup.categories))
-    localStorage.setItem("rh-categories", JSON.stringify(backup.categories));
-   if (Array.isArray(backup.reminders))
-    localStorage.setItem("registro-habitos-reminders", JSON.stringify(backup.reminders));
-   window.parent.postMessage({type:"rh-complete"}, "*");
-  } catch (error) {
-   window.parent.postMessage({type:"rh-error", message:String(error.message||error)}, "*");
-  }
- });
- window.parent.postMessage({type:"rh-ready"}, "*");
-} else {
- const buildMeta=document.querySelector('meta[name="app-build"]')?.content || "desarrollo";
- const versionMeta=document.querySelector('meta[name="app-version"]')?.content || "desarrollo";
- const codeMeta=document.querySelector('meta[name="app-version-code"]')?.content || "";
- $("about-version").textContent=versionMeta.startsWith("@")?"desarrollo":versionMeta+(codeMeta&&!codeMeta.startsWith("@")?" ("+codeMeta+")":"");
- $("about-build").textContent=buildMeta.startsWith("@")?"desarrollo":buildMeta;
- reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
- try{reminderStore.refresh()}catch(e){console.warn(e)}
-}
+const buildMeta=document.querySelector('meta[name="app-build"]')?.content || "desarrollo";
+const versionMeta=document.querySelector('meta[name="app-version"]')?.content || "desarrollo";
+const codeMeta=document.querySelector('meta[name="app-version-code"]')?.content || "";
+$("about-version").textContent=versionMeta.startsWith("@")?"desarrollo":versionMeta+(codeMeta&&!codeMeta.startsWith("@")?" ("+codeMeta+")":"");
+$("about-build").textContent=buildMeta.startsWith("@")?"desarrollo":buildMeta;
+reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
+try{reminderStore.refresh()}catch(e){console.warn(e)}
+

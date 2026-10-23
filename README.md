@@ -4,7 +4,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Para ver la interfaz en un navegador, ejecutar `./build.sh --prepare-only` y abrir `.build/web/app.html`. `src/web/index.html` es una plantilla de código fuente, no una página autónoma. `build.sh` genera `.build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
+Para ver la interfaz en un navegador, ejecutar `./build.sh --prepare-only` y abrir `.build/web/index.html`. `src/web/index.html` es una plantilla de código fuente, no una página autónoma. `build.sh` genera `.build/web/index.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView, con reconocimiento Android nativo como alternativa si esos motores no están disponibles. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
@@ -14,15 +14,15 @@ El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador
 KCAPK_DIR=../kcapk ./build.sh
 ```
 
-`build.sh` utiliza KCAPK directamente mediante `KCAPK_DIR`, `--extension` y `--local-https-assets`, sin copiar ni modificar sus plantillas y sin dependencias de Python. Las clases Android propias se preparan en `.build/extension/` y los binarios terminados en `bin/`. Requiere una versión de KCAPK con soporte para extensiones y voz (rama `devel`).
+`build.sh` utiliza KCAPK directamente mediante `KCAPK_DIR`, `--extension` y `--local-https-assets`, sin copiar ni modificar sus plantillas y sin dependencias de Python. Las clases Android propias se preparan en `.build/extension/` y los binarios terminados en `bin/`. Requiere una versión de KCAPK con soporte para extensiones y voz (rama `slave`).
 
 La compilación deja el APK final en **`bin/registro-habitos.apk`**. Los archivos intermedios se generan exclusivamente en `.build/`. Ambos directorios están excluidos de Git; ningún bundle ni binario se escribe dentro de `src/`.
 
-## Voz del navegador y migración de datos
+## Voz del navegador
 
 KCAPK proporciona el `WebChromeClient` genérico para permisos de audio y selección de archivos. El dictado del navegador mantiene el permiso Android explícito y, cuando Web Speech no existe, la aplicación puede usar el reconocedor del sistema mediante `NativeBridge.Android.voice.recognize()`. La navegación, la exportación nativa de documentos y la preescucha de sonidos se mantienen como extensiones propias bajo `src/native/`.
 
-Para que `SpeechRecognition` no opere desde `file://`, la página real se carga bajo `https://appassets.androidplatform.net/app.html`, un **origen HTTPS local servido desde los assets del APK**, sin solicitud de red para HTML/CSS/JS/MP3. El primer arranque sigue usando `file:///android_asset/index.html` a fin de migrar registros anteriores desde IndexedDB a la nueva ubicación mediante mensajes entre las dos páginas internas. Si la migración falla, no borra los datos antiguos y muestra una opción para continuar. Se conserva el mismo package Android.
+Con `--local-https-assets`, KCAPK abre directamente `https://appassets.androidplatform.net/index.html`, un **origen HTTPS local servido desde los assets del APK**. No se necesitan pantallas de transición ni transferencias entre orígenes, y el HTML/CSS/JS/MP3 se cargan sin servidor.
 
 Este cambio corrige la configuración de permisos y origen del WebView. La disponibilidad efectiva del reconocimiento sigue dependiendo de la implementación de Web Speech y del servicio de voz del dispositivo. **No se ha verificado en un teléfono real**.
 
@@ -69,7 +69,7 @@ La información puede contener datos sensibles: se mantiene local, sin telemetr�
 
 ## Comprobación de versión del APK
 
-La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador produce `.build/web/app.bundle.js` a partir de los módulos en `src/web/`, sin escribir archivos generados en `src/`, y empaqueta el HTML inline desde `.build/web/app.html`. KCAPK aplica `LOAD_NO_CACHE` y devuelve `Cache-Control: no-store` al servir los assets locales por HTTPS sin borrar IndexedDB. El APK incrementa `versionCode` a `20261022`.
+La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador produce `.build/web/app.bundle.js` a partir de los módulos en `src/web/`, sin escribir archivos generados en `src/`, y empaqueta el HTML inline desde `.build/web/index.html`. KCAPK aplica `LOAD_NO_CACHE` y devuelve `Cache-Control: no-store` al servir los assets locales por HTTPS sin borrar IndexedDB. El APK incrementa `versionCode` a `20261022`.
 
 Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `devel` y con el nuevo `build.sh`. No desinstales ni borres datos para resolverlo.
 

@@ -25,7 +25,7 @@ public final class AppNavigationBridge {
             // Only the local HTTPS page can request Activity.finish().
             if ("https".equals(uri.getScheme())
                 && "appassets.androidplatform.net".equals(uri.getHost())
-                && "/app.html".equals(uri.getPath())) {
+                && "/index.html".equals(uri.getPath())) {
                 activity.finish();
             }
         });
