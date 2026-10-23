@@ -81,9 +81,11 @@ Categorías disponibles: **Ir al baño**, **Tabaco**, **Vapeo**, **Alcohol**, **
 
 La vista **Mi día** presenta las categorías como botones permanentes. Tocar una categoría abre el formulario con esa categoría y una descripción sugerida ya seleccionadas; **Guardar** confirma la entrada con la fecha y hora actuales (editable). No se guarda nada antes de confirmar. **Deshacer** permite revertir la última entrada guardada. El botón flotante `+` abre un diálogo con texto, dictado del navegador y detalles opcionales (fecha, hora, categoría, energía, bienestar, duración, notas). Cerrar el diálogo no guarda nada. Los registros, clasificaciones, filtros y exportaciones existentes se mantienen sin migraciones de esquema.
 
-## Duracion opcional minutos o inicio y fin
+## Horario: inicio y fin opcional
 
-Al crear o editar una entrada se muestran **Horas** y **Minutos** directamente, sin selector de modo. Completar `4` horas y `0` minutos actualiza automáticamente un campo interno **oculto** con el total de `240` minutos, sin mostrar un tercer campo ni requerir edición manual. No se muestran los controles de inicio y fin. `duration` sigue almacenando minutos; los registros históricos con `startedAt` y `endedAt` mantienen esos datos para las exportaciones JSON y CSV.
+Crear y editar usan el mismo selector de **Horario**. El inicio tiene fecha y hora, por defecto el momento actual; **Agregar fin** es opcional y habilita una segunda fecha y hora. Las **Horas** y **Minutos** se muestran calculados y no se editan manualmente. El fin debe ser posterior al inicio y puede estar al día siguiente o varios días más tarde; por ejemplo, permite registrar sueño nocturno o una siesta.
+
+`occurredAt` y `startedAt` guardan el inicio. Cuando se selecciona fin, `endedAt` guarda esa fecha y `duration` almacena la diferencia en minutos; sin fin, `endedAt` y `duration` quedan en `null`. El historial, el respaldo y las exportaciones JSON/CSV conservan estos campos, sin un esquema paralelo ni migraciones.
 
 ## Botones del formulario
 

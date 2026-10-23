@@ -209,14 +209,35 @@
  </article>
 </section>
 </main>
-<dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div id="edit-event-time" class="form-row"><label>Fecha<input id="edit-date" type="date"></label><label>Hora<input id="edit-time" type="time"></label></div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="duration-editor">
-  <div class="section-label">Duración</div>
-  <div class="duration-parts">
-   <label for="edit-hours">Horas<input id="edit-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
-   <label for="edit-minutes">Minutos<input id="edit-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+<dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div class="time-editor" id="edit-time-editor">
+  <div class="section-label">Horario</div>
+  <div class="time-point">
+   <div class="time-point-heading">Inicio</div>
+   <div class="time-row">
+    <label for="edit-start-date">Fecha<input id="edit-start-date" type="date"></label>
+    <label for="edit-start-time">Hora<input id="edit-start-time" type="time"></label>
+   </div>
   </div>
-  <input id="edit-duration" type="hidden" value="">
- </div><div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="edit-energy">Energía <output id="edit-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="edit-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="edit-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><div class="edit-modal-footer"><div class="edit-modal-actions"><button type="button" id="edit-cancel" class="secondary">Cerrar</button><button type="button" id="edit-save" class="main-button">Guardar</button></div><button type="button" id="edit-delete" class="edit-delete-action"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v7M14 11v7M6 7l1 14h10l1-14M9 7V4h6v3"/></svg><span>Eliminar registro</span></button></div></dialog>
+  <label class="time-end-toggle" for="edit-end-enabled">
+   <span>Agregar fin</span>
+   <input id="edit-end-enabled" type="checkbox" role="switch" aria-controls="edit-end-fields" aria-expanded="false">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <div class="time-end-fields" id="edit-end-fields" hidden>
+   <div class="time-point-heading">Fin</div>
+   <div class="time-row">
+    <label for="edit-end-date">Fecha<input id="edit-end-date" type="date"></label>
+    <label for="edit-end-time">Hora<input id="edit-end-time" type="time"></label>
+   </div>
+   <div class="time-duration">
+    <div class="section-label">Duración calculada</div>
+    <div class="duration-parts">
+     <div><span>Horas</span><output id="edit-hours">—</output></div>
+     <div><span>Minutos</span><output id="edit-minutes">—</output></div>
+    </div>
+   </div>
+  </div>
+ </div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="edit-energy">Energía <output id="edit-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="edit-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="edit-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><div class="edit-modal-footer"><div class="edit-modal-actions"><button type="button" id="edit-cancel" class="secondary">Cerrar</button><button type="button" id="edit-save" class="main-button">Guardar</button></div><button type="button" id="edit-delete" class="edit-delete-action"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v7M14 11v7M6 7l1 14h10l1-14M9 7V4h6v3"/></svg><span>Eliminar registro</span></button></div></dialog>
 <dialog id="category-dialog" class="category-editor" aria-labelledby="category-dialog-title">
  <div class="category-editor-title"><h2 id="category-dialog-title">Categoría</h2><button id="category-dialog-close" class="icon-button" type="button" aria-label="Cerrar">×</button></div>
  <label for="cat-name">Nombre</label><input id="cat-name" type="text" maxlength="64" autocomplete="off" placeholder="Nombre de la categoría">
@@ -247,17 +268,37 @@
  <p id="entry-status" class="muted" role="status"></p>
  <details id="entry-options" class="entry-options">
   <summary>Detalles opcionales</summary>
-  <div id="entry-event-time"><label for="entry-when">Fecha y hora</label><input id="entry-when" type="datetime-local"></div>
+  <div class="time-editor" id="entry-time-editor">
+  <div class="section-label">Horario</div>
+  <div class="time-point">
+   <div class="time-point-heading">Inicio</div>
+   <div class="time-row">
+    <label for="entry-start-date">Fecha<input id="entry-start-date" type="date"></label>
+    <label for="entry-start-time">Hora<input id="entry-start-time" type="time"></label>
+   </div>
+  </div>
+  <label class="time-end-toggle" for="entry-end-enabled">
+   <span>Agregar fin</span>
+   <input id="entry-end-enabled" type="checkbox" role="switch" aria-controls="entry-end-fields" aria-expanded="false">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <div class="time-end-fields" id="entry-end-fields" hidden>
+   <div class="time-point-heading">Fin</div>
+   <div class="time-row">
+    <label for="entry-end-date">Fecha<input id="entry-end-date" type="date"></label>
+    <label for="entry-end-time">Hora<input id="entry-end-time" type="time"></label>
+   </div>
+   <div class="time-duration">
+    <div class="section-label">Duración calculada</div>
+    <div class="duration-parts">
+     <div><span>Horas</span><output id="entry-hours">—</output></div>
+     <div><span>Minutos</span><output id="entry-minutes">—</output></div>
+    </div>
+   </div>
+  </div>
+ </div>
   <label for="entry-category">Categoría</label><select id="entry-category"></select>
 <div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="entry-mood-value" class="wellbeing-value">—</span></div><div id="entry-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div>
-  <div class="duration-editor">
-  <div class="section-label">Duración</div>
-  <div class="duration-parts">
-   <label for="entry-hours">Horas<input id="entry-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
-   <label for="entry-minutes">Minutos<input id="entry-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
-  </div>
-  <input id="entry-duration" type="hidden" value="">
- </div>
 <div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="entry-energy">Energía <output id="entry-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="entry-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="entry-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div>
   
   <label for="entry-notes">Notas</label><textarea id="entry-notes" rows="2" placeholder="Opcional"></textarea>

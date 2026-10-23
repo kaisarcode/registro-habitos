@@ -328,49 +328,58 @@ function durationLabel(total){
     return h?(h+" h"+(m?" "+m+" min":"")):(m+" min");
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
-function populateDurationParts(prefix,total){
+/** Returns a local calendar date/time selected in the unified time editor. */
+function selectedDateTime(prefix,point){
+    const date=$(prefix+"-"+point+"-date").value;
+    const time=$(prefix+"-"+point+"-time").value;
+    const label=point==="start"?"inicio":"fin";
+    if(!date||!time)throw Error("Completá la fecha y hora de "+label+".");
+    const value=new Date(date+"T"+time);
+    if(!Number.isFinite(value.getTime())||localTime(value)!==date+"T"+time.slice(0,5))
+        throw Error("Revisá la fecha y hora de "+label+".");
+    return value;
+}
+
+/** Recalculate read-only hours and minutes only when an end is enabled. */
+function updateTimeEditor(prefix){
+    const enabled=$(prefix+"-end-enabled").checked;
+    $(prefix+"-end-fields").hidden=!enabled;
+    $(prefix+"-end-enabled").setAttribute("aria-expanded",String(enabled));
     const hours=$(prefix+"-hours"),minutes=$(prefix+"-minutes");
-    if(total==null||total===""){hours.value="";minutes.value="";return;}
-    const n=Number(total);
-    if(!Number.isInteger(n)||n<0){hours.value="";minutes.value="";return;}
-    hours.value=String(Math.floor(n/60));minutes.value=String(n%60);
+    hours.textContent=minutes.textContent="—";
+    if(!enabled)return;
+    try{
+        const start=selectedDateTime(prefix,"start");
+        const end=selectedDateTime(prefix,"end");
+        const total=Math.round((end.getTime()-start.getTime())/60000);
+        if(total<=0)return;
+        hours.textContent=String(Math.floor(total/60));
+        minutes.textContent=String(total%60);
+    }catch(_){ /* Missing dates stay blank until the user completes them. */ }
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
-function updateDurationFromParts(prefix){
-    const h=$(prefix+"-hours").value.trim(),m=$(prefix+"-minutes").value.trim();
-    if(h===""&&m===""){$(prefix+"-duration").value="";return;}
-    const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
-    if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59){
-        $(prefix+"-duration").value="";return;
-    }
-    $(prefix+"-duration").value=String(hours*60+minutes);
+/** Initialize the same start/optional-end selector for create and edit. */
+function populateTimeEditor(prefix,start,end=null){
+    const beginning=localTime(start);
+    $(prefix+"-start-date").value=beginning.slice(0,10);
+    $(prefix+"-start-time").value=beginning.slice(11);
+    $(prefix+"-end-enabled").checked=Boolean(end);
+    const finish=end?localTime(end):"";
+    $(prefix+"-end-date").value=finish?finish.slice(0,10):"";
+    $(prefix+"-end-time").value=finish?finish.slice(11):"";
+    updateTimeEditor(prefix);
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
-function durationDetails(prefix){
-    const h=$(prefix+"-hours").value.trim(),m=$(prefix+"-minutes").value.trim();
-    let duration=null;
-    if(h!==""||m!==""){
-        const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
-        if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59)
-            throw Error("Usa horas positivas y minutos entre 0 y 59.");
-        duration=hours*60+minutes;
-    }
-    $(prefix+"-duration").value=duration==null?"":String(duration);
-    const source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
-    if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresa una fecha y hora válidas.");
-    return {occurredAt:new Date(source).toISOString(),duration,startedAt:null,endedAt:null};
+/** Store explicit start and optional end; duration is always derived. */
+function timeDetails(prefix){
+    const start=selectedDateTime(prefix,"start");
+    const startedAt=start.toISOString();
+    if(!$(prefix+"-end-enabled").checked)
+        return {occurredAt:startedAt,startedAt,endedAt:null,duration:null};
+    const end=selectedDateTime(prefix,"end");
+    if(end.getTime()<=start.getTime())throw Error("El fin debe ser posterior al inicio.");
+    const duration=Math.round((end.getTime()-start.getTime())/60000);
+    return {occurredAt:startedAt,startedAt,endedAt:end.toISOString(),duration};
 }
 
 /**
@@ -393,7 +402,7 @@ function createEntry(details){
 function resetEntryOptions(){
     $("capture-text").value="";
     $("entry-status").textContent="";
-    $("entry-when").value=localTime(new Date());
+    populateTimeEditor("entry",new Date());
     const cats=categoryNames();
     $("entry-category").replaceChildren(new Option("Automática",""),...cats.map(c=>new Option(c,c)));
     $("entry-category").value="";
@@ -401,8 +410,7 @@ function resetEntryOptions(){
     $("entry-energy-enabled").checked=false;
     renderEnergy("entry");
     setMood("entry",null);
-    $("entry-duration").value="";$("entry-notes").value="";
-    populateDurationParts("entry",null);
+    $("entry-notes").value="";
     $("entry-options").open=false;
 }
 
@@ -443,10 +451,10 @@ async function reload(){entries=await storage.list();drawHistory();drawCategorie
  */
 function openEdit(e){
     current=e;mood=e.mood??null;
-    $("edit-text").value=e.description;$("edit-date").value=dayKey(e.occurredAt);$("edit-time").value=localTime(e.occurredAt).slice(11);
+    $("edit-text").value=e.description;
+    populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt);
     categoryOptions();$("edit-category").value=canonicalCategory(e.category);
-    $("edit-duration").value=e.duration??"";$("edit-notes").value=e.notes||"";
-    populateDurationParts("edit",e.duration);
+    $("edit-notes").value=e.notes||"";
     $("edit-energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;
     renderEnergy("edit");setMood("edit",mood);
     $("edit-voice-status").textContent="";
@@ -683,7 +691,7 @@ async function saveCapture(){
     if(!description){$("capture-text").focus();return;}
     if(quickSaving)return;
     let timing;
-    try{timing=durationDetails("entry");}
+    try{timing=timeDetails("entry");}
     catch(error){$("entry-status").textContent=error.message;return;}
     const manual=canonicalCategory($("entry-category").value);
     const suggested=manual?null:suggestCategory(description,entries,null,categoryStore.list());
@@ -1267,20 +1275,20 @@ $("cat-image").onchange=async event=>{
 };
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
-    for(const field of ["hours","minutes"]){
-        $(prefix+"-"+field).addEventListener("input",()=>updateDurationFromParts(prefix));
+    for(const point of ["start","end"]){
+        for(const field of ["date","time"]){
+            $(prefix+"-"+point+"-"+field).addEventListener("input",()=>updateTimeEditor(prefix));
+            $(prefix+"-"+point+"-"+field).addEventListener("change",()=>updateTimeEditor(prefix));
+        }
     }
+    $(prefix+"-end-enabled").addEventListener("change",()=>updateTimeEditor(prefix));
 }
 
 $("edit-save").onclick=async()=>{
     if(!current)return;
     const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
     try{
-        const timing=durationDetails("edit");
-        if(current.startedAt&&current.endedAt&&timing.duration===current.duration&&
-        Math.abs(Date.parse(timing.occurredAt)-Date.parse(current.occurredAt))<60000){
-            timing.startedAt=current.startedAt;timing.endedAt=current.endedAt;
-        }
+        const timing=timeDetails("edit");
         await storage.save({
             ...current,...timing,description,
             category:canonicalCategory($("edit-category").value)||null,
