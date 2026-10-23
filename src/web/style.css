@@ -473,14 +473,30 @@ html.theme-light select{
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23465d65' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
-/* Opacity-only transitions: avoid transform/scale on screen roots, which can
-   alter Android WebView text autosizing and fixed element layout. */
-@keyframes rh-view-enter{from{opacity:0}to{opacity:1}}
+/* Never animate .screen itself: even an opacity animation on an entire
+   view promotes its content into a WebView compositing layer and can trigger
+   apparent font/content zoom. Fade only a fixed, viewport-sized cover. */
+@keyframes rh-view-cover{from{opacity:1}to{opacity:0}}
 @keyframes rh-dialog-enter{from{opacity:0}to{opacity:1}}
 @keyframes rh-dialog-exit{from{opacity:1}to{opacity:0}}
 @keyframes rh-backdrop-enter{from{opacity:0}to{opacity:1}}
 @keyframes rh-backdrop-exit{from{opacity:1}to{opacity:0}}
-.screen.active{animation:rh-view-enter 180ms ease-out}
+/* Fixed to the visible viewport rather than the potentially long document.
+   The screen content keeps its normal layout, paint and text autosizing. */
+.screen.active::after{
+ content:"";
+ position:fixed;
+ top:92px;
+ bottom:0;
+ left:max(0px,calc((100vw - 560px)/2));
+ right:max(0px,calc((100vw - 560px)/2));
+ background:#0b1419;
+ opacity:0;
+ pointer-events:none;
+ z-index:1;
+ animation:rh-view-cover 160ms ease-out;
+}
+html.theme-light .screen.active::after{background:#eff3f3}
 dialog[open]:not(.closing){animation:rh-dialog-enter 190ms ease-out}
 dialog[open]:not(.closing)::backdrop{animation:rh-backdrop-enter 190ms ease-out}
 dialog[open].closing{animation:rh-dialog-exit 140ms ease-in;pointer-events:none}
