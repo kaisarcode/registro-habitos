@@ -525,3 +525,7 @@ grep -Fq '.item-main strong' "$PAGE"
 # Translation must not rewrite unchanged text nodes in a mutation loop.
 grep -Fq 'if(next!==node.nodeValue)node.nodeValue=next;' "$ROOT/web/i18n.js"
 grep -Fq 'if(next!==value)node.setAttribute(attr,next);' "$ROOT/web/i18n.js"
+
+# Main wrapper and outer canvas must have the same dark background.
+grep -Fq '.app{min-height:100dvh;max-width:560px;margin:auto;background:#0b1419;' "$ROOT/web/style.css"
+if grep -Fq 'background:linear-gradient(135deg,#0d171d,#091317 65%)' "$ROOT/web/style.css"; then echo "Wrapper gradient still present" >&2; exit 1; fi
