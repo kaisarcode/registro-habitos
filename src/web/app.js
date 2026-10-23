@@ -518,7 +518,11 @@ function openEdit(e){
     current=e;mood=e.mood??null;
     $("edit-text").value=e.description;
     populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt,e.duration);
-    categoryOptions();$("edit-category").value=canonicalCategory(e.category);
+    const availableCategories=categoryOptions();
+    const entryCategory=canonicalCategory(e.category);
+    // Removed categories are absent from the select: show the real
+    // "Sin categoría" option rather than leaving the control unselected.
+    $("edit-category").value=availableCategories.includes(entryCategory)?entryCategory:"";
     $("edit-notes").value=e.notes||"";
     $("edit-energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;
     renderEnergy("edit");setMood("edit",mood);

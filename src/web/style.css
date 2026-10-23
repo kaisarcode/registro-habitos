@@ -317,12 +317,6 @@ dialog p,dialog label,dialog .muted{overflow-wrap:anywhere}
 #reminder-dialog .sound-play-button{box-sizing:border-box;display:grid;place-items:center;width:52px;min-width:52px;height:52px;min-height:52px;margin:0;padding:0;border-radius:13px}
 #reminder-dialog .sound-play-button svg{display:block}
 
-/* Keep the native select chevron inset from the right edge on Android. */
-select{padding-right:36px!important}
-#reminder-dialog #reminder-repeat{padding-right:40px!important}
-#reminder-dialog #reminder-sound{padding-right:36px!important}
-
-
 /* Light theme audit: override ID-specific dark styles and preserve a soft,
    consistent contrast for inputs, actions and every dialog. */
 html.theme-light{
@@ -440,18 +434,6 @@ html.theme-light .analysis-filter-toggle{color:#263e46}
 html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
 html.theme-light .analysis-filter-toggle input:checked+.sensory-switch-track::after{background:#fff}
 
-/* Consistent inset caret for language selector on Android WebView. */
-.language-preferences{position:relative}
-.language-preferences #app-language{
- appearance:none;-webkit-appearance:none;
- padding-right:58px!important;
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23a6b6bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
- background-repeat:no-repeat;background-position:right 20px center;background-size:20px 20px;
-}
-html.theme-light .language-preferences #app-language{
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23465d65' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-
 /* Full-viewport footer surface with the controls centered on the app column. */
 .tabs{
  left:0;right:0;transform:none;width:100%;max-width:none;
@@ -475,3 +457,18 @@ html.theme-light .language-preferences #app-language{
 .topbar .home-app-icon.hidden{display:none!important}
 
 .help-panel{line-height:1.55}.help-panel h2{margin:0 0 14px}.help-panel h3{font-size:16px;margin:22px 0 6px;color:var(--accent)}.help-panel p{margin:0 0 12px;color:#b7c8ce}html.theme-light .help-panel h3{color:#167f67}html.theme-light .help-panel p{color:#526a73}
+
+/* One arrow and one right inset for every select, including dialogs.
+   Android's native arrow uses WebView-dependent alignment, so render a
+   consistent outlined caret with CSS while retaining the native picker. */
+select{
+ appearance:none;-webkit-appearance:none;
+ padding-right:52px!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23a6b6bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+ background-repeat:no-repeat;
+ background-position:right 18px center;
+ background-size:20px 20px;
+}
+html.theme-light select{
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 9 7 7 7-7' fill='none' stroke='%23465d65' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
