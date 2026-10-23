@@ -542,6 +542,11 @@ function drawReminders(){
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
 async function importBackup(file){
+ if(!/\\.zip$/i.test(file.name||""))throw Error("Seleccioná un respaldo ZIP.");
+ const signature=new Uint8Array(await file.slice(0,4).arrayBuffer());
+ if(signature.length!==4||signature[0]!==0x50||signature[1]!==0x4b||
+    signature[2]!==0x03||signature[3]!==0x04)
+  throw Error("El archivo no es un respaldo ZIP válido.");
  const backup=JSON.parse(await backupFileText(file));if(backup.version!==1||!Array.isArray(backup.entries))throw Error("Formato JSON incompatible");
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;

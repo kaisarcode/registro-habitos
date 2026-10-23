@@ -31,25 +31,24 @@ public final class AppWebChromeClient extends WebChromeClient {
         // requests image/*, while restoring a backup requests application/json.
         // ACTION_OPEN_DOCUMENT uses the system's document browser, not gallery.
         boolean imagesOnly = false;
+        boolean zipOnly = false;
         String[] accepted = params == null ? null : params.getAcceptTypes();
         if (accepted != null && accepted.length > 0) {
             imagesOnly = true;
+            zipOnly = true;
             for (String type : accepted) {
-                if (type == null || !type.trim().toLowerCase(java.util.Locale.ROOT).startsWith("image/")) {
-                    imagesOnly = false;
-                    break;
-                }
+                String value = type == null ? "" : type.trim().toLowerCase(java.util.Locale.ROOT);
+                if (!value.startsWith("image/")) imagesOnly = false;
+                if (!(".zip".equals(value) || "application/zip".equals(value)
+                    || "application/x-zip-compressed".equals(value))) zipOnly = false;
             }
         }
         Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         pick.addCategory(Intent.CATEGORY_OPENABLE);
-        // Use a permissive document MIME filter for JSON because document
-        // providers sometimes label .json files as text/plain or octet-stream.
-        // The WebView file input and JSON parser validate the chosen backup.
-        pick.setType(imagesOnly ? "image/*" : "*/*");
+        pick.setType(imagesOnly ? "image/*" : zipOnly ? "application/zip" : "*/*");
         try {
             activity.startActivityForResult(Intent.createChooser(pick,
-                imagesOnly ? "Elegir imagen" : "Elegir respaldo ZIP o JSON"), SELECT_IMAGE_REQUEST);
+                imagesOnly ? "Elegir imagen" : zipOnly ? "Elegir respaldo ZIP" : "Elegir archivo"), SELECT_IMAGE_REQUEST);
             return true;
         } catch (ActivityNotFoundException error) {
             pendingImage.onReceiveValue(null);
