@@ -599,3 +599,109 @@ html.theme-light .history-filters-content{border-color:#d1dfe1}
 .brand-home .brand-logo-light{display:none}
 html.theme-light .brand-home .brand-logo-dark{display:none}
 html.theme-light .brand-home .brand-logo-light{display:block}
+
+
+
+/* BRAND SYSTEM / CALMA CONTEMPORÁNEA
+   Ink-plum + muted violet + apricot. Intentional warm surfaces instead of
+   clinical teal. Layout, sizes, motion and app interaction stay unchanged. */
+:root{
+ color-scheme:dark;
+ --page:#14131c;--page-glow:#211c2d;--surface:#24212f;--surface2:#302b40;
+ --panel:#211e2b;--line:#3a3447;--ink:#f4f0f5;--muted:#b1a9bb;
+ --accent:#c6adff;--accent-ink:#22192f;--subaccent:#f2ba9d;
+ background:var(--page);color:var(--ink);
+}
+body,.app{background:var(--page);color:var(--ink)}
+.app{background:radial-gradient(ellipse 450px 270px at 82% 0%,rgba(141,106,189,.13),transparent 80%),var(--page)}
+.topbar{background:linear-gradient(110deg,rgba(119,88,159,.09),transparent 65%)}
+.tabs{background:#191622;border-top-color:var(--line)}
+.tabs button{color:#c0b9c9}
+.tabs button.active{color:var(--accent)}
+.panel{background:var(--panel);border-color:var(--line);box-shadow:0 9px 25px rgba(5,3,12,.08)}
+.home-today-panel{background:linear-gradient(133deg,#2b2437,#241f2e 75%);border-color:#473750}
+.home-summary-panel{background:linear-gradient(145deg,#262136,#201d2b 82%);border-color:#3d3451}
+.menu-item,.history-item,.category-item,.reminder-item,.category-tile,.category-card{
+ background:#272331;color:var(--ink);border-color:var(--line)
+}
+.menu-item span,.item-main .pill{color:var(--accent)}
+.menu-item:active,.history-item:active{background:#30293d}
+.dashboard-heading p,.view-heading p,.home-summary-heading p,.panel p{color:var(--muted)}
+.history-group-heading,.history-period-label{color:var(--ink)}
+.history-filters{background:var(--panel);border-color:var(--line)}
+.history-filters-content{border-color:var(--line)}
+.history-more,.home-summary-open{background:#342a46;border-color:#5d4a79;color:#ebdfff}
+.home-summary-total strong{color:var(--ink)}
+.home-summary-bar{background:var(--accent)}
+.home-summary-bar:nth-child(3n){background:var(--subaccent)}
+.quick-category{background:#2b253a;border-color:#4a3a59;color:var(--ink)}
+.quick-category:nth-child(3n+2){background:#2d2635;border-color:#5a4155}
+.quick-category:nth-child(3n){background:#302735;border-color:#654c54}
+.entry-icon.green{color:#c3adfb;background:#403359}
+.entry-icon.blue{color:#aebcff;background:#303958}
+.entry-icon.purple{color:#d4b1f9;background:#45315c}
+.entry-icon.orange{color:#f2bd9f;background:#533d42}
+.entry-icon.grey{color:#c4b6ce;background:#403848}
+.add-entry-fab,.main-button,.mic-button{background:var(--accent);color:var(--accent-ink)}
+.sensory-switch-track, .sensory-switch-track::after{border-color:#5c526c}
+.sensory-setting input:checked+.sensory-switch-track{background:#9574cf;border-color:#9574cf}
+.segments{background:#2c2738}
+.segments .selected{background:#514069;color:#f0e6ff}
+.bars{background:#211d2d}
+.bar{background:#b7a0ef}
+.bar-cell:nth-child(2n) .bar{background:#f2ba9d}
+.bar-cell:nth-child(3n) .bar{background:#9cb1e5}
+input:not([type=checkbox]):not([type=range]),textarea,select{
+ background:#292433;color:var(--ink);border-color:#484055
+}
+input::placeholder,textarea::placeholder{color:#aaa1b6}
+dialog{background:#25202f;color:var(--ink);border-color:#51435e}
+.secondary,.utility-button{background:#352d43;color:var(--ink);border-color:#51435e}
+.settings-button.active{background:#42344f;color:var(--accent)}
+.about-website{background:#352b45;color:#d9c8ff}
+.history-group-heading small,.period-label,.bar-cell{color:var(--muted)}
+/* Light is warm paper, not an inverted dark teal. */
+html.theme-light{
+ color-scheme:light;
+ --page:#f7f3f0;--page-glow:#ede7ef;--surface:#fffdfa;--surface2:#f2eaf5;
+ --panel:#fffefa;--line:#e4dbe5;--ink:#30273c;--muted:#716779;
+ --accent:#7652a4;--accent-ink:#fffaf9;--subaccent:#cf8263;
+ background:var(--page);color:var(--ink)
+}
+html.theme-light body,html.theme-light .app{background:var(--page);color:var(--ink)}
+html.theme-light .app{background:radial-gradient(ellipse 470px 250px at 85% 0%,rgba(187,153,204,.17),transparent 80%),var(--page)}
+html.theme-light .topbar{background:linear-gradient(110deg,rgba(181,146,201,.08),transparent 70%)}
+html.theme-light .tabs{background:#fffcfa;border-top-color:var(--line)}
+html.theme-light .tabs button{color:#6f6376}
+html.theme-light .tabs button.active{color:var(--accent)}
+html.theme-light .panel,html.theme-light .history-filters{background:var(--panel);border-color:var(--line);color:var(--ink);box-shadow:0 9px 25px rgba(70,44,75,.045)}
+html.theme-light .home-today-panel{background:linear-gradient(138deg,#fbf4f7,#fffdfa 72%);border-color:#e7d5e3}
+html.theme-light .home-summary-panel{background:linear-gradient(138deg,#f4edfa,#fffdfa 82%);border-color:#e2d9ef}
+html.theme-light .menu-item,html.theme-light .history-item,html.theme-light .category-item,html.theme-light .reminder-item,html.theme-light .category-tile,html.theme-light .category-card{background:#fffdfa;color:var(--ink);border-color:var(--line)}
+html.theme-light .quick-category{background:#f6effa;color:var(--ink);border-color:#e0d4eb}
+html.theme-light .quick-category:nth-child(3n+2){background:#fbf1f1;border-color:#ead7db}
+html.theme-light .quick-category:nth-child(3n){background:#fff4ec;border-color:#ebddcd}
+html.theme-light .entry-icon.green{background:#ede1f9;color:#7652a4}
+html.theme-light .entry-icon.blue{background:#e9ecfc;color:#596bb1}
+html.theme-light .entry-icon.purple{background:#f0e4f7;color:#8a65ae}
+html.theme-light .entry-icon.orange{background:#fae8df;color:#a96547}
+html.theme-light .entry-icon.grey{background:#ede9f1;color:#746785}
+html.theme-light .dashboard-heading p,html.theme-light .view-heading p,html.theme-light .home-summary-heading p,
+html.theme-light .panel p,html.theme-light .muted,html.theme-light .home-summary-heading span{color:var(--muted)}
+html.theme-light .home-summary-total strong,html.theme-light .history-group-heading,html.theme-light .history-period-label{color:var(--ink)}
+html.theme-light .home-summary-open,html.theme-light .history-more{background:#eee4f6;color:#614083;border-color:#d8c5e8}
+html.theme-light .home-summary-bar{background:var(--accent)}
+html.theme-light .home-summary-bar:nth-child(3n){background:#dc967b}
+html.theme-light .segments{background:#f2eaf5;color:var(--ink)}
+html.theme-light .segments .selected{background:#e3d4f2;color:#5c3a80}
+html.theme-light .bars{background:#f3ecf6}
+html.theme-light .bar{background:#9074c4}
+html.theme-light .bar-cell:nth-child(2n) .bar{background:#d79c81}
+html.theme-light .bar-cell:nth-child(3n) .bar{background:#869bd0}
+html.theme-light .add-entry-fab,html.theme-light .main-button,html.theme-light .mic-button{background:#7652a4;color:#fff}
+html.theme-light .settings-button.active{background:#ebe0f2;color:#7652a4}
+html.theme-light .about-website{background:#eee3f7;color:#64428b}
+html.theme-light dialog{background:#fffefa;color:var(--ink);border-color:#dfd4e6}
+html.theme-light .history-filters-content{border-color:var(--line)}
+html.theme-light .history-filters.has-filters .history-filter-state{color:var(--accent)}
+html.theme-light .history-clear{color:var(--accent)}

@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Registro de Hábitos"><g><defs>
- <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#118e79"/><stop offset="1" stop-color="#065c55"/></linearGradient>
- <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b0ef8c"/><stop offset=".6" stop-color="#53ca90"/><stop offset="1" stop-color="#178e76"/></linearGradient>
- <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9bee8e"/><stop offset="1" stop-color="#37c998"/></linearGradient>
+ <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8665bb"/><stop offset="1" stop-color="#574178"/></linearGradient>
+ <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2c1a1"/><stop offset=".6" stop-color="#b38bd7"/><stop offset="1" stop-color="#8c69b9"/></linearGradient>
+ <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f8c8a5"/><stop offset="1" stop-color="#cb9ec8"/></linearGradient>
 </defs>
 <rect x="47" y="65" width="403" height="403" rx="96" fill="url(#frame)"/>
-<rect x="85" y="120" width="326" height="307" rx="54" fill="#fcfdf1"/>
-<rect x="131" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#086d61" stroke-width="8"/>
-<rect x="309" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#086d61" stroke-width="8"/>
-<rect x="119" y="165" width="113" height="106" rx="25" fill="#21b883"/>
-<rect x="258" y="165" width="113" height="106" rx="25" fill="#20b583"/>
-<rect x="119" y="290" width="113" height="106" rx="25" fill="#08786f"/>
-<rect x="258" y="290" width="113" height="106" rx="25" fill="#dceccd"/>
+<rect x="85" y="120" width="326" height="307" rx="54" fill="#fff8f1"/>
+<rect x="131" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#4d3c68" stroke-width="8"/>
+<rect x="309" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#4d3c68" stroke-width="8"/>
+<rect x="119" y="165" width="113" height="106" rx="25" fill="#bc9ade"/>
+<rect x="258" y="165" width="113" height="106" rx="25" fill="#bb93d7"/>
+<rect x="119" y="290" width="113" height="106" rx="25" fill="#7960a8"/>
+<rect x="258" y="290" width="113" height="106" rx="25" fill="#efe1ed"/>
 <path d="M145 211l24 24 37-44M283 211l24 24 37-44M145 340l24 24 37-44" fill="none" stroke="#f9fffa" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M351 478c-15-82-6-169 89-223 24 89-10 177-89 223Z" fill="url(#leaf)"/>
-<path d="M353 477c6-72 43-123 83-164" stroke="#076958" stroke-width="12" stroke-linecap="round" fill="none"/>
-<path d="M354 478c17-48 69-78 129-72-30 61-79 83-129 72Z" fill="#079477"/></g></svg>
+<path d="M353 477c6-72 43-123 83-164" stroke="#59406c" stroke-width="12" stroke-linecap="round" fill="none"/>
+<path d="M354 478c17-48 69-78 129-72-30 61-79 83-129 72Z" fill="#b178a7"/></g></svg>
