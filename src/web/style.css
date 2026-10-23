@@ -59,25 +59,20 @@
 /* One time selector for both new and existing records; end is optional. */
 .time-editor{margin:14px 0;min-width:0}
 .time-editor .section-label{margin-bottom:12px}
-.time-point-heading{font-size:14px;font-weight:650;color:#d2e3e4;margin:7px 0 4px}
-.time-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
-.time-row label{min-width:0;margin:6px 0 12px}
-.time-row input{width:100%;min-width:0}
+.time-datetime{display:block;min-width:0;margin:8px 0 14px;color:#c0cdd1}
+.time-datetime input[type=datetime-local]{display:block;width:100%;min-width:0;margin-top:8px}
 .time-end-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:48px;margin:7px 0;cursor:pointer;color:#dce7e7;font-size:14px}
 .time-end-toggle input[type=checkbox]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;margin:0}
 .time-end-toggle input:checked+.sensory-switch-track{background:#55cfaa;border-color:#55cfaa}
 .time-end-toggle input:checked+.sensory-switch-track::after{left:23px;background:#102b29}
 .time-end-toggle input:focus-visible+.sensory-switch-track{outline:2px solid var(--accent);outline-offset:3px}
 .time-end-fields[hidden]{display:none!important}
-.time-end-fields{margin:6px 0 12px;padding:12px;border:1px solid #334851;background:#182932;border-radius:14px}
-.time-duration{margin:6px 0 0}
-.duration-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.duration-parts>div{min-width:0;color:#b7cbd0;font-size:13px}
-.duration-parts output{display:block;background:#20333b;color:#b5ebd9;border:1px solid #34554f;border-radius:12px;padding:12px;margin-top:7px;font-size:17px;font-variant-numeric:tabular-nums}
-html.theme-light .time-point-heading,html.theme-light .time-end-toggle{color:#263e46}
-html.theme-light .time-end-fields{background:#f0f5f6;border-color:#c9d8dc}
-html.theme-light .duration-parts>div{color:#526a73}
-html.theme-light .duration-parts output{background:#e6f2ef;color:#176c54;border-color:#9cc7b7}
+.time-end-fields{margin:6px 0 12px;min-width:0}
+.time-duration{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;color:#b7cbd0}
+.time-duration output{font-size:15px;font-weight:650;color:#b5ebd9;font-variant-numeric:tabular-nums;text-align:right}
+html.theme-light .time-end-toggle{color:#263e46}
+html.theme-light .time-duration{color:#526a73}
+html.theme-light .time-duration output{color:#176c54}
 html.theme-light .time-end-toggle input:checked+.sensory-switch-track{background:#229775;border-color:#229775}
 html.theme-light .time-end-toggle input:checked+.sensory-switch-track::after{background:#fff}
 
@@ -297,7 +292,7 @@ dialog,
 }
 dialog > *,dialog form,dialog fieldset{box-sizing:border-box;max-width:100%;min-width:0}
 dialog input,dialog textarea,dialog select{box-sizing:border-box;max-width:100%;min-width:0}
-dialog .form-row,dialog .time-row,dialog .duration-parts,dialog .sound-preview,
+dialog .form-row,dialog .sound-preview,
 dialog .entry-modal-actions,dialog .edit-modal-actions,
 dialog .reminder-dialog-actions,dialog .category-editor-actions,
 dialog .app-action-buttons{max-width:100%;min-width:0}

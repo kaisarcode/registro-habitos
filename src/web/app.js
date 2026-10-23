@@ -330,43 +330,37 @@ function durationLabel(total){
 
 /** Returns a local calendar date/time selected in the unified time editor. */
 function selectedDateTime(prefix,point){
-    const date=$(prefix+"-"+point+"-date").value;
-    const time=$(prefix+"-"+point+"-time").value;
+    const source=$(prefix+"-"+point+"-at").value;
     const label=point==="start"?"inicio":"fin";
-    if(!date||!time)throw Error("Completá la fecha y hora de "+label+".");
-    const value=new Date(date+"T"+time);
-    if(!Number.isFinite(value.getTime())||localTime(value)!==date+"T"+time.slice(0,5))
+    if(!source)throw Error("Completá la fecha y hora de "+label+".");
+    const value=new Date(source);
+    if(!Number.isFinite(value.getTime())||localTime(value)!==source.slice(0,16))
         throw Error("Revisá la fecha y hora de "+label+".");
     return value;
 }
 
-/** Recalculate read-only hours and minutes only when an end is enabled. */
+/** Present one compact, read-only duration instead of extra time fields. */
 function updateTimeEditor(prefix){
     const enabled=$(prefix+"-end-enabled").checked;
     $(prefix+"-end-fields").hidden=!enabled;
     $(prefix+"-end-enabled").setAttribute("aria-expanded",String(enabled));
-    const hours=$(prefix+"-hours"),minutes=$(prefix+"-minutes");
-    hours.textContent=minutes.textContent="—";
+    const preview=$(prefix+"-duration-preview");
+    preview.textContent="—";
     if(!enabled)return;
     try{
         const start=selectedDateTime(prefix,"start");
         const end=selectedDateTime(prefix,"end");
         const total=Math.round((end.getTime()-start.getTime())/60000);
         if(total<=0)return;
-        hours.textContent=String(Math.floor(total/60));
-        minutes.textContent=String(total%60);
-    }catch(_){ /* Missing dates stay blank until the user completes them. */ }
+        preview.textContent=durationLabel(total);
+    }catch(_){ /* Wait until the optional end has been selected. */ }
 }
 
-/** Initialize the same start/optional-end selector for create and edit. */
+/** Reuse the same combined date-and-time editor for creation and editing. */
 function populateTimeEditor(prefix,start,end=null){
-    const beginning=localTime(start);
-    $(prefix+"-start-date").value=beginning.slice(0,10);
-    $(prefix+"-start-time").value=beginning.slice(11);
+    $(prefix+"-start-at").value=localTime(start);
     $(prefix+"-end-enabled").checked=Boolean(end);
-    const finish=end?localTime(end):"";
-    $(prefix+"-end-date").value=finish?finish.slice(0,10):"";
-    $(prefix+"-end-time").value=finish?finish.slice(11):"";
+    $(prefix+"-end-at").value=end?localTime(end):"";
     updateTimeEditor(prefix);
 }
 
@@ -1276,10 +1270,9 @@ $("cat-image").onchange=async event=>{
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
     for(const point of ["start","end"]){
-        for(const field of ["date","time"]){
-            $(prefix+"-"+point+"-"+field).addEventListener("input",()=>updateTimeEditor(prefix));
-            $(prefix+"-"+point+"-"+field).addEventListener("change",()=>updateTimeEditor(prefix));
-        }
+        const field=$(prefix+"-"+point+"-at");
+        field.addEventListener("input",()=>updateTimeEditor(prefix));
+        field.addEventListener("change",()=>updateTimeEditor(prefix));
     }
     $(prefix+"-end-enabled").addEventListener("change",()=>updateTimeEditor(prefix));
 }

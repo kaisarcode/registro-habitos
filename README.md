@@ -83,7 +83,7 @@ La vista **Mi día** presenta las categorías como botones permanentes. Tocar un
 
 ## Horario: inicio y fin opcional
 
-Crear y editar usan el mismo selector de **Horario**. El inicio tiene fecha y hora, por defecto el momento actual; **Agregar fin** es opcional y habilita una segunda fecha y hora. Las **Horas** y **Minutos** se muestran calculados y no se editan manualmente. El fin debe ser posterior al inicio y puede estar al día siguiente o varios días más tarde; por ejemplo, permite registrar sueño nocturno o una siesta.
+Crear y editar usan el mismo selector de **Horario**, con un único campo combinado de fecha y hora para el **Inicio**, precargado con el momento actual. **Agregar fin** habilita, de forma opcional, otro campo combinado de fecha y hora para el **Fin**. En lugar de varios cuadros de fechas, horas y minutos, se muestra una sola duración calculada (por ejemplo, 7 h 45 min). El fin debe ser posterior al inicio y puede ser del día siguiente, como al registrar sueño nocturno. También sirve para siestas o actividades sin hora de finalización.
 
 `occurredAt` y `startedAt` guardan el inicio. Cuando se selecciona fin, `endedAt` guarda esa fecha y `duration` almacena la diferencia en minutos; sin fin, `endedAt` y `duration` quedan en `null`. El historial, el respaldo y las exportaciones JSON/CSV conservan estos campos, sin un esquema paralelo ni migraciones.
 
