@@ -169,24 +169,36 @@
  </article>
  <p id="analysis-status" class="muted" role="status"></p>
 </section>
-<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button><button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button><button class="menu-item" data-page="about">Acerca de <span>›</span></button><article class="panel language-preferences">
- <h2>Idioma</h2>
- <label for="app-language">Idioma de la aplicación</label>
- <select id="app-language"><option value="system">Sistema operativo</option><option value="es">Español</option><option value="en">English</option></select>
- <p class="muted">De forma predeterminada, se utiliza el idioma del dispositivo.</p>
-</article><article class="panel sensory-preferences">
- <h2>Preferencias sensoriales</h2>
- <label class="sensory-setting" for="dark-mode">
-  <span>Modo oscuro</span>
-  <input id="dark-mode" type="checkbox" role="switch" checked>
-  <span class="sensory-switch-track" aria-hidden="true"></span>
- </label>
- <label class="sensory-setting" for="reduced-motion">
-  <span>Sin animaciones</span>
-  <input id="reduced-motion" type="checkbox" role="switch">
-  <span class="sensory-switch-track" aria-hidden="true"></span>
- </label>
-</article></section>
+<section id="more" class="screen">
+ <button class="menu-item" data-page="language">Idioma <span>›</span></button>
+ <button class="menu-item" data-page="sensory">Preferencias sensoriales <span>›</span></button>
+ <button class="menu-item" data-page="categories">Categorías <span>›</span></button>
+ <button class="menu-item" data-page="summary">Resumen <span>›</span></button>
+ <button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button>
+ <button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button>
+ <button class="menu-item" data-page="about">Acerca de <span>›</span></button>
+</section>
+<section id="language" class="screen">
+ <article class="panel language-preferences">
+  <label for="app-language">Idioma de la aplicación</label>
+  <select id="app-language"><option value="system">Sistema operativo</option><option value="es">Español</option><option value="en">English</option></select>
+  <p class="muted">De forma predeterminada, se utiliza el idioma del dispositivo.</p>
+ </article>
+</section>
+<section id="sensory" class="screen">
+ <article class="panel sensory-preferences">
+  <label class="sensory-setting" for="dark-mode">
+   <span>Modo oscuro</span>
+   <input id="dark-mode" type="checkbox" role="switch" checked>
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <label class="sensory-setting" for="reduced-motion">
+   <span>Sin animaciones</span>
+   <input id="reduced-motion" type="checkbox" role="switch">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+ </article>
+</section>
 <section id="help" class="screen">
  <article class="panel help-panel">
   <h2>Un espacio para registrar tu día</h2>

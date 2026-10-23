@@ -143,6 +143,8 @@ El selector de restauración de Android muestra únicamente archivos ZIP; el gua
 
 ## Tema claro opcional
 
+En **Más**, **Idioma** y **Preferencias sensoriales** son las dos primeras opciones del menú y abren pantallas independientes, sin duplicar los controles dentro del menú. El botón Volver de ambas retorna a Más. Los ajustes conservan sus claves locales y su inclusión en los respaldos.
+
 El switch **Modo oscuro** en Más → Preferencias sensoriales está activado por defecto. Desactivarlo aplica una paleta clara suave, también en los formularios y modales. Se guarda localmente y se incluye en el respaldo completo ZIP.
 
 El switch **Sin animaciones** controla las transiciones breves entre vistas, la apertura y cierre de modales y los cambios suaves de controles. Sin preferencia guardada, **Sin animaciones** está desactivado por defecto. `prefers-reduced-motion: reduce` del sistema sigue teniendo prioridad para desactivar las animaciones, sin modificar el estado del interruptor. La elección manual se guarda localmente y se incluye en el respaldo ZIP.
