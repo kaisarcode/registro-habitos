@@ -27,6 +27,7 @@ cp -R "$ROOT/web/." "$WEB_OUT/"
     cat "$ROOT/web/backup-zip.js"
     sed 's/^export const ICON_NAMES/const ICON_NAMES/;s/^export const categoryStore/const categoryStore/' "$ROOT/web/categories.js"
     sed '/^import /d' "$ROOT/web/app.js"
+    cat "$ROOT/web/i18n.js"
 } > "$ROOT/web/app.bundle.js"
 cp "$ROOT/web/app.bundle.js" "$WEB_OUT/app.bundle.js"
 # Keep the source template useful in browsers, but package a single inline
@@ -48,7 +49,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
 # difficult and can result in stale copies being installed. The version code is
 # independent of timestamps and increases with commits on slave.
 APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
-APP_VERSION="0.3.2"
+APP_VERSION="0.3.3"
 VERSION_CODE=20261027
 VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4
 if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then

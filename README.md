@@ -145,3 +145,5 @@ El switch **Modo oscuro** en Más → Preferencias sensoriales está activado po
 El botón de prueba con la app cerrada fue retirado del formulario. La preescucha ahora inicia al 90 % y permite ajustar del 0 al 100 %, sin alterar el volumen de las notificaciones Android, que depende del canal y del teléfono.
 
 La pantalla Exportar para análisis incluye un rango opcional **Desde/Hasta** (ambos días incluidos), que filtra por la fecha local de `occurredAt` y aplica igual a CSV y JSON. La base de datos y el respaldo completo no se filtran.
+
+El idioma de la interfaz se elige en Más → Idioma (Sistema operativo, Español o English). Sistema usa la configuración regional del dispositivo; otros idiomas se muestran en inglés. La preferencia queda guardada y se incluye en los respaldos ZIP. Los registros ingresados por el usuario no se traducen.

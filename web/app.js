@@ -160,7 +160,7 @@ function drawDashboard(){
  const today=entries.filter(e=>dayKey(e.occurredAt)===dayKey(Date.now()));
  $("today-count").textContent=today.length+" "+(today.length===1?"registro":"registros");
  const recent=$("today-entries");recent.replaceChildren();
- if(!today.length){recent.append(el("p","muted","Todavía no registraste nada hoy."));return;}
+ if(!today.length){recent.append(el("p","muted","Aún no has registrado nada hoy."));return;}
  for(const entry of today.slice(0,5)){
   const button=el("button","history-item");
   button.append(iconFor(entry.category));
@@ -209,12 +209,12 @@ function durationDetails(prefix){
  if(h!==""||m!==""){
   const hours=h===""?0:Number(h),minutes=m===""?0:Number(m);
   if(!Number.isInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59)
-   throw Error("Usá horas positivas y minutos entre 0 y 59.");
+   throw Error("Usa horas positivas y minutos entre 0 y 59.");
   duration=hours*60+minutes;
  }
  $(prefix+"-duration").value=duration==null?"":String(duration);
  const source=prefix==="entry"?$("entry-when").value:$("edit-date").value+"T"+$("edit-time").value;
- if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresá una fecha y hora válidas.");
+ if(!source||!Number.isFinite(new Date(source).getTime()))throw Error("Ingresa una fecha y hora válidas.");
  return {occurredAt:new Date(source).toISOString(),duration,startedAt:null,endedAt:null};
 }
 function createEntry(details){
@@ -301,7 +301,7 @@ function drawCategories(){
   row.append(open,el("span","category-count",String(count)),remove);
   root.append(row);
  }
- if(!root.children.length)root.append(el("p","muted","No hay categorías. Agregá una con +."));
+ if(!root.children.length)root.append(el("p","muted","No hay categorías. Agrega una con +."));
 }
 function updateCategoryPreview(){
  const box=$("cat-icon-preview");box.replaceChildren();
@@ -348,7 +348,7 @@ async function saveCategoryEditor(){
  try{
   const original=editingCategory;
   const name=$("cat-name").value.trim().replace(/\s+/g," ");
-  if(!name||name.length>64)throw Error("Ingresá un nombre de hasta 64 caracteres.");
+  if(!name||name.length>64)throw Error("Ingresa un nombre de hasta 64 caracteres.");
   const words=$("cat-keywords").value.split(/[,\n;]/).map(x=>x.trim()).filter(Boolean);
   // Rename the historical entries first; category definitions continue
   // governing the display of existing records without losing entry content.
@@ -370,7 +370,7 @@ async function saveCategoryEditor(){
 }
 function readCategoryImage(file){
  return new Promise((resolve,reject)=>{
-  if(!file||!["image/png","image/jpeg","image/webp"].includes(file.type))return reject(Error("Elegí una imagen PNG, JPG o WebP."));
+  if(!file||!["image/png","image/jpeg","image/webp"].includes(file.type))return reject(Error("Elige una imagen PNG, JPG o WebP."));
   if(file.size>8*1024*1024)return reject(Error("La imagen debe ocupar menos de 8 MB."));
   const reader=new FileReader();
   reader.onerror=()=>reject(Error("No se pudo abrir la imagen."));
@@ -438,7 +438,8 @@ function csv(selectedEntries=entries){const cols=["id","occurredAt","startedAt",
 function completeBackup(){
  const preferences={
   reducedMotion:$("reduced-motion").checked,
-  darkMode:$("dark-mode").checked
+  darkMode:$("dark-mode").checked,
+  language:languagePreference()
  };
  return {version:1,kind:"registro-habitos-backup",exportedAt:new Date().toISOString(),
   entries,reminders:reminderStore.list(),
@@ -476,7 +477,7 @@ function saveDocument(name,content,type){
  documentStatusTarget=name==="registro-habitos-respaldo.zip"?"document-status":"analysis-status";
  const docs=window.AppDocuments;
  if(docs?.save){
-  $(documentStatusTarget).textContent="Elegí dónde guardar el archivo.";
+  $(documentStatusTarget).textContent="Elige dónde guardar el archivo.";
   docs.save(name,content,type);
   return;
  }
@@ -574,6 +575,7 @@ async function importBackup(file){
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
+ if(backup.preferences && typeof backup.preferences.language==="string")setLanguagePreference(backup.preferences.language);
  if(backup.preferences && typeof backup.preferences.darkMode==="boolean")applyDarkMode(backup.preferences.darkMode);
  if(backup.preferences && typeof backup.preferences.reducedMotion==="boolean"){
   $("reduced-motion").checked=backup.preferences.reducedMotion;
@@ -669,7 +671,7 @@ async function startVoice(targetId = "capture-text") {
    if (!session.active || voiceSession !== session) return;
    const r = new Rec();
    recognition = r;
-   r.lang = "es-AR";
+   r.lang = currentAppLanguage()==="es" ? "es-ES" : "en-US";
    r.interimResults = true;
    r.continuous = true;
    r.maxAlternatives = 1;
@@ -682,7 +684,7 @@ async function startVoice(targetId = "capture-text") {
    r.onstart = () => {
     if (session.active) {
      voiceButtons(true);
-     voiceFeedback(targetId, "Escuchando… Tocá otra vez para detener.");
+     voiceFeedback(targetId, "Escuchando… Toca otra vez para detener.");
     }
    };
    r.onresult = event => {
@@ -722,7 +724,7 @@ async function startVoice(targetId = "capture-text") {
     // Interim-only words are not committed as the engine did not confirm them.
     field.value = session.committed;
     field.dispatchEvent(new Event("input", {bubbles:true}));
-    voiceFeedback(targetId, "Escuchando… podés hacer pausas. Tocá para detener.");
+    voiceFeedback(targetId, "Escuchando… podés hacer pausas. Toca para detener.");
     session.restartTimer = setTimeout(run, 350);
    };
    try { r.start(); }
@@ -918,7 +920,7 @@ $("reminder-confirm").onclick=async e=>{
  const title=$("reminder-name").value.trim(),repeat=$("reminder-repeat").value,sound=$("reminder-sound").value;
  try{
   const times=reminderFormTimes();
-  if(!title){$("reminder-dialog-status").textContent="Escribí un nombre.";return;}
+  if(!title){$("reminder-dialog-status").textContent="Escribe un nombre.";return;}
   if(editingReminderId)await reminderStore.update(editingReminderId,{title,times,repeat,daily:repeat!=="once",sound});
   else await reminderStore.add(title,times,repeat!=="once",repeat,sound);
   $("reminder-dialog").close();

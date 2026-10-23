@@ -104,7 +104,7 @@
 <header class="topbar"><button id="back" class="icon-button hidden" aria-label="Volver">‹</button><h1 id="title">Mi día</h1><button id="top-action" class="icon-button" aria-label="Opciones"><svg class="icon"><use href="#i-gear"/></svg></button></header>
 <main>
 <section id="capture" class="screen active">
- <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elegí una categoría para completar y guardar tu entrada.</p></div>
+ <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elige una categoría para completar y guardar tu entrada.</p></div>
  <input id="category-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Filtrar categorías para registrar" autocomplete="off" autocapitalize="off" spellcheck="false">
  <div id="quick-categories" class="category-grid" aria-label="Registrar por categoría"></div>
  <div class="today-heading"><h2>Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
@@ -115,7 +115,7 @@
  <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros"><button id="history-filter" class="icon-button" aria-label="Categorías">☷</button></div>
  <div id="history-list" class="history-list"></div>
 </section>
-<section id="categories" class="screen"><p class="muted">Editá nombres, palabras clave e íconos. Los registros anteriores se conservan.</p><div id="category-list" class="history-list"></div></section>
+<section id="categories" class="screen"><p class="muted">Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p><div id="category-list" class="history-list"></div></section>
 
 <section id="summary" class="screen"><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
 <section id="reminders" class="screen"><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">
@@ -134,7 +134,7 @@
 <section id="backup" class="screen">
  <article class="panel">
   <h2>Respaldo y restauración</h2>
-  <p>Guardá una copia completa fuera de la app, por ejemplo en Descargas. El archivo permanece aunque desinstales Registro Hábitos.</p>
+  <p>Guarda una copia completa fuera de la app, por ejemplo en Descargas. El archivo permanece aunque desinstales Registro Hábitos.</p>
   <button id="backup-save" type="button" class="utility-button accent">Guardar respaldo en el teléfono</button>
   <button id="import-json" type="button" class="utility-button">Restaurar desde un respaldo</button>
   <input type="file" id="import-file" accept=".zip,application/zip,application/x-zip-compressed" hidden>
@@ -145,18 +145,23 @@
 <section id="analysis" class="screen">
  <article class="panel">
   <h2>Exportar para análisis</h2>
-  <p>Exportá solamente tus registros de hábitos, sin configuraciones ni recordatorios. Podés usarlos en otras herramientas.</p>
+  <p>Exporta solamente tus registros de hábitos, sin configuraciones ni recordatorios. Puedes usarlos en otras herramientas.</p>
   <div class="form-row analysis-date-range">
    <label for="analysis-from">Desde<input id="analysis-from" type="date"></label>
    <label for="analysis-to">Hasta<input id="analysis-to" type="date"></label>
   </div>
-  <p class="muted">Dejá las fechas vacías para incluir todos los registros. Ambos días están incluidos.</p>
+  <p class="muted">Deja las fechas vacías para incluir todos los registros. Ambos días están incluidos.</p>
   <button id="export-json" type="button" class="utility-button">Exportar hábitos JSON</button>
   <button id="export-csv" type="button" class="utility-button">Exportar hábitos CSV</button>
  </article>
  <p id="analysis-status" class="muted" role="status"></p>
 </section>
-<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button><button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button><button class="menu-item" data-page="about">Acerca de <span>›</span></button><article class="panel sensory-preferences">
+<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button><button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button><button class="menu-item" data-page="about">Acerca de <span>›</span></button><article class="panel language-preferences">
+ <h2>Idioma</h2>
+ <label for="app-language">Idioma de la aplicación</label>
+ <select id="app-language"><option value="system">Sistema operativo</option><option value="es">Español</option><option value="en">English</option></select>
+ <p class="muted">De forma predeterminada, se utiliza el idioma del dispositivo.</p>
+</article><article class="panel sensory-preferences">
  <h2>Preferencias sensoriales</h2>
  <label class="sensory-setting" for="dark-mode">
   <span>Modo oscuro</span>
@@ -182,7 +187,7 @@
  </article>
 </section>
 </main>
-<dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sentís?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Tocá para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div id="edit-event-time" class="form-row"><label>Fecha<input id="edit-date" type="date"></label><label>Hora<input id="edit-time" type="time"></label></div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="duration-editor">
+<dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div id="edit-event-time" class="form-row"><label>Fecha<input id="edit-date" type="date"></label><label>Hora<input id="edit-time" type="time"></label></div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="duration-editor">
   <div class="section-label">Duración</div>
   <div class="duration-parts">
    <label for="edit-hours">Horas<input id="edit-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
@@ -214,9 +219,9 @@
 <dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title">
  <div class="entry-modal-header"><h2 id="entry-dialog-title">Nueva entrada</h2><button id="entry-close" type="button" class="icon-button" aria-label="Cerrar sin guardar">×</button></div>
  <p id="entry-category-preview" class="entry-category-preview hidden"></p>
- <label for="capture-text">¿Qué hiciste o cómo te sentís?</label>
+ <label for="capture-text">¿Qué hiciste o cómo te sientes?</label>
  <textarea id="capture-text" rows="4" placeholder="Escribí o dictá lo que hiciste…"></textarea>
- <div class="modal-voice"><button id="mic" class="mic-button" type="button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Tocá para dictar</span></div>
+ <div class="modal-voice"><button id="mic" class="mic-button" type="button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div>
  <p id="entry-status" class="muted" role="status"></p>
  <details id="entry-options" class="entry-options">
   <summary>Detalles opcionales</summary>

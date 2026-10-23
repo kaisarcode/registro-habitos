@@ -405,3 +405,8 @@ html.theme-light .today-heading p,
 html.theme-light .section-label,
 html.theme-light .panel p,
 html.theme-light .muted{color:var(--light-muted)}
+
+/* Language selector uses the same muted control palette in both themes. */
+.language-preferences select{display:block;width:100%;margin-top:10px}
+.language-preferences label{margin:10px 0 4px}
+html.theme-light .language-preferences select{background:#f3f7f7;color:#263e46;border-color:#bacdd0}
