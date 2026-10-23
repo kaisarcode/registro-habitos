@@ -73,10 +73,10 @@ function toast(message){const id=$("capture-status");if(id)id.textContent=messag
  */
 function show(page){
     if(voiceSession || voicePending)stopVoice();
-    ["capture","history","categories","reminders","backup","analysis","settings","language","sensory","about"]
+    ["capture","history","categories","summary","reminders","backup","analysis","settings","language","sensory","about"]
         .forEach(id=>$(id).classList.toggle("active",id===page));
     document.querySelectorAll(".tabs button")
-        .forEach(button=>button.classList.toggle("active",button.dataset.page===page));
+        .forEach(button=>button.classList.toggle("active",button.dataset.page===page || (page==="summary"&&button.dataset.page==="capture")));
     const settingsPage=["settings","backup","analysis","language","sensory","about"].includes(page);
     $("settings-button").classList.toggle("active",settingsPage);
     const actions={capture:"Nueva entrada",categories:"Crear categoría",reminders:"Nuevo recordatorio"};
@@ -86,10 +86,11 @@ function show(page){
         const translated=typeof translateLabel==="function"?translateLabel(label,currentAppLanguage()):label;
         action.setAttribute("aria-label",translated);action.title=translated;
     }
-    if(page==="capture"){drawDashboard();drawSummary();}
+    if(page==="capture"){drawDashboard();drawSummaryPreview();}
     if(page==="history")drawHistory();
     if(page==="categories")drawCategories();
     if(page==="reminders")drawReminders();
+    if(page==="summary")drawSummary();
     window.scrollTo(0,0);
 }
 
@@ -545,7 +546,7 @@ function closeEntryDialog(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
-async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawDashboard();}
+async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawSummaryPreview();drawDashboard();}
 
 /**
  * Provides the associated interface operation.
@@ -751,6 +752,21 @@ function summaryBuckets(records, selectedPeriod, now=new Date()){
         inPeriod.push(entry);
     }
     return {totals,inPeriod};
+}
+
+/** Draw a lightweight 7-day preview without duplicating the full chart. */
+function drawSummaryPreview(){
+    const {totals,inPeriod}=summaryBuckets(entries,"week");
+    $("home-summary-total").textContent=String(inPeriod.length);
+    $("home-summary-unit").textContent=inPeriod.length===1?"registro":"registros";
+    const root=$("home-summary-bars");
+    root.replaceChildren();
+    const maximum=Math.max(1,...totals);
+    for(const total of totals){
+        const cell=el("span","home-summary-bar");
+        cell.style.height=(total===0?3:Math.max(5,Math.round(total/maximum*42)))+"px";
+        root.append(cell);
+    }
 }
 
 /**
@@ -1306,6 +1322,7 @@ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset
 document.querySelectorAll(".view-back").forEach(b=>b.onclick=handleDeviceBack);
 $("brand-home").onclick=()=>show("capture");
 $("settings-button").onclick=()=>show("settings");
+$("open-summary").onclick=()=>show("summary");
 $("category-search").addEventListener("input",drawDashboard);
 $("categories-search").addEventListener("input",drawCategories);
 $("add-entry").onclick=()=>{

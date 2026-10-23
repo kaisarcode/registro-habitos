@@ -535,14 +535,20 @@ html.theme-light .settings-button.active{background:#d8e9e5;color:#167f67}
 /* Leave room for the contextual floating action above the bottom navigation. */
 #categories,#reminders{padding-bottom:100px}
 
-/* Hoy and Resumen are compact cards on Registro. */
+/* Hoy and a lightweight Summary preview on the Home screen. */
 .home-today-panel,.home-summary-panel{margin:19px 0 0;padding:16px;border-radius:17px}
 .home-today-panel .today-heading{margin:0 0 12px}
+.home-summary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .home-summary-heading h2{font-size:16px;font-weight:650;margin:0}
-.home-summary-heading p{font-size:13px;color:var(--muted);line-height:1.5;margin:8px 0 15px}
-.home-summary-panel .period-label{margin:13px 0}
-.home-summary-panel .bars{min-width:0;gap:5px;padding:15px 8px 10px;margin-bottom:16px}
-.home-summary-panel .bars[data-period="month"]{gap:2px}
-.home-summary-panel .bars[data-period="month"] .bar-cell>span{font-size:9px}
-.home-summary-panel .category-item{min-width:0}
-.home-summary-panel #summary-count{margin:14px 0 0}
+.home-summary-heading span{font-size:12px;color:var(--muted)}
+.home-summary-overview{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:15px 0}
+.home-summary-total{display:flex;flex-direction:column;gap:3px;min-width:0}
+.home-summary-total strong{font-size:30px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;color:#eaf1f1}
+.home-summary-total span{font-size:13px;color:var(--muted)}
+.home-summary-bars{height:46px;flex:0 1 168px;min-width:0;display:flex;align-items:flex-end;gap:5px;justify-content:flex-end}
+.home-summary-bar{display:block;flex:1;max-width:20px;min-width:0;border-radius:4px 4px 0 0;background:var(--accent)}
+.home-summary-open{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:13px 14px;border:1px solid #34554f;background:#213b36;color:#9ae7cc;border-radius:12px;font-size:14px;font-weight:600;text-align:left}
+.home-summary-open span{font-size:20px;line-height:1}
+.home-summary-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+html.theme-light .home-summary-total strong{color:#20383f}
+html.theme-light .home-summary-open{background:#e1f0ea;color:#176d55;border-color:#bbd7ce}

@@ -163,4 +163,4 @@ Las vistas usan títulos pequeños y una descripción debajo; las flechas Volver
 
 ## Resumen en la pantalla principal
 
-**Resumen** aparece como caja bajo **Hoy**, dentro de Registro. Conserva los filtros Semana/Mes/Año, el gráfico y los totales por categoría, que se recalculan con cada cambio de período y al recargar los registros. Se retira la pantalla independiente y su acceso desde Configuración. El gráfico mensual ajusta su espaciado en teléfonos angostos.
+Debajo de **Hoy**, la pantalla **Registro** muestra una tarjeta compacta **Resumen**, con el total de registros de los últimos 7 días, una pequeña vista previa de las barras y un botón **Ver resumen**. Ese botón abre la vista completa **Resumen**, que conserva sus filtros Semana/Mes/Año, el gráfico detallado y los totales por categoría. Volver regresa a Registro. No hay un acceso redundante desde Configuración. Ambos resúmenes se actualizan cuando cambian los registros.
