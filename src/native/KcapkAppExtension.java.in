@@ -1,0 +1,50 @@
+package @PACKAGE_NAME@;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.webkit.WebView;
+
+/**
+ * Application-owned native composition. KCAPK supplies the Activity,
+ * WebView permissions, local HTTPS assets and recurring alarm engine.
+ */
+public final class KcapkAppExtension {
+    private final Activity activity;
+    private final WebView webView;
+    private AppNavigationBridge navigation;
+    private AppDocumentBridge documents;
+    private AppSoundPreview sounds;
+
+    public KcapkAppExtension(Activity activity, WebView webView) {
+        this.activity = activity;
+        this.webView = webView;
+    }
+
+    public void attach() {
+        navigation = new AppNavigationBridge(activity, webView);
+        documents = new AppDocumentBridge(activity, webView);
+        sounds = new AppSoundPreview(activity);
+        webView.addJavascriptInterface(navigation, "AppNavigation");
+        webView.addJavascriptInterface(documents, "AppDocuments");
+        webView.addJavascriptInterface(sounds, "AppSoundPreview");
+    }
+
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        return documents != null && documents.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public boolean onBackPressed() {
+        webView.evaluateJavascript(
+            "(function(){return !!(window.registroHabitosBack && window.registroHabitosBack());})()",
+            null
+        );
+        return true;
+    }
+
+    public void destroy() {
+        if (sounds != null) sounds.stop();
+        webView.removeJavascriptInterface("AppNavigation");
+        webView.removeJavascriptInterface("AppDocuments");
+        webView.removeJavascriptInterface("AppSoundPreview");
+    }
+}

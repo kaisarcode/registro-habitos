@@ -46,7 +46,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
 # Embed the commit ID and use a monotonically increasing Android versionCode.
 # Reusing the same versionCode across many APK updates makes device diagnosis
 # difficult and can result in stale copies being installed. The version code is
-# independent of timestamps and increases with commits on slave.
+# independent of timestamps and increases with commits on devel.
 APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
 APP_VERSION="0.3.3"
 VERSION_CODE=20261027
@@ -70,26 +70,15 @@ if [ ! -f "$KCAPK_DIR/build.sh" ]; then
     printf '%s\n' "KCAPK not found: $KCAPK_DIR/build.sh (set KCAPK_DIR)" >&2
     exit 1
 fi
-# Stage only KCAPK's build sources and apply app-specific integration.
-# The KCAPK repository itself is never changed.
-KCAPK_STAGE="$ROOT/.build/kcapk-voice"
-mkdir -p "$KCAPK_STAGE"
-rm -rf "$KCAPK_STAGE/src"
-cp -R "$KCAPK_DIR/src" "$KCAPK_STAGE/src"
-cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
-cp "$ROOT/src/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/src/native/AppNavigationBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/src/native/AppDocumentBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/src/native/AppSoundPreview.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/src/native/AlarmReceiver.java.in" "$KCAPK_STAGE/src/templates/java/AlarmReceiver.java.in"
-# Include the user's quiet sounds as native Android resources so an alarm
-# rings through a system notification even when the WebView is not running.
-mkdir -p "$KCAPK_STAGE/src/templates/res/raw"
-cp "$ROOT/src/web/sounds/glock.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_glock.mp3"
-cp "$ROOT/src/web/sounds/alert.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_alert.mp3"
-python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
-cd "$KCAPK_STAGE"
-sh ./build.sh \
+# Stage only application-owned native extensions, never KCAPK sources.
+EXTENSION_OUT="$ROOT/.build/extension"
+rm -rf "$EXTENSION_OUT"
+mkdir -p "$EXTENSION_OUT/java" "$EXTENSION_OUT/res/raw"
+cp "$ROOT/src/native/"*.java.in "$EXTENSION_OUT/java/"
+cp "$ROOT/src/web/sounds/glock.mp3" "$EXTENSION_OUT/res/raw/registro_glock.mp3"
+cp "$ROOT/src/web/sounds/alert.mp3" "$EXTENSION_OUT/res/raw/registro_alert.mp3"
+
+sh "$KCAPK_DIR/build.sh" \
     --display-name "Registro de Hábitos" \
     --project-name registro-habitos \
     --package-name com.kaisarcode.registrohabitos \
@@ -100,6 +89,9 @@ sh ./build.sh \
     --version-name "$APP_VERSION" \
     --icon "$ROOT/src/assets/launcher-icon.svg" \
     --icon-background '#102a30' \
+    --extension "$EXTENSION_OUT" \
+    --local-https-assets \
+    --api voice \
     --api alarms \
     --api notifications \
     --api permissions \
@@ -109,7 +101,6 @@ sh ./build.sh \
     --permission notifications \
     --permission exactAlarm \
     --permission microphone \
-    --trusted-origin https://appassets.androidplatform.net \
     "$@"
 
 APK_BUILT="$ROOT/.build/android/bin/registro-habitos.apk"

@@ -695,8 +695,28 @@ async function startVoice(targetId = "capture-text") {
  const field = $(targetId);
  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
  if (typeof Rec !== "function") {
-  voiceFeedback(targetId, "Este navegador no ofrece reconocimiento de voz.");
-  field.focus();
+  const native = window.NativeBridge?.Android?.voice;
+  if (!native?.recognize) {
+   voiceFeedback(targetId, "Este dispositivo no ofrece reconocimiento de voz.");
+   field.focus();
+   return;
+  }
+  voicePending = true;
+  const requestId = ++voiceRequestId;
+  try {
+   voiceFeedback(targetId, "Abriendo el dictado de Android…");
+   const text = await native.recognize({language:currentAppLanguage()==="es"?"es-AR":"en-US"});
+   if(requestId!==voiceRequestId || !field.closest("dialog")?.open)return;
+   if(text){
+    field.value=[field.value.trim(),String(text).trim()].filter(Boolean).join(" ");
+    field.dispatchEvent(new Event("input",{bubbles:true}));
+    voiceFeedback(targetId,"Texto dictado agregado.");
+   }else voiceFeedback(targetId,"Dictado cancelado.");
+  }catch(error){
+   if(requestId===voiceRequestId)voiceFeedback(targetId,"No se pudo dictar: "+(error.message||error));
+  }finally{
+   if(requestId===voiceRequestId)voicePending=false;
+  }
   return;
  }
  voicePending = true;
