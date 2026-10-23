@@ -131,18 +131,24 @@ function categoryOptions(){
     const select=$("edit-category");select.replaceChildren(new Option("Sin categoría",""),...cats.map(c=>new Option(c,c)));return cats;
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
-/** Respect both the app's motion setting and the Android accessibility policy. */
 const systemReducedMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+
+/**
+ * Reports whether interface animations are enabled.
+ * @return Whether animations are enabled.
+ */
 function animationsEnabled(){
     return !document.documentElement.classList.contains("reduce-motion") && !systemReducedMotion?.matches;
 }
 
 /** Animate dismissal before calling native dialog.close(). */
 const pendingDialogClosures=new WeakMap();
+
+/**
+ * Closes an open dialog after its dismissal animation.
+ * @param dialog Dialog to close.
+ * @return Completion promise.
+ */
 function dismissDialog(dialog){
     if(!dialog?.open)return Promise.resolve();
     const active=pendingDialogClosures.get(dialog);
@@ -155,6 +161,11 @@ function dismissDialog(dialog){
     const pending=new Promise(resolve=>{
         let finished=false;
         let fallback;
+
+        /**
+         * Completes the pending dialog dismissal.
+         * @return None.
+         */
         const complete=()=>{
             if(finished)return;
             finished=true;
@@ -164,6 +175,12 @@ function dismissDialog(dialog){
             if(dialog.open)dialog.close();
             resolve();
         };
+
+        /**
+         * Completes dismissal when its exit animation ends.
+         * @param event Animation event.
+         * @return None.
+         */
         const onEnd=event=>{
             if(event.target===dialog && event.animationName==="rh-dialog-exit")complete();
         };
@@ -177,6 +194,11 @@ function dismissDialog(dialog){
     return pending;
 }
 
+/**
+ * Opens the application action dialog.
+ * @param options Dialog options.
+ * @return Promise resolved with the dialog result.
+ */
 function showAppDialog({title,message,kind="confirm",ok="Aceptar",danger=false,value=""}){
     return new Promise(resolve=>{
         const dialog=$("app-action-dialog");
@@ -366,7 +388,12 @@ function durationLabel(total){
     return h?(h+" h"+(m?" "+m+" min":"")):(m+" min");
 }
 
-/** Read local date/time selected with the native compact picker. */
+/**
+ * Reads the local date and time selected with the native compact picker.
+ * @param prefix Field prefix.
+ * @param point Time point.
+ * @return Selected date and time.
+ */
 function selectedDateTime(prefix,point){
     const source=$(prefix+"-"+point+"-at").value;
     const label=point==="start"?"inicio":"fin";
@@ -377,7 +404,11 @@ function selectedDateTime(prefix,point){
     return value;
 }
 
-/** Duration is optional, but supports entering minutes without hours. */
+/**
+ * Reads an optional duration entered as hours and minutes.
+ * @param prefix Field prefix.
+ * @return Duration in minutes, or null.
+ */
 function readDurationParts(prefix){
     const rawHours=$(prefix+"-hours").value.trim();
     const rawMinutes=$(prefix+"-minutes").value.trim();
@@ -391,12 +422,22 @@ function readDurationParts(prefix){
     return total;
 }
 
+/**
+ * Writes a duration into its hour and minute fields.
+ * @param prefix Field prefix.
+ * @param total Duration in minutes.
+ * @return None.
+ */
 function populateDurationParts(prefix,total){
     $(prefix+"-hours").value=total==null?"":String(Math.floor(total/60));
     $(prefix+"-minutes").value=total==null?"":String(total%60);
 }
 
-/** Show the chosen or inferred end without adding a second form field. */
+/**
+ * Shows the chosen or inferred end without adding a second form field.
+ * @param prefix Field prefix.
+ * @return None.
+ */
 function refreshTimeEndCaption(prefix){
     const caption=$(prefix+"-end-caption");
     const endField=$(prefix+"-end-at");
@@ -418,6 +459,13 @@ function refreshTimeEndCaption(prefix){
 
 /** Maintain the last edited value: duration sets end; end sets duration. */
 const timeInputMode={entry:"none",edit:"none"};
+
+/**
+ * Synchronizes duration and end-time editor fields.
+ * @param prefix Field prefix.
+ * @param source Field that changed.
+ * @return None.
+ */
 function updateTimeEditor(prefix,source){
     const endField=$(prefix+"-end-at");
     if(source==="duration"||(source==="start"&&timeInputMode[prefix]==="duration")){
@@ -432,7 +480,6 @@ function updateTimeEditor(prefix,source){
                 endField.value=localTime(new Date(start.getTime()+minutes*60000));
             }
         }catch(_){
-            // Incomplete numbers stay editable; saving validates them.
             endField.value="";
         }
     }else if(source==="end"){
@@ -448,13 +495,20 @@ function updateTimeEditor(prefix,source){
             }
         }
     }else if(source==="start"&&timeInputMode[prefix]==="end"){
-        // The user chose a specific end: retain it as the start changes.
         updateTimeEditor(prefix,"end");
         return;
     }
     refreshTimeEndCaption(prefix);
 }
 
+/**
+ * Populates a time editor with stored values.
+ * @param prefix Field prefix.
+ * @param start Start date and time.
+ * @param end Optional end date and time.
+ * @param duration Optional duration in minutes.
+ * @return None.
+ */
 function populateTimeEditor(prefix,start,end=null,duration=null){
     $(prefix+"-start-at").value=localTime(start);
     $(prefix+"-end-at").value=end?localTime(end):"";
@@ -465,7 +519,11 @@ function populateTimeEditor(prefix,start,end=null,duration=null){
     else refreshTimeEndCaption(prefix);
 }
 
-/** Save start, optional end and its duration using existing data fields. */
+/**
+ * Returns start, optional end, and duration from editor fields.
+ * @param prefix Field prefix.
+ * @return Stored time details.
+ */
 function timeDetails(prefix){
     const start=selectedDateTime(prefix,"start");
     const startedAt=start.toISOString();
@@ -479,7 +537,6 @@ function timeDetails(prefix){
     }
     const duration=readDurationParts(prefix);
     if(duration===null)return {occurredAt:startedAt,startedAt,endedAt:null,duration:null};
-    // Keep the derived end consistent even if the browser hasn't emitted change.
     const derivedEnd=new Date(start.getTime()+duration*60000);
     if(!Number.isFinite(derivedEnd.getTime()))throw Error("La duración es demasiado grande.");
     return {occurredAt:startedAt,startedAt,endedAt:derivedEnd.toISOString(),duration};
@@ -563,8 +620,6 @@ function openEdit(e){
     populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt,e.duration);
     const availableCategories=categoryOptions();
     const entryCategory=canonicalCategory(e.category);
-    // Removed categories are absent from the select: show the real
-    // "Sin categoría" option rather than leaving the control unselected.
     $("edit-category").value=availableCategories.includes(entryCategory)?entryCategory:"";
     $("edit-notes").value=e.notes||"";
     $("edit-energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;
@@ -578,7 +633,10 @@ const HISTORY_PAGE_SIZE=25;
 const historyState={generation:0,loading:false,hasMore:false,next:null,loaded:0,groupKey:null,groupList:null,observer:null};
 let historySearchTimer=null;
 
-/** Fill year choices from existing entries, retaining the selected year. */
+/**
+ * Fills year choices from existing entries, retaining the selected year.
+ * @return None.
+ */
 function populateHistoryYears(){
     const select=$("history-year");
     const chosen=select.value;
@@ -592,10 +650,25 @@ function populateHistoryYears(){
     select.value=years.has(Number(chosen))?chosen:String(current);
 }
 
-/** Return inclusive local calendar bounds as an IndexedDB UTC time window. */
+/**
+ * Returns inclusive local calendar bounds as an IndexedDB UTC time window.
+ * @return Inclusive UTC time bounds.
+ */
 function historyBounds(){
     const mode=$("history-period").value;
+
+    /**
+     * Parses a local calendar date.
+     * @param d Date value.
+     * @return Local date.
+     */
     const fromLocal=d=>new Date(d+"T00:00:00");
+
+    /**
+     * Converts a date to an ISO string.
+     * @param d Date value.
+     * @return ISO date string.
+     */
     const asIso=d=>{
         if(!Number.isFinite(d.getTime()))throw Error("Revisá las fechas del filtro.");
         return d.toISOString();
@@ -622,7 +695,12 @@ function historyBounds(){
     return {from:null,to:null};
 }
 
-/** Calendar-aware headings: Hoy, Ayer, weekday, or e.g. Agosto 2026. */
+/**
+ * Returns a calendar-aware history heading.
+ * @param value Entry date value.
+ * @param now Current date.
+ * @return History heading.
+ */
 function historyDateGroup(value,now=new Date()){
     const date=new Date(value);
     const day=new Date(date.getFullYear(),date.getMonth(),date.getDate());
@@ -646,7 +724,11 @@ function historyDateGroup(value,now=new Date()){
         detail:"",recent:false};
 }
 
-/** Make one history item, keeping the original edit behavior. */
+/**
+ * Appends one history item, keeping its edit behavior.
+ * @param entry Entry to append.
+ * @return None.
+ */
 function appendHistoryEntry(entry){
     const group=historyDateGroup(entry.occurredAt);
     const root=$("history-list");
@@ -678,7 +760,10 @@ function appendHistoryEntry(entry){
     historyState.groupList.append(row);
 }
 
-/** Read the next matching cursor page; discard results after a filter change. */
+/**
+ * Reads the next matching cursor page after checking the active filter.
+ * @return Completion promise.
+ */
 async function loadHistoryPage(){
     if(historyState.loading||!historyState.hasMore||!$("history").classList.contains("active"))return;
     const generation=historyState.generation;
@@ -716,7 +801,10 @@ async function loadHistoryPage(){
     }
 }
 
-/** Keep the collapsed search affordance informative even with active filters. */
+/**
+ * Updates the collapsed search affordance for active filters.
+ * @return None.
+ */
 function updateHistoryFilterState(){
     const query=$("search").value.trim();
     const mode=$("history-period").value;
@@ -741,7 +829,10 @@ function updateHistoryFilterState(){
     $("history-clear").hidden=!active;
 }
 
-/** Reset pagination, then load only the first matching group of entries. */
+/**
+ * Resets pagination and loads the first matching group of entries.
+ * @return None.
+ */
 function drawHistory(){
     updateHistoryFilterState();
     ++historyState.generation;
@@ -943,7 +1034,10 @@ function summaryBuckets(records, selectedPeriod, now=new Date()){
     return {totals,inPeriod};
 }
 
-/** Draw a lightweight 7-day preview without duplicating the full chart. */
+/**
+ * Draws a lightweight seven-day preview.
+ * @return None.
+ */
 function drawSummaryPreview(){
     const {totals,inPeriod}=summaryBuckets(entries,"week");
     $("home-summary-total").textContent=String(inPeriod.length);
@@ -1528,7 +1622,6 @@ $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
 $("entry-dialog").addEventListener("close",stopVoice);
 $("entry-dialog").addEventListener("cancel",stopVoice);
-// Escape/Android cancel uses the same route as buttons, preserving cleanup.
 document.querySelectorAll("dialog").forEach(dialog=>{
     if(dialog.id==="app-action-dialog")return;
     dialog.addEventListener("cancel",event=>{

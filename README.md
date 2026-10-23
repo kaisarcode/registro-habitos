@@ -1,4 +1,4 @@
-# Registro de Hábitos
+# Registro de Habitos
 
 Registro personal de actividades y estados para seguimiento cotidiano y terapia ocupacional. La prioridad es registrar algo en segundos: tocar, hablar o escribir, guardar; clasificar después.
 
@@ -155,7 +155,7 @@ La pantalla Exportar para análisis incluye un rango opcional **Desde/Hasta** (a
 
 El idioma de la interfaz se elige en Más → Idioma (Sistema operativo, Español o English). Sistema usa la configuración regional del dispositivo; otros idiomas se muestran en inglés. La preferencia queda guardada y se incluye en los respaldos ZIP. Los registros ingresados por el usuario no se traducen.
 
-## Navegación principal y encabezado común
+## Navegacion principal y encabezado comun
 
 Todas las vistas comparten un encabezado con el logo y nombre **Registro de Hábitos** y el engranaje de **Configuración**. Tocar la marca vuelve a Registro. En el pie hay cuatro pestañas: **Registro**, **Historial**, **Recordatorios** y **Categorías**. Las demás opciones se encuentran en Configuración; la sección Categorías ya no aparece allí. La presentación de la aplicación encabeza Acerca de; los datos de versión figuran debajo bajo **Info de aplicación**.
 

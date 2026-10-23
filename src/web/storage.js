@@ -66,6 +66,7 @@ export const storage = {
      * after contains the last returned (occurredAt, id) pair. IndexedDB
      * sorts duplicate index keys by primary key, so both fields are needed
      * to avoid repeating/skipping entries sharing a timestamp.
+     * @return Matching entries and pagination state.
      */
     async listPage({ limit = 25, after = null, from = null, to = null, query = "", category = "" } = {}) {
         const size = Math.max(1, Math.min(100, Math.floor(limit) || 25));
@@ -86,6 +87,12 @@ export const storage = {
             const request = transaction.objectStore(TABLE).index("occurredAt").openCursor(range, "prev");
             const items = [];
             let settled = false;
+
+            /**
+             * Rejects the page request once.
+             * @param error Request error.
+             * @return None.
+             */
             const fail = error => { if (!settled) { settled = true; reject(error); } };
             request.onerror = () => fail(request.error || new Error("Could not read history"));
             transaction.onerror = () => fail(transaction.error || new Error("History transaction failed"));
@@ -97,8 +104,6 @@ export const storage = {
                     return;
                 }
                 const record = cursor.value;
-                // Descending traversal includes the boundary's timestamp.
-                // Skip the boundary and any already-seen duplicate keys.
                 if (after && cursor.key === after.occurredAt
                     && String(cursor.primaryKey) >= String(after.id)) {
                     cursor.continue();
