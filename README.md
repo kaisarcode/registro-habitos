@@ -170,3 +170,7 @@ Debajo de **Hoy**, la pantalla **Registro** muestra una tarjeta compacta **Resum
 Historial combina la búsqueda por texto (descripción, notas y categoría) con filtros **Todas las fechas**, **Año**, **Mes** y **Rango personalizado** (Desde/Hasta inclusivos). Los títulos separan entradas recientes por **Hoy**, **Ayer** y día de la semana; los registros más antiguos se agrupan por mes y año (por ejemplo, **Agosto 2026**) y muestran fecha y hora individualmente.
 
 La lista de Historial consulta IndexedDB mediante el índice `occurredAt` y carga **25 coincidencias por lote**, no todos los resultados de la búsqueda. Al desplazarse se solicita el siguiente lote; también está disponible el botón **Mostrar más** como alternativa accesible. Cambiar los filtros reinicia la paginación y descarta respuestas obsoletas. Las demás vistas mantienen su lógica y el esquema de la base no cambia.
+
+## Filtros desplegables de Historial
+
+La búsqueda y los filtros de fecha comparten un panel **Buscar y filtrar**, cerrado por defecto. El encabezado compacto indica cuando hay filtros activos, aunque el panel esté cerrado. Al desplegarlo aparecen el texto de búsqueda y los controles por año, mes o rango personalizado. El botón **Limpiar** borra texto y fechas, restaura **Todas las fechas** y reinicia la paginación, sin necesidad de cerrar la sección.

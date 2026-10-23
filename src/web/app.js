@@ -716,8 +716,34 @@ async function loadHistoryPage(){
     }
 }
 
+/** Keep the collapsed search affordance informative even with active filters. */
+function updateHistoryFilterState(){
+    const query=$("search").value.trim();
+    const mode=$("history-period").value;
+    const english=currentAppLanguage()==="en";
+    const parts=[];
+    if(query)parts.push((english?"Text: ":"Texto: ")+query);
+    if(mode==="year")parts.push($("history-year").value);
+    else if(mode==="month"){
+        const value=$("history-month").value;
+        if(/^\\d{4}-\\d{2}$/.test(value)){
+            const [year,month]=value.split("-").map(Number);
+            parts.push(new Intl.DateTimeFormat(english?"en-US":"es-AR",{month:"long",year:"numeric"})
+                .format(new Date(year,month-1,1)));
+        }else parts.push(english?"Month":"Mes");
+    }else if(mode==="range"){
+        const start=$("history-from").value,end=$("history-to").value;
+        parts.push([start,end].filter(Boolean).join(" – ")||(english?"Custom Range":"Rango personalizado"));
+    }
+    const active=Boolean(query)||mode!=="all";
+    $("history-filter-state").textContent=active?parts.join(" · "):(english?"All entries":"Todos los registros");
+    $("history-filters").classList.toggle("has-filters",active);
+    $("history-clear").hidden=!active;
+}
+
 /** Reset pagination, then load only the first matching group of entries. */
 function drawHistory(){
+    updateHistoryFilterState();
     ++historyState.generation;
     historyState.observer?.disconnect();
     historyState.observer=null;
@@ -1576,15 +1602,27 @@ $("cat-image").onchange=async event=>{
 };
 $("search").oninput=()=>{
     clearTimeout(historySearchTimer);
+    updateHistoryFilterState();
     historySearchTimer=setTimeout(drawHistory,180);
 };
 $("history-period").onchange=drawHistory;
 for(const id of ["history-year","history-month","history-from","history-to"]){
     $(id).onchange=drawHistory;
 }
+$("history-clear").onclick=()=>{
+    clearTimeout(historySearchTimer);
+    $("search").value="";
+    $("history-period").value="all";
+    $("history-year").value=String(new Date().getFullYear());
+    $("history-month").value=localTime(new Date()).slice(0,7);
+    $("history-from").value="";
+    $("history-to").value="";
+    drawHistory();
+};
 $("history-more").onclick=loadHistoryPage;
 $("history-month").value=localTime(new Date()).slice(0,7);
 populateHistoryYears();
+updateHistoryFilterState();
 for(const prefix of ["entry","edit"]){
     const start=$(prefix+"-start-at");
     const end=$(prefix+"-end-at");

@@ -125,18 +125,29 @@
 </section>
 <section id="history" class="screen">
  <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Historial</h2><p>Busca y revisa tus registros.</p></div></div>
- <div class="history-filters">
-  <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros" autocomplete="off"></div>
-  <label for="history-period" class="history-period-label">Período
-   <select id="history-period"><option value="all">Todas las fechas</option><option value="year">Año</option><option value="month">Mes</option><option value="range">Rango personalizado</option></select>
-  </label>
-  <div id="history-year-fields" class="history-filter-fields" hidden><label for="history-year">Año<select id="history-year"></select></label></div>
-  <div id="history-month-fields" class="history-filter-fields" hidden><label for="history-month">Mes<input id="history-month" type="month"></label></div>
-  <div id="history-range-fields" class="history-filter-fields history-date-range" hidden>
-   <label for="history-from">Desde<input id="history-from" type="date"></label>
-   <label for="history-to">Hasta<input id="history-to" type="date"></label>
+ <details id="history-filters" class="history-filters">
+  <summary class="history-filters-toggle">
+   <span class="history-filters-title">Buscar y filtrar</span>
+   <span id="history-filter-state" class="history-filter-state">Todos los registros</span>
+   <svg class="history-filters-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </summary>
+  <div class="history-filters-content">
+   <div class="history-filter-header">
+    <span>Filtros</span>
+    <button id="history-clear" class="history-clear" type="button" hidden aria-label="Limpiar búsqueda y filtros" title="Limpiar búsqueda y filtros"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Limpiar</span></button>
+   </div>
+   <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros" autocomplete="off"></div>
+   <label for="history-period" class="history-period-label">Período
+    <select id="history-period"><option value="all">Todas las fechas</option><option value="year">Año</option><option value="month">Mes</option><option value="range">Rango personalizado</option></select>
+   </label>
+   <div id="history-year-fields" class="history-filter-fields" hidden><label for="history-year">Año<select id="history-year"></select></label></div>
+   <div id="history-month-fields" class="history-filter-fields" hidden><label for="history-month">Mes<input id="history-month" type="month"></label></div>
+   <div id="history-range-fields" class="history-filter-fields history-date-range" hidden>
+    <label for="history-from">Desde<input id="history-from" type="date"></label>
+    <label for="history-to">Hasta<input id="history-to" type="date"></label>
+   </div>
   </div>
- </div>
+ </details>
  <p id="history-indicator" class="history-indicator" role="status" aria-live="polite"></p>
  <div id="history-list" class="history-groups"></div>
  <div id="history-sentinel" class="history-sentinel" aria-hidden="true"></div>

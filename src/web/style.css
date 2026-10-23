@@ -575,3 +575,21 @@ html.theme-light .home-summary-open{background:#e1f0ea;color:#176d55;border-colo
 html.theme-light .history-filters{background:#fff;border-color:#d1dfe1}
 html.theme-light .history-period-label,html.theme-light .history-group-heading{color:#263e46}
 html.theme-light .history-more{background:#e1f0ea;color:#176d55;border-color:#bbd7ce}
+
+/* One collapsible search/filter surface, closed by default. */
+.history-filters{padding:0;overflow:hidden}
+.history-filters-toggle{display:grid;grid-template-columns:minmax(0,1fr) 22px;gap:4px 12px;align-items:center;padding:14px;cursor:pointer;list-style:none}
+.history-filters-toggle::-webkit-details-marker{display:none}
+.history-filters-toggle::marker{content:""}
+.history-filters-title{grid-column:1;font-size:14px;font-weight:650}
+.history-filter-state{grid-column:1;font-size:12px;color:var(--muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.history-filters-chevron{grid-column:2;grid-row:1/span 2;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:rotate 150ms ease}
+.history-filters[open] .history-filters-chevron{rotate:180deg}
+.history-filters.has-filters .history-filter-state{color:var(--accent)}
+.history-filters-content{padding:0 14px 14px;border-top:1px solid #30434a}
+.history-filter-header{display:flex;align-items:center;justify-content:space-between;min-height:43px;font-size:12px;color:var(--muted)}
+.history-filter-header .history-clear{display:inline-flex;align-items:center;gap:5px;min-height:32px;border-radius:9px;padding:5px 9px;color:var(--accent);font-size:12px}
+.history-filter-header .history-clear[hidden]{display:none!important}
+.history-clear svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.history-filters-toggle:focus-visible,.history-clear:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+html.theme-light .history-filters-content{border-color:#d1dfe1}
