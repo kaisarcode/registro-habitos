@@ -27,11 +27,29 @@ public final class AppWebChromeClient extends WebChromeClient {
         ValueCallback<Uri[]> uploadMessage, FileChooserParams params) {
         if (pendingImage != null) pendingImage.onReceiveValue(null);
         pendingImage = uploadMessage;
-        Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
+        // Honor the HTML input's accept types. The category image picker
+        // requests image/*, while restoring a backup requests application/json.
+        // ACTION_OPEN_DOCUMENT uses the system's document browser, not gallery.
+        boolean imagesOnly = false;
+        String[] accepted = params == null ? null : params.getAcceptTypes();
+        if (accepted != null && accepted.length > 0) {
+            imagesOnly = true;
+            for (String type : accepted) {
+                if (type == null || !type.trim().toLowerCase(java.util.Locale.ROOT).startsWith("image/")) {
+                    imagesOnly = false;
+                    break;
+                }
+            }
+        }
+        Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         pick.addCategory(Intent.CATEGORY_OPENABLE);
-        pick.setType("image/*");
+        // Use a permissive document MIME filter for JSON because document
+        // providers sometimes label .json files as text/plain or octet-stream.
+        // The WebView file input and JSON parser validate the chosen backup.
+        pick.setType(imagesOnly ? "image/*" : "*/*");
         try {
-            activity.startActivityForResult(Intent.createChooser(pick, "Elegir imagen"), SELECT_IMAGE_REQUEST);
+            activity.startActivityForResult(Intent.createChooser(pick,
+                imagesOnly ? "Elegir imagen" : "Elegir respaldo JSON"), SELECT_IMAGE_REQUEST);
             return true;
         } catch (ActivityNotFoundException error) {
             pendingImage.onReceiveValue(null);
