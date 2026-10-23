@@ -394,19 +394,59 @@ function readCategoryImage(file){
   reader.readAsDataURL(file);
  });
 }
-function drawSummary(){
- const now=new Date(),start=new Date(now),buckets=period==="week"?7:period==="month"?30:12;
- const label=period==="week"?"Últimos 7 días":period==="month"?"Últimos 30 días":"Últimos 12 meses";
- $("period-label").textContent=label;const counts=Array(buckets).fill(0);
- for(const e of entries){const d=new Date(e.occurredAt);const days=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000);
-  const idx=period==="year"?((now.getFullYear()-d.getFullYear())*12+now.getMonth()-d.getMonth()):days;
-  if(idx>=0&&idx<buckets)counts[buckets-1-idx]++;
+function summaryBuckets(records, selectedPeriod, now=new Date()){
+ const count=selectedPeriod==="week"?7:selectedPeriod==="month"?30:12;
+ const totals=Array(count).fill(0),inPeriod=[];
+ const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ for(const entry of records){
+  const date=new Date(entry.occurredAt);
+  if(!Number.isFinite(date.getTime()))continue;
+  const day=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  // Calendar-day differences avoid daylight-saving offsets.
+  const dateDay=Date.UTC(day.getFullYear(),day.getMonth(),day.getDate());
+  const todayDay=Date.UTC(today.getFullYear(),today.getMonth(),today.getDate());
+  const days=Math.round((todayDay-dateDay)/86400000);
+  const age=selectedPeriod==="year"?
+   (today.getFullYear()-day.getFullYear())*12+today.getMonth()-day.getMonth():days;
+  if(age<0||age>=count)continue;
+  totals[count-1-age]++;
+  inPeriod.push(entry);
  }
- const max=Math.max(1,...counts);const chart=$("chart");chart.replaceChildren();
- for(let i=0;i<buckets;i++){const cell=el("div","bar-cell");const bar=el("div","bar");bar.style.height=(counts[i]/max*130)+"px";bar.title=counts[i]+" registros";cell.append(bar,el("span","",period==="week"?["L","M","X","J","V","S","D"][(now.getDay()+1+i)%7]:period==="month"?(i%5===0?String(i+1):""):String((i+now.getMonth()+1)%12+1)));chart.append(cell);}
- const countsCat=new Map();entries.forEach(e=>{const cat=canonicalCategory(e.category)||"Sin categoría";countsCat.set(cat,(countsCat.get(cat)||0)+1)});
- const root=$("summary-categories");root.replaceChildren();for(const [cat,count] of [...countsCat].sort((a,b)=>b[1]-a[1])){const row=el("div","category-item");row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));root.append(row);}
- $("summary-count").textContent=entries.length+" registros en total";
+ return {totals,inPeriod};
+}
+function drawSummary(){
+ const now=new Date();
+ const label=period==="week"?"Últimos 7 días":period==="month"?"Últimos 30 días":"Últimos 12 meses";
+ $("period-label").textContent=label;
+ const {totals,inPeriod}=summaryBuckets(entries,period,now);
+ const max=Math.max(1,...totals),chart=$("chart");
+ chart.replaceChildren();
+ chart.classList.toggle("empty",inPeriod.length===0);
+ for(let i=0;i<totals.length;i++){
+  const cell=el("div","bar-cell"),bar=el("div","bar");
+  const age=totals.length-1-i,day=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(period==="year")day.setMonth(day.getMonth()-age);
+  else day.setDate(day.getDate()-age);
+  const label=period==="week"?["D","L","M","X","J","V","S"][day.getDay()]:
+   period==="month"?(i%5===0||i===totals.length-1?String(day.getDate()):""):
+   ["E","F","M","A","M","J","J","A","S","O","N","D"][day.getMonth()];
+  bar.style.height=totals[i]===0?"0px":Math.max(10,totals[i]/max*130)+"px";
+  bar.title=day.toLocaleDateString()+" · "+totals[i]+" registros";
+  cell.append(bar,el("span","",label));chart.append(cell);
+ }
+ if(!inPeriod.length)chart.append(el("div","chart-empty-message","No hay registros en este período."));
+ const countsCat=new Map();
+ inPeriod.forEach(entry=>{
+  const category=canonicalCategory(entry.category)||"Sin categoría";
+  countsCat.set(category,(countsCat.get(category)||0)+1);
+ });
+ const root=$("summary-categories");root.replaceChildren();
+ for(const [cat,count] of [...countsCat].sort((a,b)=>b[1]-a[1])){
+  const row=el("div","category-item");
+  row.append(iconFor(cat),el("span","item-main",cat),el("span","muted",String(count)));
+  root.append(row);
+ }
+ $("summary-count").textContent=inPeriod.length+" registros en el período";
 }
 async function saveCapture(){
  const description=$("capture-text").value.trim();

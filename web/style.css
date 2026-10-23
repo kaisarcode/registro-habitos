@@ -446,3 +446,10 @@ html.theme-light .language-preferences #app-language{
  padding:10px 6px calc(9px + env(safe-area-inset-bottom));
 }
 .tabs-inner>button{flex:1;min-width:0}
+
+/* Bars use the chart's inner height; empty periods are explicit. */
+.bars{position:relative}
+.bar-cell{min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-self:stretch}
+.bar-cell .bar{flex:0 0 auto;min-height:0}
+.bar-cell>span{flex:0 0 auto;min-height:20px;white-space:nowrap}
+.bars.empty .chart-empty-message{position:absolute;top:40%;left:12px;right:12px;text-align:center;color:var(--muted);font-size:14px}

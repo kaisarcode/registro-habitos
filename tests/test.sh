@@ -534,3 +534,9 @@ if grep -Fq 'background:linear-gradient(135deg,#0d171d,#091317 65%)' "$ROOT/web/
 grep -q 'class="tabs-inner"' "$PAGE"
 grep -Fq '.tabs-inner{' "$ROOT/web/style.css"
 grep -Fq 'left:0;right:0;transform:none;width:100%;max-width:none;' "$ROOT/web/style.css"
+
+# Summary categories and bars must count the identical selected date window.
+grep -Fq 'function summaryBuckets(records, selectedPeriod, now=new Date())' "$PAGE"
+grep -Fq 'const {totals,inPeriod}=summaryBuckets(entries,period,now);' "$PAGE"
+grep -Fq 'inPeriod.forEach(entry=>' "$PAGE"
+grep -Fq 'No hay registros en este período.' "$PAGE"
