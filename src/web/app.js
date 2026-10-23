@@ -139,6 +139,48 @@ function categoryOptions(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
+/** Respect both the app's motion setting and the Android accessibility policy. */
+const systemReducedMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)");
+function animationsEnabled(){
+    return !document.documentElement.classList.contains("reduce-motion") && !systemReducedMotion?.matches;
+}
+
+/** Animate dismissal before calling native dialog.close(). */
+const pendingDialogClosures=new WeakMap();
+function dismissDialog(dialog){
+    if(!dialog?.open)return Promise.resolve();
+    const active=pendingDialogClosures.get(dialog);
+    if(active)return active;
+    if(!animationsEnabled()){
+        dialog.close();
+        return Promise.resolve();
+    }
+    dialog.classList.add("closing");
+    const pending=new Promise(resolve=>{
+        let finished=false;
+        let fallback;
+        const complete=()=>{
+            if(finished)return;
+            finished=true;
+            clearTimeout(fallback);
+            dialog.removeEventListener("animationend",onEnd);
+            dialog.classList.remove("closing");
+            if(dialog.open)dialog.close();
+            resolve();
+        };
+        const onEnd=event=>{
+            if(event.target===dialog && event.animationName==="rh-dialog-exit")complete();
+        };
+        dialog.addEventListener("animationend",onEnd);
+        fallback=setTimeout(complete,220);
+    });
+    pendingDialogClosures.set(dialog,pending);
+    pending.finally(()=>{
+        if(pendingDialogClosures.get(dialog)===pending)pendingDialogClosures.delete(dialog);
+    });
+    return pending;
+}
+
 function showAppDialog({title,message,kind="confirm",ok="Aceptar",danger=false,value=""}){
     return new Promise(resolve=>{
         const dialog=$("app-action-dialog");
@@ -158,13 +200,13 @@ function showAppDialog({title,message,kind="confirm",ok="Aceptar",danger=false,v
  * Provides the associated interface operation.
  * @return The operation result.
  */
-        const finish=result=>{
+        const finish=async result=>{
             if(settled)return;
             settled=true;
             dialog.onclose=null;dialog.oncancel=null;
             $("app-action-ok").onclick=null;
             $("app-action-cancel").onclick=null;
-            if(dialog.open)dialog.close();
+            await dismissDialog(dialog);
             resolve(result);
         };
 
@@ -501,7 +543,7 @@ function openEntryDialog(category=null){
  */
 function closeEntryDialog(){
     stopVoice();
-    $("entry-dialog").close();
+    dismissDialog($("entry-dialog"));
 }
 
 /**
@@ -654,7 +696,7 @@ async function saveCategoryEditor(){
     await storage.save({...entry,category:name});
             }
         }
-        $("category-dialog").close();
+        dismissDialog($("category-dialog"));
         categoryFilter=categoryFilter===original?name:categoryFilter;
         await reload();
     }catch(error){$("cat-error").textContent=error.message;}
@@ -1238,7 +1280,7 @@ function handleDeviceBack(){
         stopVoice();
         const dialog=openDialogs[openDialogs.length-1];
         if(dialog.id==="entry-dialog")closeEntryDialog();
-        else dialog.close();
+        else dismissDialog(dialog);
         return true;
     }
     const page=document.querySelector(".screen.active")?.id;
@@ -1276,14 +1318,23 @@ $("top-action").onclick=()=>{
 $("category-search").addEventListener("input",drawDashboard);
 $("categories-search").addEventListener("input",drawCategories);
 $("add-entry").onclick=()=>openEntryDialog();
-$("edit-close").onclick=()=>$("edit-dialog").close();
-$("edit-cancel").onclick=()=>$("edit-dialog").close();
+$("edit-close").onclick=()=>dismissDialog($("edit-dialog"));
+$("edit-cancel").onclick=()=>dismissDialog($("edit-dialog"));
 $("edit-dialog").addEventListener("close",stopVoice);
 $("edit-dialog").addEventListener("cancel",stopVoice);
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
 $("entry-dialog").addEventListener("close",stopVoice);
 $("entry-dialog").addEventListener("cancel",stopVoice);
+// Escape/Android cancel uses the same route as buttons, preserving cleanup.
+document.querySelectorAll("dialog").forEach(dialog=>{
+    if(dialog.id==="app-action-dialog")return;
+    dialog.addEventListener("cancel",event=>{
+        event.preventDefault();
+        if(dialog.id==="entry-dialog")closeEntryDialog();
+        else dismissDialog(dialog);
+    });
+});
 $("capture-save").onclick=saveCapture;
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
@@ -1336,8 +1387,8 @@ for(const prefix of ["entry","edit"]){
     }
 }
 
-$("category-dialog-close").onclick=()=>$("category-dialog").close();
-$("cat-cancel").onclick=()=>$("category-dialog").close();
+$("category-dialog-close").onclick=()=>dismissDialog($("category-dialog"));
+$("cat-cancel").onclick=()=>dismissDialog($("category-dialog"));
 $("cat-color").onchange=updateCategoryPreview;
 $("cat-save").onclick=saveCategoryEditor;
 $("cat-image-clear").onclick=()=>{categoryImage=null;$("cat-image").value="";updateCategoryPreview()};
@@ -1380,13 +1431,13 @@ $("edit-save").onclick=async()=>{
             energy:$("edit-energy-enabled").checked?Number($("edit-energy").value):null,
             notes:$("edit-notes").value
         });
-        $("edit-dialog").close();
+        dismissDialog($("edit-dialog"));
         await reload();
     }catch(error){await appInfo(error.message,"No se pudieron guardar los cambios");}
 };
 $("edit-delete").onclick=async()=>{
     if(!current||!await appConfirm("¿Eliminar este registro?","Eliminar registro","Eliminar"))return;
-    try{await storage.remove(current.id);$("edit-dialog").close();await reload()}
+    try{await storage.remove(current.id);dismissDialog($("edit-dialog"));await reload()}
     catch(error){await appInfo(error.message,"No se pudo eliminar")}
 };
 document.querySelectorAll("[data-period]").forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(a=>a.classList.toggle("selected",a===b));drawSummary()});
@@ -1420,7 +1471,7 @@ $("reminder-add-time").onclick=()=>{
     input.focus();
 };
 $("reminder-cancel").onclick=()=>{
-    $("reminder-dialog").close();
+    dismissDialog($("reminder-dialog"));
     editingReminderId=null;
 };
 $("reminder-confirm").onclick=async e=>{
@@ -1431,7 +1482,7 @@ $("reminder-confirm").onclick=async e=>{
         if(!title){$("reminder-dialog-status").textContent="Escribe un nombre.";return;}
         if(editingReminderId)await reminderStore.update(editingReminderId,{title,times,repeat,daily:repeat!=="once",sound});
         else await reminderStore.add(title,times,repeat!=="once",repeat,sound);
-        $("reminder-dialog").close();
+        dismissDialog($("reminder-dialog"));
         $("reminder-status").textContent=(editingReminderId?"Recordatorio actualizado.":"Recordatorio guardado.")+(reminderStore.status()?" "+reminderStore.status():"");
         editingReminderId=null;drawReminders();
     }catch(err){$("reminder-dialog-status").textContent=err.message}
@@ -1439,7 +1490,7 @@ $("reminder-confirm").onclick=async e=>{
 $("reminder-delete").onclick=async()=>{
     if(!editingReminderId||!await appConfirm("¿Eliminar este recordatorio?","Eliminar recordatorio","Eliminar"))return;
     reminderStore.remove(editingReminderId);
-    editingReminderId=null;$("reminder-dialog").close();drawReminders();
+    editingReminderId=null;dismissDialog($("reminder-dialog"));drawReminders();
     $("reminder-status").textContent="Recordatorio eliminado.";
 };
 $("backup-save").onclick=()=>saveDocument("registro-habitos-respaldo.zip",JSON.stringify(completeBackup()),"application/zip");
@@ -1477,7 +1528,7 @@ const reducedMotionInput=$("reduced-motion");
 const reducedMotionKey="registro-habitos-reduced-motion";
 try{
     const stored=localStorage.getItem(reducedMotionKey);
-    if(stored!==null)reducedMotionInput.checked=stored==="true";
+    reducedMotionInput.checked=stored!==null?stored==="true":Boolean(systemReducedMotion?.matches);
 }catch(error){console.warn("Sensory preference unavailable",error);}
 document.documentElement.classList.toggle("reduce-motion",reducedMotionInput.checked);
 reducedMotionInput.onchange=()=>{
@@ -1485,6 +1536,11 @@ reducedMotionInput.onchange=()=>{
     try{localStorage.setItem(reducedMotionKey,String(reducedMotionInput.checked));}
     catch(error){console.warn("Unable to save sensory preference",error);}
 };
+systemReducedMotion?.addEventListener?.("change",event=>{
+    try{if(localStorage.getItem(reducedMotionKey)!==null)return;}catch(_){return;}
+    reducedMotionInput.checked=event.matches;
+    document.documentElement.classList.toggle("reduce-motion",event.matches);
+});
 const buildMeta=document.querySelector('meta[name="app-build"]')?.content || "desarrollo";
 const versionMeta=document.querySelector('meta[name="app-version"]')?.content || "desarrollo";
 const codeMeta=document.querySelector('meta[name="app-version-code"]')?.content || "";
