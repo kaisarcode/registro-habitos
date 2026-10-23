@@ -1,16 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs>
- <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#286168"/><stop offset=".5" stop-color="#102e36"/><stop offset="1" stop-color="#06262c"/></linearGradient>
- <linearGradient id="left" x1=".1" y1=".1" x2=".9" y2=".9"><stop stop-color="#a7f5ef"/><stop offset="1" stop-color="#36bdbb"/></linearGradient>
- <linearGradient id="right" x1="0" y1="0" x2="1" y2=".9"><stop stop-color="#def0bf"/><stop offset="1" stop-color="#6cdb9e"/></linearGradient>
- <linearGradient id="stem" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#80eed0"/><stop offset="1" stop-color="#3bcea8"/></linearGradient>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Registro de Hábitos"><g><defs>
+ <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#118e79"/><stop offset="1" stop-color="#065c55"/></linearGradient>
+ <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b0ef8c"/><stop offset=".6" stop-color="#53ca90"/><stop offset="1" stop-color="#178e76"/></linearGradient>
+ <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9bee8e"/><stop offset="1" stop-color="#37c998"/></linearGradient>
 </defs>
-<rect width="512" height="512" rx="120" fill="url(#bg)"/>
-<rect x="4" y="4" width="504" height="504" rx="116" fill="none" stroke="#6ea8a3" stroke-opacity=".25" stroke-width="7"/>
-<circle cx="259" cy="274" r="152" fill="#092a30" opacity=".64"/>
-<circle cx="352" cy="159" r="30" fill="#fcf5d9"/>
-<path d="M242 327C190 303 167 249 175 179c65 9 104 49 103 111-2 22-13 36-36 37Z" fill="url(#left)"/>
-<path d="M280 332c77-7 132-68 130-151-83 4-136 43-148 110-4 19 2 32 18 41Z" fill="url(#right)"/>
-<path d="M256 392c-1-64 22-115 87-159M256 392c-1-48-18-77-52-111" stroke="#062f31" stroke-width="12" fill="none" stroke-linecap="round"/>
-<path d="M121 317c58 45 116 73 135 76 27-3 85-34 133-76" fill="none" stroke="url(#stem)" stroke-linecap="round" stroke-width="23"/>
-</svg>
+<rect x="47" y="65" width="403" height="403" rx="96" fill="url(#frame)"/>
+<rect x="85" y="120" width="326" height="307" rx="54" fill="#fcfdf1"/>
+<rect x="131" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#086d61" stroke-width="8"/>
+<rect x="309" y="31" width="58" height="110" rx="29" fill="url(#tab)" stroke="#086d61" stroke-width="8"/>
+<rect x="119" y="165" width="113" height="106" rx="25" fill="#21b883"/>
+<rect x="258" y="165" width="113" height="106" rx="25" fill="#20b583"/>
+<rect x="119" y="290" width="113" height="106" rx="25" fill="#08786f"/>
+<rect x="258" y="290" width="113" height="106" rx="25" fill="#dceccd"/>
+<path d="M145 211l24 24 37-44M283 211l24 24 37-44M145 340l24 24 37-44" fill="none" stroke="#f9fffa" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M351 478c-15-82-6-169 89-223 24 89-10 177-89 223Z" fill="url(#leaf)"/>
+<path d="M353 477c6-72 43-123 83-164" stroke="#076958" stroke-width="12" stroke-linecap="round" fill="none"/>
+<path d="M354 478c17-48 69-78 129-72-30 61-79 83-129 72Z" fill="#079477"/></g></svg>

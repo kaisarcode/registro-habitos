@@ -16,6 +16,8 @@ rm -rf "$WEB_OUT"
 mkdir -p "$WEB_OUT"
 cp -R "$ROOT/src/web/." "$WEB_OUT/"
 cp "$ROOT/src/assets/icon.svg" "$WEB_OUT/icon.svg"
+cp "$ROOT/src/assets/logo-dark.svg" "$WEB_OUT/logo-dark.svg"
+cp "$ROOT/src/assets/logo-light.svg" "$WEB_OUT/logo-light.svg"
 # The KCAPK integration test uses classic, inline JavaScript in a local HTML
 # page. Match that tested loading pattern instead of using ES modules from file:.
 # Bundle inside .build; source files must remain untouched.

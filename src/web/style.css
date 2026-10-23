@@ -593,3 +593,9 @@ html.theme-light .history-more{background:#e1f0ea;color:#176d55;border-color:#bb
 .history-clear svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .history-filters-toggle:focus-visible,.history-clear:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 html.theme-light .history-filters-content{border-color:#d1dfe1}
+
+/* Branded header artwork: use the in-app theme, never the device color scheme. */
+.brand-home .brand-logo{display:block;width:min(100%,310px);height:51px;max-width:100%;object-fit:contain;object-position:left center;flex:0 1 auto;border-radius:0}
+.brand-home .brand-logo-light{display:none}
+html.theme-light .brand-home .brand-logo-dark{display:none}
+html.theme-light .brand-home .brand-logo-light{display:block}
