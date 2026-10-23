@@ -16,7 +16,7 @@ function show(page){
     if(voiceSession || voicePending)stopVoice();
     
     ["capture","history","categories","summary","reminders","backup","analysis","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de"};
+    const labels={capture:"Registro de Hábitos",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",page==="capture");
     $("home-app-icon").classList.toggle("hidden",page!=="capture");
     // Always render the same bundled SVG icons. Assigning textContent here
