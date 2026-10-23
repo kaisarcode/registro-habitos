@@ -13,6 +13,7 @@ let entries=[],current=null,mood=null,period="week",previous="capture",recogniti
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!=null)n.textContent=text;return n;}
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
+    if(voiceSession || voicePending)stopVoice();
     
     ["capture","history","categories","summary","reminders","backup","analysis","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
     const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de"};
@@ -253,7 +254,7 @@ function openEntryDialog(category=null){
  $("entry-dialog").showModal();
 }
 function closeEntryDialog(){
- if(voiceSession)stopVoice()
+ stopVoice();
  $("entry-dialog").close();
 }
 async function reload(){entries=await storage.list();drawHistory();drawCategories();drawSummary();drawDashboard();}
@@ -586,6 +587,7 @@ async function importBackup(file){
 // unavailable; the app itself does not upload or store the microphone audio.
 let voicePending = false;
 let voiceSession = null;
+let voiceRequestId = 0;
 function voiceFeedback(targetId, message) {
  const status = $(targetId === "edit-text" ? "edit-voice-status" : "entry-status");
  if (status) status.textContent = message;
@@ -599,8 +601,11 @@ function voiceButtons(active) {
  }
 }
 function stopVoice() {
+ // Invalidates any outstanding async microphone permission request too.
+ voiceRequestId++;
+ voicePending = false;
  const session = voiceSession;
- if (!session) return;
+ if (!session) { voiceButtons(false); return; }
  session.active = false;
  voiceSession = null;
  if (session.restartTimer) clearTimeout(session.restartTimer);
@@ -623,6 +628,7 @@ async function startVoice(targetId = "capture-text") {
   return;
  }
  voicePending = true;
+ const requestId = ++voiceRequestId;
  try {
   const permissions = window.NativeBridge?.Android?.permissions;
   if (permissions && !permissions.has("microphone")) {
@@ -632,6 +638,8 @@ async function startVoice(targetId = "capture-text") {
     return;
    }
   }
+  if(requestId!==voiceRequestId || !field.closest("dialog")?.open ||
+      document.visibilityState==="hidden")return;
   const session = {targetId,field,active:true,committed:field.value.trim(),restartTimer:null};
   voiceSession = session;
   // Some browser speech engines end recognition after silence even in
@@ -711,7 +719,7 @@ async function startVoice(targetId = "capture-text") {
   voiceFeedback(targetId, "No se pudo iniciar el micrófono: " + (error.message || error));
   field.focus();
  } finally {
-  voicePending = false;
+  if(requestId===voiceRequestId)voicePending = false;
  }
 }
 // Android back is always consumed here: close the topmost modal, leave an
@@ -725,6 +733,7 @@ function handleDeviceBack(){
  }
  const openDialogs=[...document.querySelectorAll("dialog[open]")];
  if(openDialogs.length){
+  stopVoice();
   const dialog=openDialogs[openDialogs.length-1];
   if(dialog.id==="entry-dialog")closeEntryDialog();
   else dialog.close();
@@ -749,6 +758,10 @@ function handleDeviceBack(){
  return true;
 }
 window.registroHabitosBack=handleDeviceBack;
+document.addEventListener("visibilitychange",()=>{
+ if(document.visibilityState==="hidden")stopVoice();
+});
+window.addEventListener("pagehide",stopVoice);
 document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>show(b.dataset.page));
 $("back").onclick=handleDeviceBack;
 $("top-action").onclick=()=>{
@@ -761,10 +774,12 @@ $("category-search").addEventListener("input",drawDashboard);
 $("add-entry").onclick=()=>openEntryDialog();
 $("edit-close").onclick=()=>$("edit-dialog").close();
 $("edit-cancel").onclick=()=>$("edit-dialog").close();
-$("edit-dialog").addEventListener("close",()=>{if(voiceSession)stopVoice()});
+$("edit-dialog").addEventListener("close",stopVoice);
+$("edit-dialog").addEventListener("cancel",stopVoice);
 $("entry-close").onclick=closeEntryDialog;
 $("entry-cancel").onclick=closeEntryDialog;
-$("entry-dialog").addEventListener("close",()=>{if(voiceSession)stopVoice()});
+$("entry-dialog").addEventListener("close",stopVoice);
+$("entry-dialog").addEventListener("cancel",stopVoice);
 $("capture-save").onclick=saveCapture;
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");

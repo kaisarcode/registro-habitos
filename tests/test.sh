@@ -77,6 +77,12 @@ grep -q 'id="entry-dialog"' "$PAGE"
 grep -Fq 'r.continuous = true;' "$PAGE"
 grep -Fq 'session.restartTimer = setTimeout(run, 350);' "$PAGE"
 grep -Fq 'function stopVoice()' "$PAGE"
+grep -Fq 'if(voiceSession || voicePending)stopVoice();' "$PAGE"
+grep -Fq 'let voiceRequestId = 0;' "$PAGE"
+grep -Fq 'requestId!==voiceRequestId' "$PAGE"
+grep -Fq '"visibilitychange"' "$PAGE"
+grep -Fq '"pagehide"' "$PAGE"
+grep -Fq '"cancel",stopVoice' "$PAGE"
 grep -Fq 'session.committed = [session.committed,finalized]' "$PAGE"
 
 # Modals must never expand the phone viewport, including with keyboard open.
