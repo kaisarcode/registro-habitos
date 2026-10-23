@@ -14,8 +14,8 @@ function el(tag,className,text){const n=document.createElement(tag);if(className
 function toast(message){const id=$("capture-status");if(id)id.textContent=message;}
 function show(page){
     
-    ["capture","history","categories","summary","reminders","data","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
-    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",data:"Importar / Exportar",more:"Más",about:"Acerca de"};
+    ["capture","history","categories","summary","reminders","backup","analysis","more","about"].forEach(s=>$(s).classList.toggle("active",s===page));
+    const labels={capture:"Mi día",history:"Historial",categories:"Categorías",summary:"Resumen",reminders:"Recordatorios",backup:"Respaldo y restauración",analysis:"Exportar para análisis",more:"Más",about:"Acerca de"};
     $("title").textContent=labels[page];$("back").classList.toggle("hidden",["capture","history","reminders","more"].includes(page));
     // Always render the same bundled SVG icons. Assigning textContent here
     // replaces the initial settings SVG with a font-dependent Unicode gear.
@@ -33,7 +33,7 @@ function show(page){
         topAction.replaceChildren(svg);
     }else topAction.replaceChildren();
     $("top-action").setAttribute("aria-label",page==="categories"?"Crear categoría":page==="reminders"?"Nuevo recordatorio":page==="capture"?"Más opciones":page==="history"?"Opciones del historial":"Opciones");
-    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","data","about"].includes(page)&&b.dataset.page==="more")));
+    document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===page || (["categories","summary","backup","analysis","about"].includes(page)&&b.dataset.page==="more")));
     $("add-entry").classList.toggle("hidden",page!=="capture");
     if(page==="capture")drawDashboard();if(page==="history")drawHistory();if(page==="categories")drawCategories();if(page==="summary")drawSummary();if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
@@ -445,13 +445,15 @@ function completeBackup(){
 function analysisExport(){
  return {version:1,kind:"registro-habitos-analysis",exportedAt:new Date().toISOString(),entries};
 }
+let documentStatusTarget="document-status";
 window.registroDocumentResult=(ok,message)=>{
- $("document-status").textContent=message;
+ $(documentStatusTarget).textContent=message;
 };
 function saveDocument(name,content,type){
+ documentStatusTarget=name==="registro-habitos-respaldo.zip"?"document-status":"analysis-status";
  const docs=window.AppDocuments;
  if(docs?.save){
-  $("document-status").textContent="Elegí dónde guardar el archivo.";
+  $(documentStatusTarget).textContent="Elegí dónde guardar el archivo.";
   docs.save(name,content,type);
   return;
  }
@@ -460,7 +462,7 @@ function saveDocument(name,content,type){
  const link=el("a");link.href=url;link.download=name;document.body.append(link);
  link.click();link.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1500);
- $("document-status").textContent="Descarga solicitada.";
+ $(documentStatusTarget).textContent="Descarga solicitada.";
 }
 function addReminderTimeRow(value=""){
  const list=$("reminder-times"),row=el("div","reminder-time-row");
@@ -681,7 +683,7 @@ function handleDeviceBack(){
   return true;
  }
  const page=document.querySelector(".screen.active")?.id;
- if(["categories","summary","data","about"].includes(page)){
+ if(["categories","summary","backup","analysis","about"].includes(page)){
   show("more");
   return true;
  }

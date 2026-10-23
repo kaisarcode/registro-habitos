@@ -27,7 +27,7 @@ grep -q 'meta name="app-version-code"' "$PAGE"
 grep -Fq 'APP_VERSION="0.3.1"' "$ROOT/build.sh"
 grep -Fq 's/@APP_VERSION@/$APP_VERSION/g' "$ROOT/build.sh"
 grep -Fq -- '--version-name "$APP_VERSION"' "$ROOT/build.sh"
-grep -Fq '["categories","summary","data","about"].includes(page)' "$PAGE"
+grep -Fq '["categories","summary","backup","analysis","about"].includes(page)' "$PAGE"
 grep -Fq '$("back").onclick=handleDeviceBack' "$PAGE"
 grep -q 'id="capture-save"' "$PAGE"
 grep -q 'id="capture-text"' "$PAGE"
@@ -206,6 +206,15 @@ grep -q 'id="categories"' "$PAGE"
 grep -q 'id="export-json"' "$PAGE"
 grep -q 'id="export-csv"' "$PAGE"
 grep -q 'id="backup-save"' "$PAGE"
+grep -q 'id="backup" class="screen"' "$PAGE"
+grep -q 'id="analysis" class="screen"' "$PAGE"
+grep -q 'data-page="backup"' "$PAGE"
+grep -q 'data-page="analysis"' "$PAGE"
+grep -q 'id="analysis-status"' "$PAGE"
+if grep -q 'data-page="data"' "$PAGE"; then
+    echo "Old combined menu remains" >&2
+    exit 1
+fi
 grep -Fq 'async function backupFileText(file)' "$PAGE"
 grep -q 'deflate-raw' "$PAGE"
 grep -q 'MAX_BACKUP_JSON_BYTES' "$PAGE"
@@ -284,7 +293,7 @@ const back=new Function("$","document","window","show","showAppDialog","closeEnt
 );
 if(back()!==true||activePage!=="capture"||lastConfirm!==null)
  throw Error("Back from secondary screen must go home");
-for(const settingsPage of ["categories","summary","data","about"]){
+for(const settingsPage of ["categories","summary","backup","analysis","about"]){
  activePage=settingsPage;lastConfirm=null;
  if(back()!==true||activePage!=="more"||lastConfirm!==null)
   throw Error("Back from "+settingsPage+" must return to Más");

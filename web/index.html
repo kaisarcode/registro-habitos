@@ -123,7 +123,7 @@
  <div id="reminder-times" class="reminder-times-list" aria-label="Horarios del recordatorio"></div>
  <button id="reminder-add-time" type="button" class="reminder-add-time">+ Agregar horario</button>
 </div><label>Frecuencia<select id="reminder-repeat"><option value="daily">Todos los días</option><option value="weekdays">Días de semana</option><option value="once">Una vez</option></select></label><label>Sonido<select id="reminder-sound"><option value="glock">Glockenspiel</option><option value="alert">Notificación suave</option><option value="none">Silencioso</option></select></label><div class="sound-preview"><button id="preview-sound" type="button" class="secondary">▶ Escuchar audio</button><label>Volumen de vista previa <input id="preview-volume" type="range" min="0" max="60" value="25"></label><button id="test-notification" type="button" class="utility-button">Probar notificación del sistema</button><button id="test-closed-notification" type="button" class="utility-button">Probar con la app cerrada</button></div><p class="muted">Sin avisos anticipados. Android usa el volumen de notificaciones del teléfono.</p><p id="reminder-dialog-status" class="muted" role="status"></p><div class="reminder-dialog-footer"><div class="reminder-dialog-actions"><button id="reminder-cancel" type="button" class="secondary">Cancelar</button><button id="reminder-confirm" type="button" class="main-button">Guardar</button></div><button id="reminder-delete" type="button" class="reminder-delete-action hidden">Eliminar</button></div></form></dialog></section>
-<section id="data" class="screen">
+<section id="backup" class="screen">
  <article class="panel">
   <h2>Respaldo y restauración</h2>
   <p>Guardá una copia completa fuera de la app, por ejemplo en Descargas. El archivo permanece aunque desinstales Registro Hábitos.</p>
@@ -132,15 +132,18 @@
   <input type="file" id="import-file" accept=".zip,.json,application/zip,application/json" hidden>
   <p class="muted">Incluye hábitos, categorías, imágenes, recordatorios y preferencias. Al restaurar, los registros existentes se conservan.</p>
  </article>
+ <p id="document-status" class="muted" role="status"></p>
+</section>
+<section id="analysis" class="screen">
  <article class="panel">
   <h2>Exportar para análisis</h2>
   <p>Exportá solamente tus registros de hábitos, sin configuraciones ni recordatorios. Podés usarlos en otras herramientas o compartir el archivo con ChatGPT.</p>
   <button id="export-json" type="button" class="utility-button">Exportar hábitos JSON</button>
   <button id="export-csv" type="button" class="utility-button">Exportar hábitos CSV</button>
  </article>
- <p id="document-status" class="muted" role="status"></p>
+ <p id="analysis-status" class="muted" role="status"></p>
 </section>
-<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="data">Importar / Exportar <span>›</span></button><button class="menu-item" data-page="about">Acerca de <span>›</span></button><article class="panel sensory-preferences">
+<section id="more" class="screen"><button class="menu-item" data-page="categories">Categorías <span>›</span></button><button class="menu-item" data-page="summary">Resumen <span>›</span></button><button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button><button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button><button class="menu-item" data-page="about">Acerca de <span>›</span></button><article class="panel sensory-preferences">
  <h2>Preferencias sensoriales</h2>
  <label class="sensory-setting" for="reduced-motion">
   <span>Sin animaciones</span>
