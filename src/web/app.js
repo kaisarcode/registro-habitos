@@ -357,22 +357,28 @@ function populateDurationParts(prefix,total){
     $(prefix+"-minutes").value=total==null?"":String(total%60);
 }
 
-/** End and duration are alternatives: changing one updates the other. */
+/** End and duration are alternatives: the most recently edited one wins. */
 const timeInputMode={entry:"none",edit:"none"};
 function updateTimeEditor(prefix,source){
     const endField=$(prefix+"-end-at");
     if(source==="duration"){
-        // A manually entered duration keeps the end optional and unspecified.
+        // Manual duration never invents a finishing time.
         if(endField.value)endField.value="";
-        timeInputMode[prefix]=readDurationParts(prefix)===null?"none":"duration";
+        try{
+            timeInputMode[prefix]=readDurationParts(prefix)===null?"none":"duration";
+        }catch(_){
+            // The field can be temporarily incomplete while the user types;
+            // validate it when saving rather than throwing from an input event.
+            timeInputMode[prefix]="duration";
+        }
         return;
     }
-    if(source==="end")timeInputMode[prefix]=endField.value?"end":"none";
+    if(source==="end"){
+        const previous=timeInputMode[prefix];
+        timeInputMode[prefix]=endField.value?"end":"none";
+        if(!endField.value && previous==="end")populateDurationParts(prefix,null);
+    }
     if(timeInputMode[prefix]!=="end")return;
-    if(!endField.value){
-        populateDurationParts(prefix,null);
-        return;
-    }
     try{
         const minutes=Math.round((selectedDateTime(prefix,"end")-selectedDateTime(prefix,"start"))/60000);
         populateDurationParts(prefix,minutes>0?minutes:null);
