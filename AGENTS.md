@@ -1,6 +1,6 @@
 # registro-habitos agent instructions
 
-Work on the existing `slave` branch. Do not modify the separate `kcapk` or `kclib` repositories when changing this app.
+Work on the `devel` branch. Do not modify the separate `kcapk` or `kclib` repositories when changing this app.
 
 Follow KaisarCode composition-first conventions: each capability is independent; UI, persistence, categorization, alarms, voice capture and export are separate operations with explicit contracts. Reuse existing kclibs without making them depend on each other. Keep original entry text, timestamps and user corrections authoritative. Never block capture on categorization.
 

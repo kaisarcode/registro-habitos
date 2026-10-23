@@ -9,28 +9,26 @@ if [ "${1:-}" = "--prepare-only" ]; then
     shift
 fi
 
-WEB_OUT="$ROOT/build/web"
+WEB_OUT="$ROOT/.build/web"
 # Never carry stale assets from an earlier build into the new APK.
 # build/web is generated output, not a source directory.
 rm -rf "$WEB_OUT"
 mkdir -p "$WEB_OUT"
-cp -R "$ROOT/web/." "$WEB_OUT/"
-cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"
+cp -R "$ROOT/src/web/." "$WEB_OUT/"
+cp "$ROOT/src/assets/icon.svg" "$WEB_OUT/icon.svg"
 # The KCAPK integration test uses classic, inline JavaScript in a local HTML
 # page. Match that tested loading pattern instead of using ES modules from file:.
-# Regenerate the source bundle as well: direct KCAPK builds pointing at
-# web/index.html must never package a stale JavaScript file.
+# Bundle inside .build; source files must remain untouched.
 {
     printf '%s\n' '// Generated bundle from storage, classifier, reminders and app modules.'
-    sed 's/^export const storage =/const storage =/' "$ROOT/web/storage.js"
-    sed 's/^export function suggestCategory/function suggestCategory/' "$ROOT/web/classifier.js"
-    cat "$ROOT/web/reminders.js"
-    cat "$ROOT/web/backup-zip.js"
-    sed 's/^export const ICON_NAMES/const ICON_NAMES/;s/^export const categoryStore/const categoryStore/' "$ROOT/web/categories.js"
-    sed '/^import /d' "$ROOT/web/app.js"
-    cat "$ROOT/web/i18n.js"
-} > "$ROOT/web/app.bundle.js"
-cp "$ROOT/web/app.bundle.js" "$WEB_OUT/app.bundle.js"
+    sed 's/^export const storage =/const storage =/' "$ROOT/src/web/storage.js"
+    sed 's/^export function suggestCategory/function suggestCategory/' "$ROOT/src/web/classifier.js"
+    cat "$ROOT/src/web/reminders.js"
+    cat "$ROOT/src/web/backup-zip.js"
+    sed 's/^export const ICON_NAMES/const ICON_NAMES/;s/^export const categoryStore/const categoryStore/' "$ROOT/src/web/categories.js"
+    sed '/^import /d' "$ROOT/src/web/app.js"
+    cat "$ROOT/src/web/i18n.js"
+} > "$WEB_OUT/app.bundle.js"
 # Keep the source template useful in browsers, but package a single inline
 # script in the APK so startup cannot depend on a secondary JS file load.
 awk -v bundle="$WEB_OUT/app.bundle.js" '
@@ -44,7 +42,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
     }
     { print }
     END { if (!found) exit 1 }
-' "$ROOT/web/index.html" > "$WEB_OUT/app.html"
+' "$ROOT/src/web/index.html" > "$WEB_OUT/app.html"
 # Embed the commit ID and use a monotonically increasing Android versionCode.
 # Reusing the same versionCode across many APK updates makes device diagnosis
 # difficult and can result in stale copies being installed. The version code is
@@ -62,7 +60,7 @@ sed -e "s/@APP_BUILD@/$APP_BUILD/g" -e "s/@APP_VERSION_CODE@/$VERSION_CODE/g" -e
 mv "$WEB_OUT/app.versioned.html" "$WEB_OUT/app.html"
 printf 'Bundled app revision: %s\n' "$APP_BUILD"
 # The original file:///android_asset/index.html can read older IndexedDB.
-cp "$ROOT/web/migrate.html" "$WEB_OUT/index.html"
+cp "$ROOT/src/web/migrate.html" "$WEB_OUT/index.html"
 
 if [ "$PREPARE_ONLY" = true ]; then
     printf 'Prepared local WebView page: %s\n' "$WEB_OUT/index.html"
@@ -74,21 +72,21 @@ if [ ! -f "$KCAPK_DIR/build.sh" ]; then
 fi
 # Stage only KCAPK's build sources and apply app-specific integration.
 # The KCAPK repository itself is never changed.
-KCAPK_STAGE="$ROOT/build/kcapk-voice"
+KCAPK_STAGE="$ROOT/.build/kcapk-voice"
 mkdir -p "$KCAPK_STAGE"
 rm -rf "$KCAPK_STAGE/src"
 cp -R "$KCAPK_DIR/src" "$KCAPK_STAGE/src"
 cp "$KCAPK_DIR/build.sh" "$KCAPK_STAGE/build.sh"
-cp "$ROOT/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/native/AppNavigationBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/native/AppDocumentBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/native/AppSoundPreview.java.in" "$KCAPK_STAGE/src/templates/java/"
-cp "$ROOT/native/AlarmReceiver.java.in" "$KCAPK_STAGE/src/templates/java/AlarmReceiver.java.in"
+cp "$ROOT/src/native/AppWebChromeClient.java.in" "$KCAPK_STAGE/src/templates/java/"
+cp "$ROOT/src/native/AppNavigationBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
+cp "$ROOT/src/native/AppDocumentBridge.java.in" "$KCAPK_STAGE/src/templates/java/"
+cp "$ROOT/src/native/AppSoundPreview.java.in" "$KCAPK_STAGE/src/templates/java/"
+cp "$ROOT/src/native/AlarmReceiver.java.in" "$KCAPK_STAGE/src/templates/java/AlarmReceiver.java.in"
 # Include the user's quiet sounds as native Android resources so an alarm
 # rings through a system notification even when the WebView is not running.
 mkdir -p "$KCAPK_STAGE/src/templates/res/raw"
-cp "$ROOT/web/sounds/glock.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_glock.mp3"
-cp "$ROOT/web/sounds/alert.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_alert.mp3"
+cp "$ROOT/src/web/sounds/glock.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_glock.mp3"
+cp "$ROOT/src/web/sounds/alert.mp3" "$KCAPK_STAGE/src/templates/res/raw/registro_alert.mp3"
 python3 "$ROOT/scripts/patch-kcapk.py" "$KCAPK_STAGE/src/templates/java"
 cd "$KCAPK_STAGE"
 sh ./build.sh \
@@ -96,11 +94,11 @@ sh ./build.sh \
     --project-name registro-habitos \
     --package-name com.kaisarcode.registrohabitos \
     --webview-url "$WEB_OUT/index.html" \
-    --output-path "$ROOT/build/android" \
+    --output-path "$ROOT/.build/android" \
     --background '#151a20' \
     --version-code "$VERSION_CODE" \
     --version-name "$APP_VERSION" \
-    --icon "$ROOT/assets/launcher-icon.svg" \
+    --icon "$ROOT/src/assets/launcher-icon.svg" \
     --icon-background '#102a30' \
     --api alarms \
     --api notifications \
@@ -114,8 +112,8 @@ sh ./build.sh \
     --trusted-origin https://appassets.androidplatform.net \
     "$@"
 
-APK_BUILT="$ROOT/build/android/bin/registro-habitos.apk"
-APK_OUTPUT="$ROOT/registro-habitos.apk"
+APK_BUILT="$ROOT/.build/android/bin/registro-habitos.apk"
+APK_OUTPUT="$ROOT/bin/registro-habitos.apk"
 if [ ! -s "$APK_BUILT" ]; then
     printf 'Error: KCAPK did not produce %s\n' "$APK_BUILT" >&2
     exit 1
@@ -131,6 +129,7 @@ if ! unzip -Z1 "$APK_BUILT" | grep -qx 'AndroidManifest.xml' ||
     printf 'Error: APK is missing its manifest or classes.dex\n' >&2
     exit 1
 fi
+mkdir -p "$ROOT/bin"
 cp "$APK_BUILT" "$APK_OUTPUT"
 printf 'APK: %s\n' "$APK_OUTPUT"
 wc -c < "$APK_OUTPUT" | awk '{printf "APK size: %s bytes\n", $1}'

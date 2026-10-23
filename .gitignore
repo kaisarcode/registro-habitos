@@ -1,3 +1,7 @@
+/.build/
+/bin/
+
+# Legacy build outputs, kept ignored after migration.
 /build/
 /registro-habitos.apk
 /web/app.bundle.js

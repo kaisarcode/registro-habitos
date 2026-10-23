@@ -4,7 +4,7 @@ Registro personal de actividades y estados para seguimiento cotidiano y terapia 
 
 ## Ejecutar la interfaz
 
-Abrir `web/index.html` en un navegador moderno. `build.sh` genera `build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
+Para ver la interfaz en un navegador, ejecutar `./build.sh --prepare-only` y abrir `.build/web/app.html`. `src/web/index.html` es una plantilla de código fuente, no una página autónoma. `build.sh` genera `.build/web/app.html` con JavaScript clásico **inline**, siguiendo el patrón funcional de `kcapk/tests/index.html`. La fuente sigue separada en módulos mantenibles; el APK no usa imports de ES modules desde `file:///android_asset/`. La app implementa el diseño móvil con captura rápida, historial, edición, categorías, resumen gráfico por período, recordatorios, opciones y exportación/importación JSON/CSV. Funciona sin servidor y utiliza **IndexedDB** como almacenamiento local principal. No hace falta SQLite para el uso previsto.
 
 El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador/WebView. En Android solicita primero el permiso de micrófono mediante `NativeBridge.Android.permissions`. La compatibilidad depende del WebView y del motor de voz instalado; si no existe, la escritura sigue funcionando. **El motor de voz del navegador puede enviar audio a un servicio remoto y requerir conexión**. La aplicación no envía audio por su cuenta ni utiliza servicios propios, pero el dictado no está garantizado como offline.
 
@@ -14,9 +14,9 @@ El dictado utiliza `SpeechRecognition` o `webkitSpeechRecognition` del navegador
 KCAPK_DIR=../kcapk ./build.sh
 ```
 
-`build.sh` usa la instalación externa de KCAPK. Copia temporalmente sus templates a `build/kcapk-voice/` y aplica allí un parche específico para el micrófono y los recursos locales; **no modifica el repositorio de KCAPK**. KCAPK debe estar instalado con su cadena de compilación Android. `python3` es necesario solamente al compilar para aplicar ese parche.
+`build.sh` usa la instalación externa de KCAPK. Copia temporalmente sus templates a `.build/kcapk-voice/` y aplica allí un parche específico para el micrófono y los recursos locales; **no modifica el repositorio de KCAPK**. KCAPK debe estar instalado con su cadena de compilación Android. `python3` es necesario solamente al compilar para aplicar ese parche.
 
-La compilación deja el resultado en **`registro-habitos.apk`**, directamente en la raíz del proyecto. Los archivos intermedios quedan en `build/`. El APK generado no se versiona en Git.
+La compilación deja el APK final en **`bin/registro-habitos.apk`**. Los archivos intermedios se generan exclusivamente en `.build/`. Ambos directorios están excluidos de Git; ningún bundle ni binario se escribe dentro de `src/`.
 
 ## Voz del navegador y migración de datos
 
@@ -28,10 +28,10 @@ Este cambio corrige la configuración de permisos y origen del WebView. La dispo
 
 ## Arquitectura
 
-- `web/app.js`: presentación, interacción y captura sin bloquearse por categorías.
-- `web/storage.js`: contrato de almacenamiento (actualmente IndexedDB; reemplazable por SQLite).
-- `web/classifier.js`: sugerencias reproducibles a partir del historial, con prioridad a correcciones manuales; no modifica datos silenciosamente.
-- `web/index.html` y `web/style.css`: vista oscura mobile-first.
+- `src/web/app.js`: presentación, interacción y captura sin bloquearse por categorías.
+- `src/web/storage.js`: contrato de almacenamiento (actualmente IndexedDB; reemplazable por SQLite).
+- `src/web/classifier.js`: sugerencias reproducibles a partir del historial, con prioridad a correcciones manuales; no modifica datos silenciosamente.
+- `src/web/index.html` y `src/web/style.css`: vista oscura mobile-first.
 - `build.sh`: integración con el builder externo de KCAPK.
 
 Cada registro preserva fecha del evento, fecha de creación, texto original, categoría opcional, energía y bienestar opcionales (0–10). Los datos no se sincronizan. La exportación sólo ocurre a pedido.
@@ -46,7 +46,7 @@ Para la categorización, comenzar con precedentes y perfiles de texto. `libtpm.c
 
 `liblng.c` ofrece detección local sin estado y resultados ordenados por puntuación heurística (no probabilidades). La composición nativa prevista es: detectar idioma → consultar el perfil de ese idioma → sugerir categoría mediante precedentes/`libtpm.c` y, opcionalmente, `libemb.c` + `libhnsw.c`. Mantener índices y perfiles separados por idioma, versión de modelo y perfil de usuario. Si no se detecta idioma con seguridad, conservar el idioma como desconocido y guardar de todos modos. Los textos cortos son especialmente ambiguos.
 
-`web/classifier.js` ya acepta un código de idioma y evita mezclar precedentes con idiomas distintos cuando ambos están identificados. **La conexión real con `liblng.c` aún no está implementada**; por ahora las reglas locales corresponden a español. El modelo BGE disponible en `libemb.c` está entrenado para inglés: puede evaluarse sobre español, sin suponer resultados equivalentes ni traducir automáticamente datos sensibles.
+`src/web/classifier.js` ya acepta un código de idioma y evita mezclar precedentes con idiomas distintos cuando ambos están identificados. **La conexión real con `liblng.c` aún no está implementada**; por ahora las reglas locales corresponden a español. El modelo BGE disponible en `libemb.c` está entrenado para inglés: puede evaluarse sobre español, sin suponer resultados equivalentes ni traducir automáticamente datos sensibles.
 
 ## Intercambio de datos
 
@@ -54,7 +54,7 @@ El botón **Exportar JSON** produce un respaldo con `version`, `exportedAt` y `e
 
 ## Interfaz, recursos y modo sin conexión
 
-Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build.sh` configura `assets/icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo. Al importar, las alarmas se vuelven a programar sólo con confirmación explícita. Las alarmas nativas necesitan permisos de notificación. El APK solicita el permiso especial **Alarmas y recordatorios** cuando el usuario crea o activa un recordatorio, si Android lo requiere. El receptor nativo programa el siguiente evento diario o de días hábiles después de cada entrega, independientemente del WebView, sin una ventana limitada a 28 días.
+Todo el HTML, CSS, JavaScript y el icono SVG se empaquetan localmente, sin CDN ni dependencias de red en ejecución. `build.sh` configura `src/assets/launcher-icon.svg` como icono del launcher, con espacio de seguridad para máscaras adaptativas. Se conserva el diseño oscuro, el botón principal grande, los detalles opcionales y una sección independiente para recordatorios. Los recordatorios se guardan en `localStorage` y se incluyen en el JSON de respaldo. Al importar, las alarmas se vuelven a programar sólo con confirmación explícita. Las alarmas nativas necesitan permisos de notificación. El APK solicita el permiso especial **Alarmas y recordatorios** cuando el usuario crea o activa un recordatorio, si Android lo requiere. El receptor nativo programa el siguiente evento diario o de días hábiles después de cada entrega, independientemente del WebView, sin una ventana limitada a 28 días.
 
 ## Límites de integración Android
 
@@ -69,9 +69,9 @@ La información puede contener datos sensibles: se mantiene local, sin telemetr�
 
 ## Comprobación de versión del APK
 
-La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador actualiza `web/app.bundle.js` para que compilaciones directas de `web/index.html` no usen un script viejo y empaqueta el HTML inline desde `build/web/app.html`. El overlay de Android usa `LOAD_NO_CACHE`, limpia únicamente la caché de recursos (sin borrar IndexedDB) y devuelve `Cache-Control: no-store` para los assets locales. El APK incrementa `versionCode` a `20261022`.
+La pantalla **Más** muestra la **Versión de interfaz** del commit empaquetado. El generador produce `.build/web/app.bundle.js` a partir de los módulos en `src/web/`, sin escribir archivos generados en `src/`, y empaqueta el HTML inline desde `.build/web/app.html`. El overlay de Android usa `LOAD_NO_CACHE`, limpia únicamente la caché de recursos (sin borrar IndexedDB) y devuelve `Cache-Control: no-store` para los assets locales. El APK incrementa `versionCode` a `20261022`.
 
-Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `slave` y con el nuevo `build.sh`. No desinstales ni borres datos para resolverlo.
+Si Recordatorios sigue mostrando dos títulos y el botón de tres puntos elimina, la instalación todavía contiene una versión anterior: desde este commit la fuente usa un único encabezado y un botón de edición `✎`. Verificá la versión en **Más** y que la compilación se haga desde `devel` y con el nuevo `build.sh`. No desinstales ni borres datos para resolverlo.
 
 ## Registro corporal y consumo
 
@@ -107,7 +107,7 @@ La solapa **Categorías** es un administrador, no un lanzador de registros. Perm
 
 El perfil se guarda en `localStorage` bajo `rh-category-profiles-v1`. La exportación JSON incluye `categoryProfiles`, incluidos los íconos personalizados codificados como datos; el CSV conserva los registros por nombre de categoría. Las palabras clave intervienen en la búsqueda y en la categorización automática local. Al renombrar una categoría, se actualizan sus registros asociados. Eliminarla la quita de la botonera y del administrador, **sin eliminar registros históricos**; los datos anteriores continúan accesibles desde Historial. Los nombres viejos almacenados en `rh-categories` siguen admitidos sin migración destructiva.
 
-Licencia de terceros: `web/third-party/LUCIDE_LICENSE.txt`.
+Licencia de terceros: `src/web/third-party/LUCIDE_LICENSE.txt`.
 
 ## Navegación Android y edición de listas
 
@@ -116,7 +116,7 @@ El botón físico Volver se maneja desde el WebView a través de `registroHabito
 
 ## Diagnóstico de instalación de APK
 
-El APK no descarga dependencias ni recursos de CDN. El script elimina los archivos generados de `build/web/` antes de empaquetar, comprueba la integridad ZIP del APK y muestra el tamaño final. Cada commit posterior al 45101558 incrementa automáticamente el `versionCode`, de modo que una actualización nueva no tenga el mismo identificador de versión que la anterior. `kcapk` firma con `~/.android/debug.keystore`: si se cambia de computadora, cuenta o keystore, Android puede rechazar la actualización sobre la instalación anterior por incompatibilidad de firma. **No desinstales la app sin exportar primero el respaldo JSON**, ya que los datos están guardados localmente. Si el instalador permanece en «Instalando», un log de PackageInstaller o una prueba con `adb install -r` permite obtener la causa concreta; el código web por sí solo no puede determinarla.
+El APK no descarga dependencias ni recursos de CDN. El script elimina los archivos generados de `.build/web/` antes de empaquetar, comprueba la integridad ZIP del APK y muestra el tamaño final. Cada commit posterior al 45101558 incrementa automáticamente el `versionCode`, de modo que una actualización nueva no tenga el mismo identificador de versión que la anterior. `kcapk` firma con `~/.android/debug.keystore`: si se cambia de computadora, cuenta o keystore, Android puede rechazar la actualización sobre la instalación anterior por incompatibilidad de firma. **No desinstales la app sin exportar primero el respaldo JSON**, ya que los datos están guardados localmente. Si el instalador permanece en «Instalando», un log de PackageInstaller o una prueba con `adb install -r` permite obtener la causa concreta; el código web por sí solo no puede determinarla.
 
 ## Acerca de y navegación de configuración
 

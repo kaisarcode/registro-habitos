@@ -3,17 +3,17 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 # Rebuild must discard stale generated resources, not package old leftovers.
-mkdir -p "$ROOT/build/web"
-printf 'stale\n' > "$ROOT/build/web/stale-asset-check.txt"
+mkdir -p "$ROOT/.build/web"
+printf 'stale\n' > "$ROOT/.build/web/stale-asset-check.txt"
 "$ROOT/build.sh" --prepare-only
-if [ -e "$ROOT/build/web/stale-asset-check.txt" ]; then
-    echo 'Previous build/web assets leaked into this build' >&2
+if [ -e "$ROOT/.build/web/stale-asset-check.txt" ]; then
+    echo 'Previous .build/web assets leaked into this build' >&2
     exit 1
 fi
 grep -Fq 'VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4' "$ROOT/build.sh"
 grep -Fq -- '--version-code "$VERSION_CODE"' "$ROOT/build.sh"
-PAGE="$ROOT/build/web/app.html"
-MIGRATOR="$ROOT/build/web/index.html"
+PAGE="$ROOT/.build/web/app.html"
+MIGRATOR="$ROOT/.build/web/index.html"
 test -s "$MIGRATOR"
 grep -q "appassets.androidplatform.net/app.html" "$MIGRATOR"
 test -s "$PAGE"
@@ -23,7 +23,7 @@ grep -q 'id="dark-mode" type="checkbox" role="switch" checked' "$PAGE"
 grep -Fq 'function applyDarkMode(enabled)' "$PAGE"
 grep -Fq 'darkMode:$("dark-mode").checked' "$PAGE"
 grep -Fq 'backup.preferences.darkMode' "$PAGE"
-grep -Fq 'html.theme-light' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light' "$ROOT/src/web/style.css"
 grep -q 'id="about-build"' "$PAGE"
 grep -q 'data-page="about"' "$PAGE"
 grep -q 'href="https://kaisarcode.com"' "$PAGE"
@@ -68,11 +68,11 @@ grep -q 'id="li-toilet"' "$PAGE"
 grep -q 'const categoryStore =' "$PAGE"
 grep -q 'function saveCategoryEditor()' "$PAGE"
 grep -q 'function deleteCategory(name,count)' "$PAGE"
-grep -q 'onShowFileChooser' "$ROOT/native/AppWebChromeClient.java.in"
-grep -q 'params.getAcceptTypes()' "$ROOT/native/AppWebChromeClient.java.in"
-grep -q 'Intent.ACTION_OPEN_DOCUMENT' "$ROOT/native/AppWebChromeClient.java.in"
-grep -q 'imagesOnly ? "image/\\*" : "\\*/\\*"' "$ROOT/native/AppWebChromeClient.java.in"
-grep -q 'Elegir respaldo ZIP' "$ROOT/native/AppWebChromeClient.java.in"
+grep -q 'onShowFileChooser' "$ROOT/src/native/AppWebChromeClient.java.in"
+grep -q 'params.getAcceptTypes()' "$ROOT/src/native/AppWebChromeClient.java.in"
+grep -q 'Intent.ACTION_OPEN_DOCUMENT' "$ROOT/src/native/AppWebChromeClient.java.in"
+grep -q 'imagesOnly ? "image/\\*" : "\\*/\\*"' "$ROOT/src/native/AppWebChromeClient.java.in"
+grep -q 'Elegir respaldo ZIP' "$ROOT/src/native/AppWebChromeClient.java.in"
 grep -q 'onActivityResult(requestCode, resultCode, data)' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
@@ -88,17 +88,17 @@ grep -Fq '"cancel",stopVoice' "$PAGE"
 grep -Fq 'session.committed = [session.committed,finalized]' "$PAGE"
 
 # Modals must never expand the phone viewport, including with keyboard open.
-grep -Fq 'max-width:calc(100vw - 24px)' "$ROOT/web/style.css"
-grep -Fq 'max-height:calc(100svh - 24px)' "$ROOT/web/style.css"
-grep -Fq 'overscroll-behavior:contain' "$ROOT/web/style.css"
-grep -Fq 'dialog input,dialog textarea,dialog select' "$ROOT/web/style.css"
+grep -Fq 'max-width:calc(100vw - 24px)' "$ROOT/src/web/style.css"
+grep -Fq 'max-height:calc(100svh - 24px)' "$ROOT/src/web/style.css"
+grep -Fq 'overscroll-behavior:contain' "$ROOT/src/web/style.css"
+grep -Fq 'dialog input,dialog textarea,dialog select' "$ROOT/src/web/style.css"
 
 grep -q 'id="reduced-motion" type="checkbox" role="switch" checked' "$PAGE"
 grep -q 'class="sensory-switch-track"' "$PAGE"
 grep -q 'const reducedMotionKey="registro-habitos-reduced-motion"' "$PAGE"
 grep -q 'reducedMotionInput.onchange' "$PAGE"
-grep -Fq '.sensory-preferences .sensory-setting input:checked + .sensory-switch-track' "$ROOT/web/style.css"
-grep -Fq '.sensory-preferences .sensory-setting input[type=checkbox]' "$ROOT/web/style.css"
+grep -Fq '.sensory-preferences .sensory-setting input:checked + .sensory-switch-track' "$ROOT/src/web/style.css"
+grep -Fq '.sensory-preferences .sensory-setting input[type=checkbox]' "$ROOT/src/web/style.css"
 grep -q 'id="entry-status"' "$PAGE"
 for prefix in entry edit; do
     grep -q "id=\"$prefix-hours\"" "$PAGE"
@@ -114,7 +114,7 @@ grep -q 'id="add-entry"' "$PAGE"
 grep -q 'id="undo-quick"' "$PAGE"
 grep -q 'id="dismiss-feedback"' "$PAGE"
 grep -q 'class="entry-modal-actions"' "$PAGE"
-if grep -q '#capture-save{display:block;width:100%;margin-top:46px' "$ROOT/web/style.css"; then
+if grep -q '#capture-save{display:block;width:100%;margin-top:46px' "$ROOT/src/web/style.css"; then
  echo 'Old button margin breaks alignment' >&2
  exit 1
 fi
@@ -153,8 +153,8 @@ if grep -q 'Guardar cambios' "$PAGE"; then
     echo "Edit action must be labeled Guardar" >&2
     exit 1
 fi
-grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/web/style.css"
-grep -Fq '#edit-dialog .edit-modal-actions>button' "$ROOT/web/style.css"
+grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/src/web/style.css"
+grep -Fq '#edit-dialog .edit-modal-actions>button' "$ROOT/src/web/style.css"
 
 grep -q 'id="reminder-confirm"' "$PAGE"
 grep -q 'class="reminder-dialog-footer"' "$PAGE"
@@ -163,8 +163,8 @@ grep -q 'id="reminder-cancel" type="button" class="secondary">Cancelar' "$PAGE"
 grep -q 'id="reminder-confirm" type="button" class="main-button">Guardar' "$PAGE"
 grep -q 'id="reminder-delete" type="button" class="reminder-delete-action hidden"' "$PAGE"
 grep -Fq '$("reminder-confirm").textContent="Guardar";' "$PAGE"
-grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/web/style.css"
-grep -Fq '#reminder-dialog .reminder-dialog-actions>button' "$ROOT/web/style.css"
+grep -Fq 'grid-template-columns:minmax(0,1fr) minmax(0,1fr)' "$ROOT/src/web/style.css"
+grep -Fq '#reminder-dialog .reminder-dialog-actions>button' "$ROOT/src/web/style.css"
 if grep -q 'id="reminder-confirm"[^>]*>Guardar cambios' "$PAGE"; then
     echo 'Reminder save button must be labeled Guardar' >&2
     exit 1
@@ -178,12 +178,12 @@ if grep -q 'id="test-closed-notification"' "$PAGE"; then
  exit 1
 fi
 grep -q -- '--permission exactAlarm' "$ROOT/build.sh"
-grep -q 'AlarmBridge.schedule(context, options, true)' "$ROOT/native/AlarmReceiver.java.in"
-grep -q 'JSONObject recurrence = scheduled.optJSONObject("recurrence")' "$ROOT/native/AlarmReceiver.java.in"
+grep -q 'AlarmBridge.schedule(context, options, true)' "$ROOT/src/native/AlarmReceiver.java.in"
+grep -q 'JSONObject recurrence = scheduled.optJSONObject("recurrence")' "$ROOT/src/native/AlarmReceiver.java.in"
 grep -q 'alarm_file = templates / "AlarmBridge.java.in"' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'id="reminder-dialog-status"' "$PAGE"
 grep -q 'function showAppDialog({' "$PAGE"
-if grep -Eq '(^|[^[:alnum:]_])(alert|confirm|prompt)[[:space:]]*\\(' "$ROOT/web/app.js"; then
+if grep -Eq '(^|[^[:alnum:]_])(alert|confirm|prompt)[[:space:]]*\\(' "$ROOT/src/web/app.js"; then
     echo 'Native JavaScript dialogs are not allowed in the app' >&2
     exit 1
 fi
@@ -210,14 +210,18 @@ grep -q 'window.registroHabitosBack=handleDeviceBack' "$PAGE"
 grep -q 'new AppNavigationBridge(this, webView)' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'webView.evaluateJavascript(' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'window.registroHabitosBack' "$ROOT/scripts/patch-kcapk.py"
-grep -q 'public void exitApp()' "$ROOT/native/AppNavigationBridge.java.in"
-grep -q '"/app.html".equals(uri.getPath())' "$ROOT/native/AppNavigationBridge.java.in"
+grep -q 'public void exitApp()' "$ROOT/src/native/AppNavigationBridge.java.in"
+grep -q '"/app.html".equals(uri.getPath())' "$ROOT/src/native/AppNavigationBridge.java.in"
 if grep -q '<section id="edit"' "$PAGE"; then
     echo "Edit should be an app dialog, not a separate screen" >&2
     exit 1
 fi
 # Verify the direct KCAPK entry point uses the same newly generated bundle.
-cmp "$ROOT/web/app.bundle.js" "$ROOT/build/web/app.bundle.js"
+test -s "$ROOT/.build/web/app.bundle.js"
+if [ -e "$ROOT/src/web/app.bundle.js" ]; then
+    echo 'Generated JavaScript leaked into the source directory' >&2
+    exit 1
+fi
 if grep -q 'id="reminder-new"' "$PAGE"; then
     echo 'Duplicate header detected in packaged UI' >&2
     exit 1
@@ -255,20 +259,20 @@ fi
 grep -Fq 'async function backupFileText(file)' "$PAGE"
 grep -q 'deflate-raw' "$PAGE"
 grep -q 'MAX_BACKUP_JSON_BYTES' "$PAGE"
-grep -Fq 'cat "$ROOT/web/backup-zip.js"' "$ROOT/build.sh"
+grep -Fq 'cat "$ROOT/src/web/backup-zip.js"' "$ROOT/build.sh"
 grep -Fq 'registro-habitos-respaldo.zip' "$PAGE"
 grep -Fq 'JSON.stringify(completeBackup())' "$PAGE"
-grep -q 'java.util.zip.ZipOutputStream' "$ROOT/native/AppDocumentBridge.java.in"
-grep -q 'application/zip' "$ROOT/native/AppDocumentBridge.java.in"
+grep -q 'java.util.zip.ZipOutputStream' "$ROOT/src/native/AppDocumentBridge.java.in"
+grep -q 'application/zip' "$ROOT/src/native/AppDocumentBridge.java.in"
 grep -q 'accept=".zip,application/zip,application/x-zip-compressed"' "$PAGE"
-grep -q 'Elegir respaldo ZIP' "$ROOT/native/AppWebChromeClient.java.in"
-grep -Fq 'zipOnly ? "application/zip"' "$ROOT/native/AppWebChromeClient.java.in"
+grep -q 'Elegir respaldo ZIP' "$ROOT/src/native/AppWebChromeClient.java.in"
+grep -Fq 'zipOnly ? "application/zip"' "$ROOT/src/native/AppWebChromeClient.java.in"
 grep -Fq 'Seleccioná un respaldo ZIP.' "$PAGE"
 grep -q 'id="document-status"' "$PAGE"
 grep -q 'function completeBackup()' "$PAGE"
 grep -q 'function analysisExport()' "$PAGE"
 grep -q 'window.registroDocumentResult=' "$PAGE"
-grep -q 'ACTION_CREATE_DOCUMENT' "$ROOT/native/AppDocumentBridge.java.in"
+grep -q 'ACTION_CREATE_DOCUMENT' "$ROOT/src/native/AppDocumentBridge.java.in"
 grep -q 'new AppDocumentBridge(this, webView)' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'AppDocumentBridge.java.in' "$ROOT/build.sh"
 grep -q 'id="import-json"' "$PAGE"
@@ -279,8 +283,8 @@ grep -Fq 'toggle.type="checkbox";toggle.setAttribute("role","switch");' "$PAGE"
 grep -Fq 'toggle.checked=item.enabled!==false;' "$PAGE"
 grep -Fq 'toggle.onchange=async()=>{' "$PAGE"
 grep -Fq 'const track=el("span","sensory-switch-track");' "$PAGE"
-grep -Fq '.reminder-item .reminder-switch input:checked + .sensory-switch-track' "$ROOT/web/style.css"
-if grep -Fq '.reminder-item button.on{' "$ROOT/web/style.css"; then
+grep -Fq '.reminder-item .reminder-switch input:checked + .sensory-switch-track' "$ROOT/src/web/style.css"
+if grep -Fq '.reminder-item button.on{' "$ROOT/src/web/style.css"; then
     echo 'Legacy circular reminder toggle CSS remains' >&2
     exit 1
 fi
@@ -294,10 +298,10 @@ fi
 if command -v node >/dev/null 2>&1; then
     # Check the generated application script rather than separately checking
     # modules that deliberately contain import/export declarations.
-    node --check "$ROOT/build/web/app.bundle.js"
+    node --check "$ROOT/.build/web/app.bundle.js"
     node - "$ROOT" <<'NODE'
 const fs=require("fs"), root=process.argv[2];
-const source=fs.readFileSync(root+"/web/app.js","utf8");
+const source=fs.readFileSync(root+"/src/web/app.js","utf8");
 const searchHelpers=source.slice(source.indexOf("function quickDescription("),source.indexOf("function drawDashboard(){"));
 const matching=new Function("categoryStore",searchHelpers+"; return matchesCategorySearch")({get:name=>({keywords:{
  "Tabaco":["fumar","fume","cigarrillo"],"Vapeo":["vapear","vaper"],
@@ -352,7 +356,7 @@ if(!back()||lastConfirm?.title!=="Salir de la app"||lastConfirm?.ok!=="Salir")
 systemDialog.open=true;
 if(!back()||systemDialog.open)throw Error("Back must cancel exit confirmation");
 // Profiles must survive local storage, allow renaming, archiving and imports.
-const categorySource=fs.readFileSync(root+"/web/categories.js","utf8")
+const categorySource=fs.readFileSync(root+"/src/web/categories.js","utf8")
   .replace(/^export const /gm,"const ");
 const profileStore=new Map();
 const local={getItem:key=>profileStore.get(key)||null,setItem:(key,value)=>profileStore.set(key,value)};
@@ -371,7 +375,7 @@ categories.categoryStore.remove("Cigarrillos");
 if(categories.categoryStore.names().includes("Cigarrillos"))throw Error("Removed category still selectable");
 categories.categoryStore.merge({"Mate":{"keywords":["cebando"],"icon":"coffee","color":"green"}});
 if(!categories.categoryStore.get("Mate").keywords.includes("cebando"))throw Error("Category profile import failed");
-const sourceClassifier=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
+const sourceClassifier=fs.readFileSync(root+"/src/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const guess=new Function(sourceClassifier+";return suggestCategory")();
 if(guess("Estuve cebando mate",[],null,[categories.categoryStore.get("Mate")])?.category!=="Mate")
  throw Error("Custom keyword does not drive automatic categorization");
@@ -401,7 +405,7 @@ duration.populateDurationParts("edit",245);
 if(get("edit-hours").value!=="4"||get("edit-minutes").value!=="5")throw Error("Historical duration not displayed");
 if(!source.includes('"startedAt","endedAt"'))throw Error("Existing historical fields no longer export");
 // Native alarm delivery must use audible Android channels, not WebView audio.
-const remindersSource=fs.readFileSync(root+"/web/reminders.js","utf8");
+const remindersSource=fs.readFileSync(root+"/src/web/reminders.js","utf8");
 const channels=[],alarms=[],notifications=[];
 const prefs=new Map();
 const store=new Function("window","localStorage",remindersSource+";return reminderStore")(
@@ -484,7 +488,7 @@ if(multiStore.list()[0].times?.[0]!=="12:00"||
  throw Error("Legacy single-time reminder was not migrated safely");
 })().catch(error=>{console.error(error);process.exitCode=1;});
 
-const file=fs.readFileSync(root+"/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
+const file=fs.readFileSync(root+"/src/web/classifier.js","utf8").replace("export function suggestCategory","function suggestCategory");
 const categorize=new Function(file+"; return suggestCategory")();
 const examples=[
  ["Fui al baño","Ir al baño"],["Hice pis","Ir al baño"],["Evacué","Ir al baño"],
@@ -503,19 +507,19 @@ echo 'Packaged WebView HTML smoke test passed'
 if grep -q 'id="preview-volume"' "$PAGE"; then echo "Preview volume slider remains" >&2; exit 1; fi
 grep -Fq 'window.AppSoundPreview.play(name)' "$PAGE"
 grep -Fq 'AppSoundPreview.java.in' "$ROOT/build.sh"
-grep -Fq 'AudioAttributes.USAGE_NOTIFICATION' "$ROOT/native/AppSoundPreview.java.in"
+grep -Fq 'AudioAttributes.USAGE_NOTIFICATION' "$ROOT/src/native/AppSoundPreview.java.in"
 
-grep -Fq '#reminder-dialog #reminder-repeat{padding-right:40px!important}' "$ROOT/web/style.css"
+grep -Fq '#reminder-dialog #reminder-repeat{padding-right:40px!important}' "$ROOT/src/web/style.css"
 
 # Light mode must override the home search's ID-specific dark background.
-grep -Fq 'html.theme-light #category-search,' "$ROOT/web/style.css"
-grep -Fq 'html.theme-light #capture-text,' "$ROOT/web/style.css"
-grep -Fq 'html.theme-light .entry-dialog,' "$ROOT/web/style.css"
-grep -Fq 'html.theme-light .quick-category,' "$ROOT/web/style.css"
-grep -Fq 'html.theme-light .add-entry-fab,' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light #category-search,' "$ROOT/src/web/style.css"
+grep -Fq 'html.theme-light #capture-text,' "$ROOT/src/web/style.css"
+grep -Fq 'html.theme-light .entry-dialog,' "$ROOT/src/web/style.css"
+grep -Fq 'html.theme-light .quick-category,' "$ROOT/src/web/style.css"
+grep -Fq 'html.theme-light .add-entry-fab,' "$ROOT/src/web/style.css"
 
 # Localized UI and locale selection are bundled without external libraries.
-grep -Fq 'cat "$ROOT/web/i18n.js"' "$ROOT/build.sh"
+grep -Fq 'cat "$ROOT/src/web/i18n.js"' "$ROOT/build.sh"
 grep -q 'id="app-language"' "$PAGE"
 grep -q 'function systemAppLanguage()' "$PAGE"
 grep -q 'function applyAppLanguage()' "$PAGE"
@@ -525,17 +529,17 @@ grep -Fq 'Escuchando… puedes hacer pausas.' "$PAGE"
 grep -Fq '.item-main strong' "$PAGE"
 
 # Translation must not rewrite unchanged text nodes in a mutation loop.
-grep -Fq 'if(next!==node.nodeValue)node.nodeValue=next;' "$ROOT/web/i18n.js"
-grep -Fq 'if(next!==value)node.setAttribute(attr,next);' "$ROOT/web/i18n.js"
+grep -Fq 'if(next!==node.nodeValue)node.nodeValue=next;' "$ROOT/src/web/i18n.js"
+grep -Fq 'if(next!==value)node.setAttribute(attr,next);' "$ROOT/src/web/i18n.js"
 
 # Main wrapper and outer canvas must have the same dark background.
-grep -Fq '.app{min-height:100dvh;max-width:560px;margin:auto;background:#0b1419;' "$ROOT/web/style.css"
-if grep -Fq 'background:linear-gradient(135deg,#0d171d,#091317 65%)' "$ROOT/web/style.css"; then echo "Wrapper gradient still present" >&2; exit 1; fi
+grep -Fq '.app{min-height:100dvh;max-width:560px;margin:auto;background:#0b1419;' "$ROOT/src/web/style.css"
+if grep -Fq 'background:linear-gradient(135deg,#0d171d,#091317 65%)' "$ROOT/src/web/style.css"; then echo "Wrapper gradient still present" >&2; exit 1; fi
 
 # Footer background spans the viewport; its content remains inside the app column.
 grep -q 'class="tabs-inner"' "$PAGE"
-grep -Fq '.tabs-inner{' "$ROOT/web/style.css"
-grep -Fq 'left:0;right:0;transform:none;width:100%;max-width:none;' "$ROOT/web/style.css"
+grep -Fq '.tabs-inner{' "$ROOT/src/web/style.css"
+grep -Fq 'left:0;right:0;transform:none;width:100%;max-width:none;' "$ROOT/src/web/style.css"
 
 # Summary categories and bars must count the identical selected date window.
 grep -Fq 'function summaryBuckets(records, selectedPeriod, now=new Date())' "$PAGE"
@@ -546,13 +550,13 @@ grep -Fq 'No hay registros en este período.' "$PAGE"
 # Home icon and consistent Android launcher label.
 grep -Fq 'id="home-app-icon"' "$PAGE"
 grep -Fq '$("home-app-icon").classList.toggle("hidden",page!=="capture");' "$PAGE"
-grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
+grep -Fq 'cp "$ROOT/src/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
 grep -Fq -- '--display-name "Registro de Hábitos"' "$ROOT/build.sh"
 
 # Adaptive launcher foreground has safe insets; UI still uses original artwork.
-grep -Fq -- '--icon "$ROOT/assets/launcher-icon.svg"' "$ROOT/build.sh"
-grep -Fq 'translate(61.44 61.44) scale(0.76)' "$ROOT/assets/launcher-icon.svg"
-grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
+grep -Fq -- '--icon "$ROOT/src/assets/launcher-icon.svg"' "$ROOT/build.sh"
+grep -Fq 'translate(61.44 61.44) scale(0.76)' "$ROOT/src/assets/launcher-icon.svg"
+grep -Fq 'cp "$ROOT/src/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
 
 grep -q 'id="help" class="screen"' "$PAGE"
 grep -Fq 'Un espacio para registrar tu día' "$PAGE"
