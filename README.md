@@ -123,7 +123,7 @@ El APK no descarga dependencias ni recursos de CDN. El script elimina los archiv
 
 ## Acerca de y navegacion de configuracion
 
-**Acerca de**, dentro de **Configuración**, reúne versión y `versionCode` del APK, revisión de compilación, autor **KaisarCode** y enlace externo a `https://kaisarcode.com`, junto con una sección **Ayuda** que explica el uso de la aplicación. No existe una pantalla o entrada independiente de Ayuda. Los metadatos se sustituyen durante `build.sh` y pueden consultarse sin conexión. Volver desde Acerca de regresa a Configuración.
+**Acerca de**, dentro de **Configuración**, presenta primero una caja introductoria sobre Registro de Hábitos (sin un bloque denominado Ayuda). Debajo muestra otra caja titulada **Info de aplicación** con versión, `versionCode` del APK, revisión de compilación, autor **KaisarCode** y enlace a `https://kaisarcode.com`. Los metadatos se sustituyen durante `build.sh` y pueden consultarse sin conexión. Volver desde Acerca de regresa a Configuración.
 
 ## Varios horarios por recordatorio
 
@@ -157,6 +157,6 @@ El idioma de la interfaz se elige en Más → Idioma (Sistema operativo, Españo
 
 ## Navegación principal y encabezado común
 
-Todas las vistas comparten un encabezado con el logo y nombre **Registro de Hábitos** y el engranaje de **Configuración**. Tocar la marca vuelve a Registro. En el pie hay cuatro pestañas: **Registro**, **Historial**, **Recordatorios** y **Categorías**. Las demás opciones se encuentran en Configuración; la sección Categorías ya no aparece allí. La ayuda se integra como sección de Acerca de, sin acceso independiente.
+Todas las vistas comparten un encabezado con el logo y nombre **Registro de Hábitos** y el engranaje de **Configuración**. Tocar la marca vuelve a Registro. En el pie hay cuatro pestañas: **Registro**, **Historial**, **Recordatorios** y **Categorías**. Las demás opciones se encuentran en Configuración; la sección Categorías ya no aparece allí. La presentación de la aplicación encabeza Acerca de; los datos de versión figuran debajo bajo **Info de aplicación**.
 
 Las vistas usan títulos pequeños y una descripción debajo; las flechas Volver permiten regresar desde las vistas secundarias a Configuración o desde las pestañas principales a Registro. El mismo botón flotante **+**, con ícono vectorial centrado, abre **Nueva entrada** en Registro, **Crear categoría** en Categorías y **Nuevo recordatorio** en Recordatorios. No se modifican datos ni preferencias guardadas.

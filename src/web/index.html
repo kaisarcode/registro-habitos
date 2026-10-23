@@ -206,18 +206,8 @@
 </section>
 
 <section id="about" class="screen">
- <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Información y guía de uso de la aplicación.</p></div></div>
- <article class="panel about-panel">
-  <dl class="about-details">
-   <div><dt>Versión</dt><dd id="about-version">—</dd></div>
-   <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
-   <div><dt>Autor</dt><dd>KaisarCode</dd></div>
-  </dl>
-  <a class="about-website" href="https://kaisarcode.com" rel="external">kaisarcode.com <span aria-hidden="true">↗</span></a>
- </article>
- <section class="about-help-section" aria-labelledby="about-help-title">
-  <h2 id="about-help-title">Ayuda</h2>
-  <article class="panel help-panel">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Conoce Registro de Hábitos y sus características.</p></div></div>
+ <article class="panel about-intro-panel">
   <h2>Un espacio para registrar tu día</h2>
   <p>Registro de Hábitos es una forma sencilla de recordar lo que haces, cómo te sientes y cómo cambia tu energía a lo largo del tiempo.</p>
   <h3>A tu ritmo</h3>
@@ -226,9 +216,17 @@
   <p>Tu historial y los resúmenes te ayudan a reconocer hábitos, descansos y cambios cotidianos. También puedes usar recordatorios con sonidos suaves.</p>
   <h3>Tus registros, a tu disposición</h3>
   <p>Los datos quedan en tu dispositivo. Puedes hacer una copia de seguridad y exportar tus registros cuando quieras utilizarlos en otras herramientas.</p>
-  <p class="help-closing">Un pequeño registro puede ayudarte a conocer mejor tus días.</p>
+  <p class="about-closing">Un pequeño registro puede ayudarte a conocer mejor tus días.</p>
  </article>
- </section>
+ <article class="panel about-panel">
+  <h2>Info de aplicación</h2>
+  <dl class="about-details">
+   <div><dt>Versión</dt><dd id="about-version">—</dd></div>
+   <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
+   <div><dt>Autor</dt><dd>KaisarCode</dd></div>
+  </dl>
+  <a class="about-website" href="https://kaisarcode.com" rel="external">kaisarcode.com <span aria-hidden="true">↗</span></a>
+ </article>
 </section>
 </main>
 <dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div class="time-editor" id="edit-time-editor">
