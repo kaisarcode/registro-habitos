@@ -238,6 +238,10 @@ grep -q 'id="analysis" class="screen"' "$PAGE"
 grep -q 'data-page="backup"' "$PAGE"
 grep -q 'data-page="analysis"' "$PAGE"
 grep -q 'id="analysis-status"' "$PAGE"
+grep -q 'id="analysis-from" type="date"' "$PAGE"
+grep -q 'id="analysis-to" type="date"' "$PAGE"
+grep -q 'function filteredAnalysisEntries()' "$PAGE"
+grep -Fq 'csv(selectedEntries)' "$PAGE"
 if grep -q 'data-page="data"' "$PAGE"; then
     echo "Old combined menu remains" >&2
     exit 1

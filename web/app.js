@@ -434,7 +434,7 @@ async function saveCapture(){
  }catch(error){$("entry-status").textContent="No se pudo guardar: "+error.message;}
  finally{quickSaving=false;$("capture-save").disabled=false;}
 }
-function csv(){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...entries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
+function csv(selectedEntries=entries){const cols=["id","occurredAt","startedAt","endedAt","createdAt","updatedAt","description","category","categorySource","energy","mood","duration","notes"];const esc=x=>'"'+String(x??"").replaceAll('"','""')+'"';return "\uFEFF"+[cols.join(","),...selectedEntries.map(e=>cols.map(k=>esc(e[k])).join(","))].join("\r\n")}
 function completeBackup(){
  const preferences={
   reducedMotion:$("reduced-motion").checked,
@@ -444,8 +444,29 @@ function completeBackup(){
   entries,reminders:reminderStore.list(),
   categories:customCategories(),categoryProfiles:categoryStore.export(),preferences};
 }
-function analysisExport(){
- return {version:1,kind:"registro-habitos-analysis",exportedAt:new Date().toISOString(),entries};
+function filteredAnalysisEntries(){
+ const from=$("analysis-from").value,to=$("analysis-to").value;
+ if(from&&to&&from>to)throw Error("La fecha Desde no puede ser posterior a Hasta.");
+ const start=from?Date.parse(from+"T00:00:00"):null;
+ const end=to?Date.parse(to+"T00:00:00"):null;
+ return entries.filter(entry=>{
+  const stamp=Date.parse(entry.occurredAt||entry.createdAt||"");
+  if(!Number.isFinite(stamp))return !from&&!to;
+  if(start!==null&&stamp<start)return false;
+  if(end!==null&&stamp>=new Date(end).setDate(new Date(end).getDate()+1))return false;
+  return true;
+ });
+}
+function analysisExport(selectedEntries=filteredAnalysisEntries()){
+ return {version:1,kind:"registro-habitos-analysis",exportedAt:new Date().toISOString(),entries:selectedEntries};
+}
+function exportAnalysis(type){
+ try{
+  const selectedEntries=filteredAnalysisEntries();
+  if(!selectedEntries.length){$("analysis-status").textContent="No hay registros en ese período.";return;}
+  if(type==="json")saveDocument("registro-habitos-datos.json",JSON.stringify(analysisExport(selectedEntries),null,2),"application/json");
+  else saveDocument("registro-habitos-datos.csv",csv(selectedEntries),"text/csv");
+ }catch(error){$("analysis-status").textContent=error.message;}
 }
 let documentStatusTarget="document-status";
 window.registroDocumentResult=(ok,message)=>{
@@ -912,8 +933,8 @@ $("reminder-delete").onclick=async()=>{
  $("reminder-status").textContent="Recordatorio eliminado.";
 };
 $("backup-save").onclick=()=>saveDocument("registro-habitos-respaldo.zip",JSON.stringify(completeBackup()),"application/zip");
-$("export-json").onclick=()=>saveDocument("registro-habitos-datos.json",JSON.stringify(analysisExport(),null,2),"application/json");
-$("export-csv").onclick=()=>saveDocument("registro-habitos-datos.csv",csv(),"text/csv");
+$("export-json").onclick=()=>exportAnalysis("json");
+$("export-csv").onclick=()=>exportAnalysis("csv");
 $("import-json").onclick=()=>$("import-file").click();
 $("import-file").onchange=async e=>{
  const file=e.target.files?.[0];if(!file)return;

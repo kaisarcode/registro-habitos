@@ -146,6 +146,11 @@
  <article class="panel">
   <h2>Exportar para análisis</h2>
   <p>Exportá solamente tus registros de hábitos, sin configuraciones ni recordatorios. Podés usarlos en otras herramientas o compartir el archivo con ChatGPT.</p>
+  <div class="form-row analysis-date-range">
+   <label for="analysis-from">Desde<input id="analysis-from" type="date"></label>
+   <label for="analysis-to">Hasta<input id="analysis-to" type="date"></label>
+  </div>
+  <p class="muted">Dejá las fechas vacías para incluir todos los registros. Ambos días están incluidos.</p>
   <button id="export-json" type="button" class="utility-button">Exportar hábitos JSON</button>
   <button id="export-csv" type="button" class="utility-button">Exportar hábitos CSV</button>
  </article>
