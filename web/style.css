@@ -255,3 +255,40 @@ html.theme-light .entry-icon.grey{background:#e5edf1;color:#4f6b80}
 html.theme-light .category-grid button{background:#fff;color:#213941;border-color:#cbdadc}
 html.theme-light #edit-dialog .edit-delete-action{background:#fff0f1;color:#974752;border-color:#e6bec3}
 html.theme-light .bar-cell,html.theme-light .period-label{color:#526a73}
+
+
+/* All overlays stay inside the visual phone viewport. A long form scrolls
+   inside its dialog rather than increasing document width or height. */
+html,body{max-width:100%;overflow-x:clip}
+.app{width:100%;max-width:min(100%,560px);min-width:0;overflow-x:clip}
+dialog,
+#entry-dialog,
+#edit-dialog,
+#reminder-dialog,
+#category-dialog,
+#app-action-dialog{
+ box-sizing:border-box;
+ width:min(520px,calc(100vw - 24px));
+ max-width:calc(100vw - 24px);
+ max-height:calc(100dvh - 24px);
+ overflow-x:hidden;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ scrollbar-gutter:stable;
+}
+dialog > *,dialog form,dialog fieldset{box-sizing:border-box;max-width:100%;min-width:0}
+dialog input,dialog textarea,dialog select{box-sizing:border-box;max-width:100%;min-width:0}
+dialog .form-row,dialog .duration-parts,dialog .sound-preview,
+dialog .entry-modal-actions,dialog .edit-modal-actions,
+dialog .reminder-dialog-actions,dialog .category-editor-actions,
+dialog .app-action-buttons{max-width:100%;min-width:0}
+dialog button{min-width:0;overflow-wrap:anywhere}
+dialog p,dialog label,dialog .muted{overflow-wrap:anywhere}
+@supports (height:100svh){
+ dialog,
+ #entry-dialog,
+ #edit-dialog,
+ #reminder-dialog,
+ #category-dialog,
+ #app-action-dialog{max-height:calc(100svh - 24px)}
+}

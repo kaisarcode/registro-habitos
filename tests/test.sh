@@ -74,6 +74,12 @@ grep -q 'Elegir respaldo ZIP' "$ROOT/native/AppWebChromeClient.java.in"
 grep -q 'onActivityResult(requestCode, resultCode, data)' "$ROOT/scripts/patch-kcapk.py"
 grep -q 'function matchesCategorySearch(category,query)' "$PAGE"
 grep -q 'id="entry-dialog"' "$PAGE"
+# Modals must never expand the phone viewport, including with keyboard open.
+grep -Fq 'max-width:calc(100vw - 24px)' "$ROOT/web/style.css"
+grep -Fq 'max-height:calc(100svh - 24px)' "$ROOT/web/style.css"
+grep -Fq 'overscroll-behavior:contain' "$ROOT/web/style.css"
+grep -Fq 'dialog input,dialog textarea,dialog select' "$ROOT/web/style.css"
+
 grep -q 'id="reduced-motion" type="checkbox" role="switch" checked' "$PAGE"
 grep -q 'class="sensory-switch-track"' "$PAGE"
 grep -q 'const reducedMotionKey="registro-habitos-reduced-motion"' "$PAGE"
