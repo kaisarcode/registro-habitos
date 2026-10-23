@@ -1018,13 +1018,15 @@ async function startVoice(targetId = "capture-text") {
         voicePending = true;
         const requestId = ++voiceRequestId;
         try {
+            field.value="";
+            field.dispatchEvent(new Event("input",{bubbles:true}));
             voiceFeedback(targetId, "Abriendo el dictado de Android…");
             const text = await native.recognize({language:currentAppLanguage()==="es"?"es-AR":"en-US"});
             if(requestId!==voiceRequestId || !field.closest("dialog")?.open)return;
             if(text){
-    field.value=[field.value.trim(),String(text).trim()].filter(Boolean).join(" ");
+    field.value=String(text).trim();
     field.dispatchEvent(new Event("input",{bubbles:true}));
-    voiceFeedback(targetId,"Texto dictado agregado.");
+    voiceFeedback(targetId,"Texto dictado.");
             }else voiceFeedback(targetId,"Dictado cancelado.");
         }catch(error){
             if(requestId===voiceRequestId)voiceFeedback(targetId,"No se pudo dictar: "+(error.message||error));
@@ -1046,7 +1048,9 @@ async function startVoice(targetId = "capture-text") {
         }
         if(requestId!==voiceRequestId || !field.closest("dialog")?.open ||
             document.visibilityState==="hidden")return;
-        const session = {targetId,field,active:true,committed:field.value.trim(),restartTimer:null};
+        field.value="";
+        field.dispatchEvent(new Event("input",{bubbles:true}));
+        const session = {targetId,field,active:true,committed:"",restartTimer:null};
         voiceSession = session;
 
 /**
