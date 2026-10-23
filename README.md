@@ -83,9 +83,9 @@ La vista **Mi día** presenta las categorías como botones permanentes. Tocar un
 
 ## Horario: inicio y fin opcional
 
-Crear y editar usan el mismo selector de **Horario**, con un único campo combinado de fecha y hora para el **Inicio**, precargado con el momento actual. **Agregar fin** habilita, de forma opcional, otro campo combinado de fecha y hora para el **Fin**. En lugar de varios cuadros de fechas, horas y minutos, se muestra una sola duración calculada (por ejemplo, 7 h 45 min). El fin debe ser posterior al inicio y puede ser del día siguiente, como al registrar sueño nocturno. También sirve para siestas o actividades sin hora de finalización.
+Crear y editar usan un **Inicio** combinado de fecha y hora, precargado con el momento actual, y un campo **Fin** igualmente combinado que puede quedar vacío. **Duración** conserva sus campos rápidos y editables de **Horas** y **Minutos** (admite solamente minutos). Al completar el fin, se calculan las horas y minutos automáticamente; al editar la duración manualmente, el fin vuelve a quedar vacío para registrar inicio y duración sin inventar una hora de finalización. Si solo cambia el inicio de un intervalo con fin, se actualiza la duración; si se registra duración sin fin, esta se mantiene. Se admiten intervalos que cruzan la medianoche.
 
-`occurredAt` y `startedAt` guardan el inicio. Cuando se selecciona fin, `endedAt` guarda esa fecha y `duration` almacena la diferencia en minutos; sin fin, `endedAt` y `duration` quedan en `null`. El historial, el respaldo y las exportaciones JSON/CSV conservan estos campos, sin un esquema paralelo ni migraciones.
+`occurredAt` y `startedAt` guardan el inicio. Si se define fin, `endedAt` guarda el fin y `duration` contiene su diferencia en minutos. Si solo se define duración, `endedAt` queda en `null` y `duration` conserva los minutos ingresados. Con ambos vacíos, `endedAt` y `duration` quedan en `null`. El historial y las exportaciones JSON/CSV mantienen los mismos campos, sin migraciones.
 
 ## Botones del formulario
 

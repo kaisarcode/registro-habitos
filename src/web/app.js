@@ -328,7 +328,7 @@ function durationLabel(total){
     return h?(h+" h"+(m?" "+m+" min":"")):(m+" min");
 }
 
-/** Returns a local calendar date/time selected in the unified time editor. */
+/** Read one combined local date-time field, preserving local calendar times. */
 function selectedDateTime(prefix,point){
     const source=$(prefix+"-"+point+"-at").value;
     const label=point==="start"?"inicio":"fin";
@@ -339,41 +339,70 @@ function selectedDateTime(prefix,point){
     return value;
 }
 
-/** Present one compact, read-only duration instead of extra time fields. */
-function updateTimeEditor(prefix){
-    const enabled=$(prefix+"-end-enabled").checked;
-    $(prefix+"-end-fields").hidden=!enabled;
-    $(prefix+"-end-enabled").setAttribute("aria-expanded",String(enabled));
-    const preview=$(prefix+"-duration-preview");
-    preview.textContent="—";
-    if(!enabled)return;
+/** Read an optional manually entered duration in minutes. */
+function readDurationParts(prefix){
+    const rawHours=$(prefix+"-hours").value.trim();
+    const rawMinutes=$(prefix+"-minutes").value.trim();
+    if(rawHours==="" && rawMinutes==="")return null;
+    const hours=rawHours===""?0:Number(rawHours);
+    const minutes=rawMinutes===""?0:Number(rawMinutes);
+    if(!Number.isSafeInteger(hours)||hours<0||!Number.isInteger(minutes)||minutes<0||minutes>59)
+        throw Error("Usá horas positivas y minutos entre 0 y 59.");
+    return hours*60+minutes;
+}
+
+/** Display minutes in the two editable duration fields. */
+function populateDurationParts(prefix,total){
+    $(prefix+"-hours").value=total==null?"":String(Math.floor(total/60));
+    $(prefix+"-minutes").value=total==null?"":String(total%60);
+}
+
+/** End and duration are alternatives: changing one updates the other. */
+const timeInputMode={entry:"none",edit:"none"};
+function updateTimeEditor(prefix,source){
+    const endField=$(prefix+"-end-at");
+    if(source==="duration"){
+        // A manually entered duration keeps the end optional and unspecified.
+        if(endField.value)endField.value="";
+        timeInputMode[prefix]=readDurationParts(prefix)===null?"none":"duration";
+        return;
+    }
+    if(source==="end")timeInputMode[prefix]=endField.value?"end":"none";
+    if(timeInputMode[prefix]!=="end")return;
+    if(!endField.value){
+        populateDurationParts(prefix,null);
+        return;
+    }
     try{
-        const start=selectedDateTime(prefix,"start");
-        const end=selectedDateTime(prefix,"end");
-        const total=Math.round((end.getTime()-start.getTime())/60000);
-        if(total<=0)return;
-        preview.textContent=durationLabel(total);
-    }catch(_){ /* Wait until the optional end has been selected. */ }
+        const minutes=Math.round((selectedDateTime(prefix,"end")-selectedDateTime(prefix,"start"))/60000);
+        populateDurationParts(prefix,minutes>0?minutes:null);
+    }catch(_){
+        populateDurationParts(prefix,null);
+    }
 }
 
-/** Reuse the same combined date-and-time editor for creation and editing. */
-function populateTimeEditor(prefix,start,end=null){
+/** Set both editing paths from the stored start, optional end and duration. */
+function populateTimeEditor(prefix,start,end=null,duration=null){
     $(prefix+"-start-at").value=localTime(start);
-    $(prefix+"-end-enabled").checked=Boolean(end);
     $(prefix+"-end-at").value=end?localTime(end):"";
-    updateTimeEditor(prefix);
+    timeInputMode[prefix]=end?"end":duration!=null?"duration":"none";
+    populateDurationParts(prefix,end?null:duration);
+    if(end)updateTimeEditor(prefix,"end");
 }
 
-/** Store explicit start and optional end; duration is always derived. */
+/** Keep occurredAt aligned with the start, and preserve the chosen time mode. */
 function timeDetails(prefix){
     const start=selectedDateTime(prefix,"start");
     const startedAt=start.toISOString();
-    if(!$(prefix+"-end-enabled").checked)
-        return {occurredAt:startedAt,startedAt,endedAt:null,duration:null};
-    const end=selectedDateTime(prefix,"end");
-    if(end.getTime()<=start.getTime())throw Error("El fin debe ser posterior al inicio.");
-    const duration=Math.round((end.getTime()-start.getTime())/60000);
-    return {occurredAt:startedAt,startedAt,endedAt:end.toISOString(),duration};
+    const endInput=$(prefix+"-end-at").value;
+    if(endInput){
+        const end=selectedDateTime(prefix,"end");
+        if(end.getTime()<=start.getTime())
+            throw Error("El fin debe ser posterior al inicio.");
+        const duration=Math.round((end.getTime()-start.getTime())/60000);
+        return {occurredAt:startedAt,startedAt,endedAt:end.toISOString(),duration};
+    }
+    return {occurredAt:startedAt,startedAt,endedAt:null,duration:readDurationParts(prefix)};
 }
 
 /**
@@ -446,7 +475,7 @@ async function reload(){entries=await storage.list();drawHistory();drawCategorie
 function openEdit(e){
     current=e;mood=e.mood??null;
     $("edit-text").value=e.description;
-    populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt);
+    populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt,e.duration);
     categoryOptions();$("edit-category").value=canonicalCategory(e.category);
     $("edit-notes").value=e.notes||"";
     $("edit-energy-enabled").checked=e.energy!=null;$("edit-energy").value=e.energy??5;
@@ -1269,12 +1298,17 @@ $("cat-image").onchange=async event=>{
 };
 $("search").oninput=drawHistory;
 for(const prefix of ["entry","edit"]){
-    for(const point of ["start","end"]){
-        const field=$(prefix+"-"+point+"-at");
-        field.addEventListener("input",()=>updateTimeEditor(prefix));
-        field.addEventListener("change",()=>updateTimeEditor(prefix));
+    const start=$(prefix+"-start-at");
+    const end=$(prefix+"-end-at");
+    for(const event of ["input","change"]){
+        start.addEventListener(event,()=>updateTimeEditor(prefix,"start"));
+        end.addEventListener(event,()=>updateTimeEditor(prefix,"end"));
     }
-    $(prefix+"-end-enabled").addEventListener("change",()=>updateTimeEditor(prefix));
+    for(const part of ["hours","minutes"]){
+        const input=$(prefix+"-"+part);
+        input.addEventListener("input",()=>updateTimeEditor(prefix,"duration"));
+        input.addEventListener("change",()=>updateTimeEditor(prefix,"duration"));
+    }
 }
 
 $("edit-save").onclick=async()=>{
