@@ -521,3 +521,7 @@ grep -q 'language:languagePreference()' "$PAGE"
 
 grep -Fq 'Escuchando… puedes hacer pausas.' "$PAGE"
 grep -Fq '.item-main strong' "$PAGE"
+
+# Translation must not rewrite unchanged text nodes in a mutation loop.
+grep -Fq 'if(next!==node.nodeValue)node.nodeValue=next;' "$ROOT/web/i18n.js"
+grep -Fq 'if(next!==value)node.setAttribute(attr,next);' "$ROOT/web/i18n.js"

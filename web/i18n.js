@@ -28,13 +28,17 @@ const RH_SKIP='script,style,textarea,input,svg,code,pre,[contenteditable],.user-
 function translateNode(node,to){
  if(node.nodeType===3){
   if(node.parentElement?.closest(RH_SKIP))return;
-  node.nodeValue=translateLabel(node.nodeValue,to);
+  const next=translateLabel(node.nodeValue,to);
+  if(next!==node.nodeValue)node.nodeValue=next;
   return;
  }
  if(node.nodeType!==1||node.matches(RH_SKIP))return;
  for(const attr of ["placeholder","title","aria-label"]){
   const value=node.getAttribute(attr);
-  if(value)node.setAttribute(attr,translateLabel(value,to));
+  if(value){
+   const next=translateLabel(value,to);
+   if(next!==value)node.setAttribute(attr,next);
+  }
  }
  for(const child of node.childNodes)translateNode(child,to);
 }
