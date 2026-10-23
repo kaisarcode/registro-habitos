@@ -145,7 +145,7 @@ El selector de restauración de Android muestra únicamente archivos ZIP; el gua
 
 El switch **Modo oscuro** en Más → Preferencias sensoriales está activado por defecto. Desactivarlo aplica una paleta clara suave, también en los formularios y modales. Se guarda localmente y se incluye en el respaldo completo ZIP.
 
-El switch **Sin animaciones** controla las transiciones breves entre vistas, la apertura y cierre de modales y los cambios suaves de controles. Sin preferencia guardada, toma el valor de movimiento reducido de Android. `prefers-reduced-motion: reduce` del sistema siempre prevalece y desactiva las animaciones. La elección manual se guarda localmente y se incluye en el respaldo ZIP.
+El switch **Sin animaciones** controla las transiciones breves entre vistas, la apertura y cierre de modales y los cambios suaves de controles. Sin preferencia guardada, **Sin animaciones** está desactivado por defecto. `prefers-reduced-motion: reduce` del sistema sigue teniendo prioridad para desactivar las animaciones, sin modificar el estado del interruptor. La elección manual se guarda localmente y se incluye en el respaldo ZIP.
 
 El botón de prueba con la app cerrada fue retirado del formulario. La preescucha ahora inicia al 90 % y permite ajustar del 0 al 100 %, sin alterar el volumen de las notificaciones Android, que depende del canal y del teléfono.
 

@@ -1528,7 +1528,7 @@ const reducedMotionInput=$("reduced-motion");
 const reducedMotionKey="registro-habitos-reduced-motion";
 try{
     const stored=localStorage.getItem(reducedMotionKey);
-    reducedMotionInput.checked=stored!==null?stored==="true":Boolean(systemReducedMotion?.matches);
+    reducedMotionInput.checked=stored==="true";
 }catch(error){console.warn("Sensory preference unavailable",error);}
 document.documentElement.classList.toggle("reduce-motion",reducedMotionInput.checked);
 reducedMotionInput.onchange=()=>{
@@ -1536,11 +1536,6 @@ reducedMotionInput.onchange=()=>{
     try{localStorage.setItem(reducedMotionKey,String(reducedMotionInput.checked));}
     catch(error){console.warn("Unable to save sensory preference",error);}
 };
-systemReducedMotion?.addEventListener?.("change",event=>{
-    try{if(localStorage.getItem(reducedMotionKey)!==null)return;}catch(_){return;}
-    reducedMotionInput.checked=event.matches;
-    document.documentElement.classList.toggle("reduce-motion",event.matches);
-});
 const buildMeta=document.querySelector('meta[name="app-build"]')?.content || "desarrollo";
 const versionMeta=document.querySelector('meta[name="app-version"]')?.content || "desarrollo";
 const codeMeta=document.querySelector('meta[name="app-version-code"]')?.content || "";
