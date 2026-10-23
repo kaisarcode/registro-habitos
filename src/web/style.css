@@ -697,3 +697,11 @@ html.theme-light .category-grid .quick-category,html.theme-light .category-grid 
 #today-entries .history-item,.history-list .history-item{display:flex;width:100%;min-width:0;max-width:100%;overflow:hidden}
 #today-entries .history-item .item-main,.history-list .history-item .item-main{display:block;flex:1 1 0;min-width:0;max-width:100%;overflow:hidden}
 #today-entries .history-item .item-main strong,.history-list .history-item .item-main strong{display:block;width:100%;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* Keep every list inside its grid track. Intrinsic text width must never size a row. */
+.history-group,.history-group-items,.history-list,#today-entries,.category-item,.reminder-item{min-width:0;max-width:100%}
+.history-group-items,.history-list,#today-entries{grid-template-columns:minmax(0,1fr)}
+.history-item,.category-item,.reminder-item,.category-open,.reminder-open{min-width:0;max-width:100%}
+.history-item .item-main,.category-item .item-main,.reminder-item .item-main{flex:1 1 0;min-width:0;max-width:100%;overflow:hidden}
+.history-item .item-main strong,.category-item .item-main strong,.reminder-item .item-main strong{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-item .item-main small{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
