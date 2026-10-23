@@ -58,6 +58,69 @@ export const storage = {
         return entries.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
     },
 
+    /**
+     * Read one bounded History page, newest first, using the existing
+     * occurredAt index. Search terms are checked as the cursor advances:
+     * only matching records count toward the page size.
+     *
+     * after contains the last returned (occurredAt, id) pair. IndexedDB
+     * sorts duplicate index keys by primary key, so both fields are needed
+     * to avoid repeating/skipping entries sharing a timestamp.
+     */
+    async listPage({ limit = 25, after = null, from = null, to = null, query = "", category = "" } = {}) {
+        const size = Math.max(1, Math.min(100, Math.floor(limit) || 25));
+        const db = await connect();
+        const lower = from || null;
+        const upper = after ? after.occurredAt : (to || null);
+        const upperOpen = !after && Boolean(to);
+        if (lower && upper && (lower > upper || (lower === upper && upperOpen))) {
+            return { items: [], next: null, hasMore: false };
+        }
+        const range = lower && upper
+            ? IDBKeyRange.bound(lower, upper, false, upperOpen)
+            : lower ? IDBKeyRange.lowerBound(lower)
+                : upper ? IDBKeyRange.upperBound(upper, upperOpen) : null;
+        const needle = query.trim().toLocaleLowerCase("es-AR");
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(TABLE, "readonly");
+            const request = transaction.objectStore(TABLE).index("occurredAt").openCursor(range, "prev");
+            const items = [];
+            let settled = false;
+            const fail = error => { if (!settled) { settled = true; reject(error); } };
+            request.onerror = () => fail(request.error || new Error("Could not read history"));
+            transaction.onerror = () => fail(transaction.error || new Error("History transaction failed"));
+            transaction.onabort = () => fail(transaction.error || new Error("History transaction aborted"));
+            request.onsuccess = () => {
+                const cursor = request.result;
+                if (!cursor) {
+                    if (!settled) { settled = true; resolve({ items, next: null, hasMore: false }); }
+                    return;
+                }
+                const record = cursor.value;
+                // Descending traversal includes the boundary's timestamp.
+                // Skip the boundary and any already-seen duplicate keys.
+                if (after && cursor.key === after.occurredAt
+                    && String(cursor.primaryKey) >= String(after.id)) {
+                    cursor.continue();
+                    return;
+                }
+                const matches = (!category || record.category === category)
+                    && (!needle || [record.description, record.notes, record.category]
+                        .join(" ").toLocaleLowerCase("es-AR").includes(needle));
+                if (matches) {
+                    if (items.length === size) {
+                        const last = items[items.length - 1];
+                        settled = true;
+                        resolve({ items, next: { occurredAt: last.occurredAt, id: last.id }, hasMore: true });
+                        return;
+                    }
+                    items.push(record);
+                }
+                cursor.continue();
+            };
+        });
+    },
+
 /**
  * Provides the associated interface operation.
  * @return The operation result.
