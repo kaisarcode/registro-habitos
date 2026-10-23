@@ -73,11 +73,11 @@ function toast(message){const id=$("capture-status");if(id)id.textContent=messag
  */
 function show(page){
     if(voiceSession || voicePending)stopVoice();
-    ["capture","history","categories","summary","reminders","backup","analysis","settings","language","sensory","about","help"]
+    ["capture","history","categories","summary","reminders","backup","analysis","settings","language","sensory","about"]
         .forEach(id=>$(id).classList.toggle("active",id===page));
     document.querySelectorAll(".tabs button")
         .forEach(button=>button.classList.toggle("active",button.dataset.page===page));
-    const settingsPage=["settings","summary","backup","analysis","language","sensory","about","help"].includes(page);
+    const settingsPage=["settings","summary","backup","analysis","language","sensory","about"].includes(page);
     $("settings-button").classList.toggle("active",settingsPage);
     const actions={capture:"Nueva entrada",categories:"Crear categoría",reminders:"Nuevo recordatorio"};
     const action=$("add-entry"),label=actions[page];
@@ -1280,7 +1280,7 @@ function handleDeviceBack(){
         return true;
     }
     const page=document.querySelector(".screen.active")?.id;
-    if(["summary","backup","analysis","language","sensory","about","help"].includes(page)){
+    if(["summary","backup","analysis","language","sensory","about"].includes(page)){
         show("settings");
         return true;
     }

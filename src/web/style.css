@@ -534,3 +534,7 @@ html.theme-light .settings-button.active{background:#d8e9e5;color:#167f67}
 
 /* Leave room for the contextual floating action above the bottom navigation. */
 #categories,#reminders{padding-bottom:100px}
+
+/* User guide now lives within the About view. */
+.about-help-section{margin-top:22px}
+.about-help-section>h2{font-size:16px;font-weight:650;margin:0 0 12px}

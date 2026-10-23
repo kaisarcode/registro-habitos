@@ -7,7 +7,6 @@
 <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10ZM10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
 <symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
-<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-1.2 1-1.8 1.4-1.8 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1" fill="currentColor"/></symbol>
 <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10 2h4l1 3 3 1 3-1 2 4-2 2v3l2 2-2 4-3-1-3 1-1 3h-4l-1-3-3-1-3 1-2-4 2-2v-3L1 9l2-4 3 1 3-1z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
 <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="12" cy="3.5" r="2" fill="currentColor"/><path d="m11 7 4 4m-4-4-3 5-4 3m7-8 2 7-3 7m3-7 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
 <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 3v8m3-8v8M2 4v5q0 3 4 3v9M16 21V3q5 2 5 9v1h-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -180,7 +179,6 @@
  <button class="menu-item" data-page="summary">Resumen <span>›</span></button>
  <button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button>
  <button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button>
- <button class="menu-item" data-page="help">Ayuda <span>›</span></button>
  <button class="menu-item" data-page="about">Acerca de <span>›</span></button>
 </section>
 <section id="language" class="screen">
@@ -206,9 +204,20 @@
   </label>
  </article>
 </section>
-<section id="help" class="screen">
- <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Ayuda</h2><p>Descubre cómo registrar y consultar tus actividades.</p></div></div>
- <article class="panel help-panel">
+
+<section id="about" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Información y guía de uso de la aplicación.</p></div></div>
+ <article class="panel about-panel">
+  <dl class="about-details">
+   <div><dt>Versión</dt><dd id="about-version">—</dd></div>
+   <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
+   <div><dt>Autor</dt><dd>KaisarCode</dd></div>
+  </dl>
+  <a class="about-website" href="https://kaisarcode.com" rel="external">kaisarcode.com <span aria-hidden="true">↗</span></a>
+ </article>
+ <section class="about-help-section" aria-labelledby="about-help-title">
+  <h2 id="about-help-title">Ayuda</h2>
+  <article class="panel help-panel">
   <h2>Un espacio para registrar tu día</h2>
   <p>Registro de Hábitos es una forma sencilla de recordar lo que haces, cómo te sientes y cómo cambia tu energía a lo largo del tiempo.</p>
   <h3>A tu ritmo</h3>
@@ -219,17 +228,7 @@
   <p>Los datos quedan en tu dispositivo. Puedes hacer una copia de seguridad y exportar tus registros cuando quieras utilizarlos en otras herramientas.</p>
   <p class="help-closing">Un pequeño registro puede ayudarte a conocer mejor tus días.</p>
  </article>
-</section>
-<section id="about" class="screen">
- <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Información de la aplicación y su versión.</p></div></div>
- <article class="panel about-panel">
-  <dl class="about-details">
-   <div><dt>Versión</dt><dd id="about-version">—</dd></div>
-   <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
-   <div><dt>Autor</dt><dd>KaisarCode</dd></div>
-  </dl>
-  <a class="about-website" href="https://kaisarcode.com" rel="external">kaisarcode.com <span aria-hidden="true">↗</span></a>
- </article>
+ </section>
 </section>
 </main>
 <dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><textarea id="edit-text" rows="4" aria-label="Descripción"></textarea><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div class="time-editor" id="edit-time-editor">
