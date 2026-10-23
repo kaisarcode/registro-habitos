@@ -82,7 +82,10 @@ function show(page){
     const actions={capture:"Nueva entrada",categories:"Crear categoría",reminders:"Nuevo recordatorio"};
     const action=$("add-entry"),label=actions[page];
     action.classList.toggle("hidden",!label);
-    if(label){action.setAttribute("aria-label",label);action.title=label;}
+    if(label){
+        const translated=typeof translateLabel==="function"?translateLabel(label,currentAppLanguage()):label;
+        action.setAttribute("aria-label",translated);action.title=translated;
+    }
     if(page==="capture")drawDashboard();
     if(page==="history")drawHistory();
     if(page==="categories")drawCategories();

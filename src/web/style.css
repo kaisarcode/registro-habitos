@@ -531,3 +531,6 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{
 .add-entry-fab .icon{display:block;width:30px;height:30px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 html.theme-light .view-back{color:#526a73}
 html.theme-light .settings-button.active{background:#d8e9e5;color:#167f67}
+
+/* Leave room for the contextual floating action above the bottom navigation. */
+#categories,#reminders{padding-bottom:100px}
