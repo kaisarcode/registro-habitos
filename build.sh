@@ -100,7 +100,7 @@ sh ./build.sh \
     --background '#151a20' \
     --version-code "$VERSION_CODE" \
     --version-name "$APP_VERSION" \
-    --icon "$ROOT/assets/icon.svg" \
+    --icon "$ROOT/assets/launcher-icon.svg" \
     --icon-background '#102a30' \
     --api alarms \
     --api notifications \

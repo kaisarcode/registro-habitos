@@ -548,3 +548,8 @@ grep -Fq 'id="home-app-icon"' "$PAGE"
 grep -Fq '$("home-app-icon").classList.toggle("hidden",page!=="capture");' "$PAGE"
 grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
 grep -Fq -- '--display-name "Registro de Hábitos"' "$ROOT/build.sh"
+
+# Adaptive launcher foreground has safe insets; UI still uses original artwork.
+grep -Fq -- '--icon "$ROOT/assets/launcher-icon.svg"' "$ROOT/build.sh"
+grep -Fq 'translate(61.44 61.44) scale(0.76)' "$ROOT/assets/launcher-icon.svg"
+grep -Fq 'cp "$ROOT/assets/icon.svg" "$WEB_OUT/icon.svg"' "$ROOT/build.sh"
