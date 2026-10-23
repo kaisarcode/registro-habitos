@@ -36,4 +36,4 @@ Use the **Recordatorios** tab and **+** to create a reminder. Configure its time
 
 Use the gear in the shared header to open **Configuración**. **Idioma** offers the device language, Spanish, or English. **Preferencias sensoriales** provides light/dark appearance and a **Sin animaciones** option. The Android reduced-motion setting is also respected.
 
-Use **Respaldo y restauración** to preserve data outside the app and **Exportar para análisis** to share a records-only dataset. See [Data and privacy](DATA.md).
+Use **Respaldo y restauración** to preserve data outside the app and **Exportar para análisis** to share a records-only dataset. See [Data and privacy](data.md).

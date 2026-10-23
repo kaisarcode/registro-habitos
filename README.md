@@ -24,7 +24,7 @@ Place the repositories alongside each other, or point `KCAPK_DIR` at an existing
 KCAPK_DIR=../kcapk ./build.sh
 ```
 
-The resulting APK is `bin/registro-habitos.apk`. Android build tools and other host requirements are documented in [KCAPK's building guide](https://github.com/kaisarcode/kcapk/blob/slave/doc/BUILDING.md).
+The resulting APK is `bin/registro-habitos.apk`. Android build tools and other host requirements are documented in [KCAPK's building guide](https://github.com/kaisarcode/kcapk/blob/slave/doc/building.md).
 
 To prepare the bundled web interface without building an APK:
 
@@ -36,14 +36,14 @@ This produces `.build/web/index.html`. The source template in `src/web/index.htm
 
 ## Documentation
 
-- [Using the application](doc/USAGE.md): entries, categories, history, summaries, reminders, and settings.
-- [Building and installing](doc/BUILDING.md): KCAPK integration, APK output, installation, and local preview.
-- [Data and privacy](doc/DATA.md): local storage, backup and restore, exported data, and limitations.
-- [Architecture](doc/ARCHITECTURE.md): web modules, Android extensions, and source ownership.
+- [Using the application](doc/usage.md): entries, categories, history, summaries, reminders, and settings.
+- [Building and installing](doc/building.md): KCAPK integration, APK output, installation, and local preview.
+- [Data and privacy](doc/data.md): local storage, backup and restore, exported data, and limitations.
+- [Architecture](doc/architecture.md): web modules, Android extensions, and source ownership.
 
 ## Privacy
 
-The app keeps entries on the device and does not provide cloud sync or telemetry. Backups and exports may contain sensitive information. Voice recognition uses the Android speech service or an available browser recognizer, which may require a network connection and may process audio externally. See [Data and privacy](doc/DATA.md).
+The app keeps entries on the device and does not provide cloud sync or telemetry. Backups and exports may contain sensitive information. Voice recognition uses the Android speech service or an available browser recognizer, which may require a network connection and may process audio externally. See [Data and privacy](doc/data.md).
 
 ## License
 

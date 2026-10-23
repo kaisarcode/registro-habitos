@@ -4,7 +4,7 @@ The Android package is built by [KCAPK](https://github.com/kaisarcode/kcapk). Th
 
 ## Requirements
 
-Use a local checkout of KCAPK that supports `--extension`, `--local-https-assets`, and the voice and alarm APIs. KCAPK's [building guide](https://github.com/kaisarcode/kcapk/blob/slave/doc/BUILDING.md) documents the Java JDK, Android SDK command-line tools, ImageMagick, and other host requirements.
+Use a local checkout of KCAPK that supports `--extension`, `--local-https-assets`, and the voice and alarm APIs. KCAPK's [building guide](https://github.com/kaisarcode/kcapk/blob/slave/doc/building.md) documents the Java JDK, Android SDK command-line tools, ImageMagick, and other host requirements.
 
 The default directory arrangement is:
 
@@ -50,4 +50,4 @@ The app packages its HTML, JavaScript, CSS, icons, and sounds locally. KCAPK ser
 
 The build enables the Android voice, alarm, notification, permission, file, intent, and clipboard bridges. Android-specific permissions depend on which features are used. Voice dictation may require an available speech service or network access.
 
-See [Architecture](ARCHITECTURE.md) for the division between the web app, extensions, and KCAPK.
+See [Architecture](architecture.md) for the division between the web app, extensions, and KCAPK.

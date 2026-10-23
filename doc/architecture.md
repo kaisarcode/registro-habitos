@@ -33,4 +33,4 @@ Category profiles and UI preferences remain app-local. Exporting data is explici
 
 This project does not implement a remote account or synchronization service. Its voice UI calls Android speech recognition where available and may fall back to browser capabilities. The Android speech engine, rather than this app, determines whether speech processing needs network access.
 
-For KCAPK implementation and bridge contracts, consult the [KCAPK documentation](https://github.com/kaisarcode/kcapk/tree/slave/doc). For user-facing behavior, see [Using the application](USAGE.md).
+For KCAPK implementation and bridge contracts, consult the [KCAPK documentation](https://github.com/kaisarcode/kcapk/tree/slave/doc). For user-facing behavior, see [Using the application](usage.md).

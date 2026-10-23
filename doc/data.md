@@ -32,4 +32,4 @@ Reminders are scheduled through Android. Their delivery can be affected by notif
 
 The app does not encrypt exported backups. Treat files containing your entries as potentially sensitive and store or share them accordingly.
 
-For build details, see [Building and installing](BUILDING.md).
+For build details, see [Building and installing](building.md).
