@@ -493,3 +493,5 @@ if grep -q 'id="preview-volume"' "$PAGE"; then echo "Preview volume slider remai
 grep -Fq 'window.AppSoundPreview.play(name)' "$PAGE"
 grep -Fq 'AppSoundPreview.java.in' "$ROOT/build.sh"
 grep -Fq 'AudioAttributes.USAGE_NOTIFICATION' "$ROOT/native/AppSoundPreview.java.in"
+
+grep -Fq '#reminder-dialog #reminder-repeat{padding-right:40px!important}' "$ROOT/web/style.css"

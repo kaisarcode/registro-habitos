@@ -300,3 +300,8 @@ dialog p,dialog label,dialog .muted{overflow-wrap:anywhere}
 #reminder-dialog .reminder-sound-controls>select{box-sizing:border-box;width:100%;min-width:0;height:52px;min-height:52px;margin:0;padding:0 12px}
 #reminder-dialog .sound-play-button{box-sizing:border-box;display:grid;place-items:center;width:52px;min-width:52px;height:52px;min-height:52px;margin:0;padding:0;border-radius:13px}
 #reminder-dialog .sound-play-button svg{display:block}
+
+/* Keep the native select chevron inset from the right edge on Android. */
+select{padding-right:36px!important}
+#reminder-dialog #reminder-repeat{padding-right:40px!important}
+#reminder-dialog #reminder-sound{padding-right:36px!important}
