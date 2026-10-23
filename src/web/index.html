@@ -109,8 +109,14 @@
  <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elige una categoría para completar y guardar tu entrada.</p></div>
  <input id="category-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Filtrar categorías para registrar" autocomplete="off" autocapitalize="off" spellcheck="false">
  <div id="quick-categories" class="category-grid" aria-label="Registrar por categoría"></div>
- <div class="today-heading"><h2>Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
- <div id="today-entries" class="history-list"></div>
+ <section class="panel home-today-panel" aria-labelledby="home-today-title">
+  <div class="today-heading"><h2 id="home-today-title">Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
+  <div id="today-entries" class="history-list"></div>
+ </section>
+ <section class="panel home-summary-panel" aria-labelledby="home-summary-title">
+  <div class="home-summary-heading"><h2 id="home-summary-title">Resumen</h2><p>Explora tus hábitos a lo largo del tiempo.</p></div>
+  <div class="segments" role="group" aria-label="Período del resumen"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p>
+ </section>
  <div class="save-feedback" id="quick-feedback" role="status" aria-live="polite"><span id="capture-status"></span><button type="button" id="undo-quick" class="undo-button hidden">Deshacer</button><button type="button" id="dismiss-feedback" class="dismiss-feedback" aria-label="Cerrar aviso" title="Cerrar aviso">×</button></div>
 </section>
 <section id="history" class="screen">
@@ -124,8 +130,6 @@
  <div id="category-list" class="history-list"></div>
 </section>
 
-<section id="summary" class="screen">
- <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Resumen</h2><p>Explora tus hábitos a lo largo del tiempo.</p></div></div><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
 <section id="reminders" class="screen">
  <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Recordatorios</h2><p>Organiza tus avisos y sus horarios.</p></div></div><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">
  <div class="section-label">Horarios del día</div>
@@ -176,7 +180,6 @@
  <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Configuración</h2><p>Personaliza la aplicación y administra tus datos.</p></div></div>
  <button class="menu-item" data-page="language">Idioma <span>›</span></button>
  <button class="menu-item" data-page="sensory">Preferencias sensoriales <span>›</span></button>
- <button class="menu-item" data-page="summary">Resumen <span>›</span></button>
  <button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button>
  <button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button>
  <button class="menu-item" data-page="about">Acerca de <span>›</span></button>

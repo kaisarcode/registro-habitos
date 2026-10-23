@@ -73,11 +73,11 @@ function toast(message){const id=$("capture-status");if(id)id.textContent=messag
  */
 function show(page){
     if(voiceSession || voicePending)stopVoice();
-    ["capture","history","categories","summary","reminders","backup","analysis","settings","language","sensory","about"]
+    ["capture","history","categories","reminders","backup","analysis","settings","language","sensory","about"]
         .forEach(id=>$(id).classList.toggle("active",id===page));
     document.querySelectorAll(".tabs button")
         .forEach(button=>button.classList.toggle("active",button.dataset.page===page));
-    const settingsPage=["settings","summary","backup","analysis","language","sensory","about"].includes(page);
+    const settingsPage=["settings","backup","analysis","language","sensory","about"].includes(page);
     $("settings-button").classList.toggle("active",settingsPage);
     const actions={capture:"Nueva entrada",categories:"Crear categoría",reminders:"Nuevo recordatorio"};
     const action=$("add-entry"),label=actions[page];
@@ -86,10 +86,9 @@ function show(page){
         const translated=typeof translateLabel==="function"?translateLabel(label,currentAppLanguage()):label;
         action.setAttribute("aria-label",translated);action.title=translated;
     }
-    if(page==="capture")drawDashboard();
+    if(page==="capture"){drawDashboard();drawSummary();}
     if(page==="history")drawHistory();
     if(page==="categories")drawCategories();
-    if(page==="summary")drawSummary();
     if(page==="reminders")drawReminders();
     window.scrollTo(0,0);
 }
@@ -764,6 +763,7 @@ function drawSummary(){
     $("period-label").textContent=label;
     const {totals,inPeriod}=summaryBuckets(entries,period,now);
     const max=Math.max(1,...totals),chart=$("chart");
+    chart.dataset.period=period;
     chart.replaceChildren();
     chart.classList.toggle("empty",inPeriod.length===0);
     for(let i=0;i<totals.length;i++){
@@ -1280,7 +1280,7 @@ function handleDeviceBack(){
         return true;
     }
     const page=document.querySelector(".screen.active")?.id;
-    if(["summary","backup","analysis","language","sensory","about"].includes(page)){
+    if(["backup","analysis","language","sensory","about"].includes(page)){
         show("settings");
         return true;
     }

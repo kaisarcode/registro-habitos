@@ -160,3 +160,7 @@ El idioma de la interfaz se elige en Más → Idioma (Sistema operativo, Españo
 Todas las vistas comparten un encabezado con el logo y nombre **Registro de Hábitos** y el engranaje de **Configuración**. Tocar la marca vuelve a Registro. En el pie hay cuatro pestañas: **Registro**, **Historial**, **Recordatorios** y **Categorías**. Las demás opciones se encuentran en Configuración; la sección Categorías ya no aparece allí. La presentación de la aplicación encabeza Acerca de; los datos de versión figuran debajo bajo **Info de aplicación**.
 
 Las vistas usan títulos pequeños y una descripción debajo; las flechas Volver permiten regresar desde las vistas secundarias a Configuración o desde las pestañas principales a Registro. El mismo botón flotante **+**, con ícono vectorial centrado, abre **Nueva entrada** en Registro, **Crear categoría** en Categorías y **Nuevo recordatorio** en Recordatorios. No se modifican datos ni preferencias guardadas.
+
+## Resumen en la pantalla principal
+
+**Resumen** aparece como caja bajo **Hoy**, dentro de Registro. Conserva los filtros Semana/Mes/Año, el gráfico y los totales por categoría, que se recalculan con cada cambio de período y al recargar los registros. Se retira la pantalla independiente y su acceso desde Configuración. El gráfico mensual ajusta su espaciado en teléfonos angostos.
