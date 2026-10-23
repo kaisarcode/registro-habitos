@@ -117,7 +117,11 @@
  <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros"></div>
  <div id="history-list" class="history-list"></div>
 </section>
-<section id="categories" class="screen"><p class="muted">Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p><div id="category-list" class="history-list"></div></section>
+<section id="categories" class="screen">
+ <p class="muted">Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p>
+ <input id="categories-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Buscar categoría" autocomplete="off" autocapitalize="off" spellcheck="false">
+ <div id="category-list" class="history-list"></div>
+</section>
 
 <section id="summary" class="screen"><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
 <section id="reminders" class="screen"><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">

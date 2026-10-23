@@ -552,7 +552,9 @@ function drawHistory(){
  */
 function drawCategories(){
     const root=$("category-list");root.replaceChildren();
-    for(const cat of categoryNames()){
+    const allCategories=categoryNames();
+    const names=allCategories.filter(name=>matchesCategorySearch(name,$("categories-search").value));
+    for(const cat of names){
         const p=categoryStore.get(cat),count=entries.filter(e=>canonicalCategory(e.category)===cat).length;
         const row=el("div","category-item");
         const main=el("span","item-main");
@@ -567,7 +569,9 @@ function drawCategories(){
         row.append(open,el("span","category-count",String(count)),remove);
         root.append(row);
     }
-    if(!root.children.length)root.append(el("p","muted","No hay categorías. Agrega una con +."));
+    if(!root.children.length){
+        root.append(el("p","muted",allCategories.length?"No hay categorías que coincidan.":"No hay categorías. Agrega una con +."));
+    }
 }
 
 /**
@@ -1266,6 +1270,7 @@ $("top-action").onclick=()=>{
     else if(page==="history")show("more");
 };
 $("category-search").addEventListener("input",drawDashboard);
+$("categories-search").addEventListener("input",drawCategories);
 $("add-entry").onclick=()=>openEntryDialog();
 $("edit-close").onclick=()=>$("edit-dialog").close();
 $("edit-cancel").onclick=()=>$("edit-dialog").close();

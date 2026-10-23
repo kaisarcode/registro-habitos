@@ -52,8 +52,8 @@
 .save-feedback.has-message{display:flex}
 
 /* Only filters the one-touch category grid, never the day's entries. */
-#category-search{display:block;width:100%;margin:0 0 15px;padding:13px 16px;border:1px solid #30434a;border-radius:13px;background:#19262e;color:#e7f1ef;font-size:15px}
-#category-search::placeholder{color:#93a6ad}
+.category-search{display:block;width:100%;margin:0 0 15px;padding:13px 16px;border:1px solid #30434a;border-radius:13px;background:#19262e;color:#e7f1ef;font-size:15px}
+.category-search::placeholder{color:#93a6ad}
 .category-no-results{grid-column:1/-1;padding:18px 8px;color:var(--muted);font-size:13px;text-align:center}
 
 /* Duration is a single compact row; the native end-time picker sits beside it. */
@@ -349,7 +349,7 @@ html.theme-light .history-item{
  border-color:var(--light-line);
  color:var(--light-ink);
 }
-html.theme-light #category-search,
+html.theme-light .category-search,
 html.theme-light #capture-text,
 html.theme-light #edit-text,
 html.theme-light dialog input:not([type="checkbox"]):not([type="range"]),
@@ -363,7 +363,7 @@ html.theme-light .screen select{
  border:1px solid var(--light-line);
  caret-color:var(--light-accent);
 }
-html.theme-light #category-search::placeholder,
+html.theme-light .category-search::placeholder,
 html.theme-light #capture-text::placeholder,
 html.theme-light #edit-text::placeholder,
 html.theme-light input::placeholder,
