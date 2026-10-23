@@ -5,6 +5,9 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.json.JSONObject;
 /** Writes chosen documents via Android Storage Access Framework. */
 public final class AppDocumentBridge {
@@ -19,10 +22,20 @@ public final class AppDocumentBridge {
    try{
     if(content==null||content.length()>20000000)throw new IllegalArgumentException("Archivo demasiado grande.");
     String safe=filename==null?"registro-habitos.json":filename.replaceAll("[^a-zA-Z0-9._-]","_");
-    pending=content.getBytes(StandardCharsets.UTF_8);
+    byte[] json=content.getBytes(StandardCharsets.UTF_8);
+    if("application/zip".equals(mime)){
+     ByteArrayOutputStream compressed=new ByteArrayOutputStream();
+     try(ZipOutputStream zip=new ZipOutputStream(compressed)){
+      zip.setLevel(9);
+      zip.putNextEntry(new ZipEntry("registro-habitos.json"));
+      zip.write(json);
+      zip.closeEntry();
+     }
+     pending=compressed.toByteArray();
+    }else pending=json;
     Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT);
     intent.addCategory(Intent.CATEGORY_OPENABLE);
-    intent.setType("text/csv".equals(mime)?"text/csv":"application/json");
+    intent.setType("application/zip".equals(mime)?"application/zip":("text/csv".equals(mime)?"text/csv":"application/json"));
     intent.putExtra(Intent.EXTRA_TITLE,safe);
     activity.startActivityForResult(intent,REQUEST_SAVE);
    }catch(Exception error){pending=null;report(false,error.getMessage());}

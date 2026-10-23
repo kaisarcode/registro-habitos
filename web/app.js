@@ -540,7 +540,7 @@ function drawReminders(){
  if(!items.length)root.append(el("p","muted","Todavía no hay recordatorios."));
 }
 async function importBackup(file){
- const backup=JSON.parse(await file.text());if(backup.version!==1||!Array.isArray(backup.entries))throw Error("Formato JSON incompatible");
+ const backup=JSON.parse(await backupFileText(file));if(backup.version!==1||!Array.isArray(backup.entries))throw Error("Formato JSON incompatible");
  const ids=new Set();for(const e of backup.entries){if(!e||typeof e.id!=="string"||ids.has(e.id)||typeof e.description!=="string"||!Number.isFinite(Date.parse(e.occurredAt))||!Number.isFinite(Date.parse(e.createdAt)))throw Error("Entrada inválida en el archivo");ids.add(e.id);}
  if(!await appConfirm("Importar "+backup.entries.length+" entradas sin sobrescribir los registros existentes.","Importar datos","Importar"))return;
  const n=await storage.importEntries(backup.entries);
@@ -860,7 +860,7 @@ $("reminder-delete").onclick=async()=>{
  editingReminderId=null;$("reminder-dialog").close();drawReminders();
  $("reminder-status").textContent="Recordatorio eliminado.";
 };
-$("backup-save").onclick=()=>saveDocument("registro-habitos-respaldo.json",JSON.stringify(completeBackup(),null,2),"application/json");
+$("backup-save").onclick=()=>saveDocument("registro-habitos-respaldo.zip",JSON.stringify(completeBackup()),"application/zip");
 $("export-json").onclick=()=>saveDocument("registro-habitos-datos.json",JSON.stringify(analysisExport(),null,2),"application/json");
 $("export-csv").onclick=()=>saveDocument("registro-habitos-datos.csv",csv(),"text/csv");
 $("import-json").onclick=()=>$("import-file").click();

@@ -47,7 +47,7 @@ awk -v bundle="$WEB_OUT/app.bundle.js" '
 # difficult and can result in stale copies being installed. The version code is
 # independent of timestamps and increases with commits on slave.
 APP_BUILD=$(git -C "$ROOT" rev-parse --short=10 HEAD 2>/dev/null || printf 'local')
-APP_VERSION="0.3.0"
+APP_VERSION="0.3.1"
 VERSION_CODE=20261027
 VERSION_BASE_COMMIT=45101558a0541ac69f3454efaae6bfe07f5fe6f4
 if git -C "$ROOT" cat-file -e "$VERSION_BASE_COMMIT^{commit}" 2>/dev/null; then
