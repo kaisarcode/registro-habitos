@@ -305,3 +305,103 @@ dialog p,dialog label,dialog .muted{overflow-wrap:anywhere}
 select{padding-right:36px!important}
 #reminder-dialog #reminder-repeat{padding-right:40px!important}
 #reminder-dialog #reminder-sound{padding-right:36px!important}
+
+
+/* Light theme audit: override ID-specific dark styles and preserve a soft,
+   consistent contrast for inputs, actions and every dialog. */
+html.theme-light{
+ --light-page:#eaf0f0;
+ --light-panel:#f8faf9;
+ --light-input:#f3f7f7;
+ --light-line:#bacdd0;
+ --light-ink:#263e46;
+ --light-muted:#5d737c;
+ --light-accent:#167f67;
+ --accent:#167f67;
+ background:var(--light-page);
+ color:var(--light-ink);
+}
+html.theme-light body,
+html.theme-light .app{background:var(--light-page);color:var(--light-ink)}
+html.theme-light .quick-category,
+html.theme-light .panel,
+html.theme-light .menu-item,
+html.theme-light .category-item,
+html.theme-light .reminder-item,
+html.theme-light .history-item{
+ background:var(--light-panel);
+ border-color:var(--light-line);
+ color:var(--light-ink);
+}
+html.theme-light #category-search,
+html.theme-light #capture-text,
+html.theme-light #edit-text,
+html.theme-light dialog input:not([type="checkbox"]):not([type="range"]),
+html.theme-light dialog textarea,
+html.theme-light dialog select,
+html.theme-light .screen input:not([type="checkbox"]):not([type="range"]),
+html.theme-light .screen textarea,
+html.theme-light .screen select{
+ background:var(--light-input);
+ color:var(--light-ink);
+ border:1px solid var(--light-line);
+ caret-color:var(--light-accent);
+}
+html.theme-light #category-search::placeholder,
+html.theme-light #capture-text::placeholder,
+html.theme-light #edit-text::placeholder,
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder{color:#677c85;opacity:1}
+html.theme-light .entry-dialog,
+html.theme-light #reminder-dialog,
+html.theme-light #edit-dialog,
+html.theme-light #category-dialog,
+html.theme-light #app-action-dialog{
+ background:var(--light-panel);
+ color:var(--light-ink);
+ border-color:var(--light-line);
+}
+html.theme-light .entry-category-preview{
+ background:#deeee7;color:#206a57;border-color:#acd2c2;
+}
+html.theme-light .save-feedback{
+ background:#e0efe9;color:#245b4e;border-color:#9bc7b8;
+ box-shadow:0 3px 12px #283a381a;
+}
+html.theme-light .save-feedback .dismiss-feedback,
+html.theme-light .undo-button{color:#216f59;border-color:#9bc7b8}
+html.theme-light .category-icon-grid button.selected,
+html.theme-light .segments .selected{
+ background:#d7eae3;color:#145e4d;border-color:#167f67;
+}
+html.theme-light .category-item .category-edit,
+html.theme-light .category-item .category-remove,
+html.theme-light .reminder-time-remove{background:#e4eded;color:#415b64}
+html.theme-light .add-entry-fab,
+html.theme-light .main-button,
+html.theme-light .mic-button,
+html.theme-light .utility-button.accent,
+html.theme-light #edit-dialog #edit-save,
+html.theme-light #reminder-dialog #reminder-confirm{
+ background:var(--light-accent);color:#fff;
+}
+html.theme-light .add-entry-fab{box-shadow:0 5px 16px #223b3929}
+html.theme-light .secondary,
+html.theme-light .utility-button,
+html.theme-light #edit-dialog #edit-cancel,
+html.theme-light #reminder-dialog #reminder-cancel,
+html.theme-light #reminder-dialog .sound-play-button{
+ background:#e3ecec;color:#294851;border-color:var(--light-line);
+}
+html.theme-light .category-grid .quick-category:focus-visible,
+html.theme-light button:focus-visible,
+html.theme-light input:focus-visible,
+html.theme-light select:focus-visible,
+html.theme-light textarea:focus-visible{
+ outline:2px solid var(--light-accent);outline-offset:2px;
+}
+html.theme-light .dashboard-heading p,
+html.theme-light .today-heading p,
+html.theme-light .section-label,
+html.theme-light .panel p,
+html.theme-light .muted{color:var(--light-muted)}

@@ -496,3 +496,10 @@ grep -Fq 'AppSoundPreview.java.in' "$ROOT/build.sh"
 grep -Fq 'AudioAttributes.USAGE_NOTIFICATION' "$ROOT/native/AppSoundPreview.java.in"
 
 grep -Fq '#reminder-dialog #reminder-repeat{padding-right:40px!important}' "$ROOT/web/style.css"
+
+# Light mode must override the home search's ID-specific dark background.
+grep -Fq 'html.theme-light #category-search,' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light #capture-text,' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light .entry-dialog,' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light .quick-category,' "$ROOT/web/style.css"
+grep -Fq 'html.theme-light .add-entry-fab,' "$ROOT/web/style.css"
