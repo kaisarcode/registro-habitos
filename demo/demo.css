@@ -1,0 +1,11 @@
+*{box-sizing:border-box}
+:root{font-family:system-ui,-apple-system,sans-serif;color:#eff4f6;background:#101b26}
+body{margin:0;min-height:100dvh;background:#101b26}
+.demo{display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px 16px 36px}
+.demo-heading{text-align:center}.demo-heading h1{font-size:22px;margin:0 0 6px;font-weight:650}.demo-heading p{margin:0;color:#aebdc6;font-size:14px}
+.phone{width:min(100%,420px);height:min(790px,calc(100dvh - 150px));min-height:430px;display:flex;flex-direction:column;overflow:hidden;border:7px solid #314757;border-radius:35px;background:#101b26;box-shadow:0 22px 60px #0007}
+.phone-status{height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#172634;color:#c8d2d8;font-size:11px}
+.status-icons{font-size:10px;letter-spacing:1px}
+.phone iframe{display:block;width:100%;flex:1;min-height:0;border:0;background:#101b26}
+.demo-note{max-width:440px;margin:0;text-align:center;font-size:12px;line-height:1.5;color:#aebdc6}
+@media(max-width:460px){.demo{padding:0;gap:0}.demo-heading{display:none}.phone{width:100%;height:100dvh;min-height:0;border:0;border-radius:0;box-shadow:none}.demo-note{display:none}}
