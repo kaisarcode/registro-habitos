@@ -701,10 +701,10 @@ function setupRichEditor(container){
     const toolbar=container.querySelector(".rich-toolbar");
 
     // Mobile-friendly insertion: no selected text or execCommand required.
-    function insertBlock(block){
+    function insertBlock(block, savedRange=null){
         const selection=window.getSelection();
-        if(selection?.rangeCount && field.contains(selection.anchorNode)){
-            const range=selection.getRangeAt(0);
+        const range=savedRange&&field.contains(savedRange.commonAncestorContainer)?savedRange:(selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0):null);
+        if(range){
             range.collapse(false);
             range.insertNode(block);
         }else field.append(block);
@@ -718,8 +718,7 @@ function setupRichEditor(container){
             cursor.selectNodeContents(block.firstElementChild);
         }else cursor.selectNodeContents(block);
         cursor.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(cursor);
+        if(selection){selection.removeAllRanges();selection.addRange(cursor);}
         field.dispatchEvent(new Event("input",{bubbles:true}));
     }
 
@@ -744,19 +743,35 @@ function setupRichEditor(container){
             list.append(item);
             insertBlock(list);
         }else if(kind==="table"){
-            const table=document.createElement("table");
-            const body=document.createElement("tbody");
-            for(let row=0;row<3;row++){
-                const tr=document.createElement("tr");
-                for(let col=0;col<2;col++){
-                    const cell=document.createElement(row===0?"th":"td");
-                    cell.textContent=row===0?(col===0?"Campo":"Dato"):"";
-                    tr.append(cell);
+            const selection=window.getSelection();
+            const range=selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0).cloneRange():null;
+            const dialog=$("rich-table-dialog");
+            const rows=$("rich-table-rows"),cols=$("rich-table-cols");
+            rows.value="3";cols.value="2";
+            $("rich-table-error").textContent="";
+            $("rich-table-cancel").onclick=()=>dialog.close();
+            $("rich-table-insert").onclick=()=>{
+                const r=Number(rows.value),c=Number(cols.value);
+                if(!Number.isInteger(r)||r<1||r>30||!Number.isInteger(c)||c<1||c>10){
+                    $("rich-table-error").textContent="Elegí entre 1 y 30 filas y entre 1 y 10 columnas.";
+                    return;
                 }
-                body.append(tr);
-            }
-            table.append(body);
-            insertBlock(table);
+                const table=document.createElement("table");
+                const body=document.createElement("tbody");
+                for(let i=0;i<r;i++){
+                    const tr=document.createElement("tr");
+                    for(let j=0;j<c;j++){
+                        const cell=document.createElement(i===0?"th":"td");
+                        cell.textContent=i===0?"Encabezado":"";
+                        tr.append(cell);
+                    }
+                    body.append(tr);
+                }
+                table.append(body);
+                dialog.close();
+                insertBlock(table,range);
+            };
+            dialog.showModal();
         }
     });
     field.addEventListener("paste",event=>{

@@ -756,3 +756,11 @@ html.theme-light .rich-content{color:#213941}html.theme-light .rich-content a{co
 }
 .rich-editor > #cat-default-description.rich-content{min-height:100px}
 .rich-editor:focus-within{border-color:var(--accent)}
+
+/* Compact table dimensions dialog, used by all rich editors. */
+.rich-table-dialog{width:min(92vw,350px);max-width:350px}
+.rich-table-dialog h2{font-size:19px;margin:0 0 15px}
+.rich-table-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rich-table-fields label{margin:0}
+.rich-table-fields input{margin-top:8px}
+.rich-table-dialog .dialog-actions{margin-top:16px}

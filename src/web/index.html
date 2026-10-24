@@ -348,6 +348,15 @@
  </details>
  <div class="entry-modal-actions"><button type="button" id="entry-cancel" class="secondary">Cerrar</button><button type="button" id="capture-save" class="main-button">Guardar</button></div>
 </dialog>
+<dialog id="rich-table-dialog" class="rich-table-dialog" aria-labelledby="rich-table-title">
+ <h2 id="rich-table-title">Insertar tabla</h2>
+ <div class="rich-table-fields">
+  <label for="rich-table-rows">Filas<input id="rich-table-rows" type="number" min="1" max="30" step="1" value="3" inputmode="numeric"></label>
+  <label for="rich-table-cols">Columnas<input id="rich-table-cols" type="number" min="1" max="10" step="1" value="2" inputmode="numeric"></label>
+ </div>
+ <p id="rich-table-error" role="status" class="muted"></p>
+ <div class="dialog-actions"><button id="rich-table-cancel" type="button" class="secondary">Cancelar</button><button id="rich-table-insert" type="button" class="main-button">Insertar</button></div>
+</dialog>
 <div class="save-feedback" id="quick-feedback" role="status" aria-live="polite"><span id="capture-status"></span><button type="button" id="undo-quick" class="undo-button hidden">Deshacer</button><button type="button" id="dismiss-feedback" class="dismiss-feedback" aria-label="Cerrar aviso" title="Cerrar aviso">×</button></div>
 <nav class="tabs" aria-label="Navegación principal"><div class="tabs-inner"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="categories"><span><svg class="icon"><use href="#i-grid"/></svg></span>Categorías</button></div></nav>
 </div><script defer src="./app.bundle.js"></script></body></html>
