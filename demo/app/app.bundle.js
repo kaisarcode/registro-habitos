@@ -1,4 +1,4 @@
-// Browser demo bundle from exactly the same application source modules.
+// Generated bundle from storage, classifier, reminders and app modules.
 /**
  * storage.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
@@ -168,8 +168,6 @@ const storage = {
  */
     async remove(id) { await transact("readwrite", store => store.delete(id)); },
 };
-
-;
 /**
  * classifier.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
@@ -252,8 +250,6 @@ function suggestCategory(text, entries, language = null, profiles = []) {
     if (rule) return { category: rule[0], source: "rule", confidence: 0.6, language: language || "es" };
     return best >= 0.35 ? { category: winner, source: "precedent", confidence: Math.min(best, 1), language } : null;
 }
-
-;
 /**
  * reminders.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
@@ -549,8 +545,6 @@ const reminderStore={
         if(changed)this.persist(items);
     }
 };
-
-;
 /**
  * backup-zip.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
@@ -629,8 +623,6 @@ async function backupFileText(file){
     if(output.length!==entry.uncompressed)throw Error("Tamaño ZIP incorrecto.");
     return new TextDecoder("utf-8",{fatal:true}).decode(output);
 }
-
-;
 /**
  * categories.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
@@ -809,8 +801,6 @@ const categoryStore={
         this.write(saved);
     }
 };
-
-;
 /**
  * app.js - Habit register interface.
  * Summary: Coordinates the browser interface for habit entries.
@@ -819,9 +809,6 @@ const categoryStore={
  * Website: https://kaisarcode.com
  * License: https://www.gnu.org/licenses/lgpl-3.0.html
  */
-
-
-
 
 
 /**
@@ -1431,6 +1418,7 @@ function resetEntryOptions(){
  * @return The operation result.
  */
 const RICH_TAGS=new Set(["P","DIV","BR","B","STRONG","EM","I","U","H2","H3","UL","OL","LI","A","TABLE","THEAD","TBODY","TR","TD","TH","BLOCKQUOTE"]);
+
 /**
  * Restricts HTML to harmless formatting before displaying or persisting it.
  * @param html Arbitrary HTML string.
@@ -1439,6 +1427,13 @@ const RICH_TAGS=new Set(["P","DIV","BR","B","STRONG","EM","I","U","H2","H3","UL"
 function safeRichHTML(html){
     const input=new DOMParser().parseFromString(String(html||""),"text/html");
     const result=document.createElement("div");
+
+    /**
+     * Copies safe HTML nodes to the destination element.
+     * @param source Source HTML node.
+     * @param target Destination HTML node.
+     * @return void.
+     */
     function copy(source,target){
         for(const node of source.childNodes){
             if(node.nodeType===3){target.append(document.createTextNode(node.nodeValue));continue;}
@@ -1447,7 +1442,7 @@ function safeRichHTML(html){
             const next=document.createElement(node.tagName.toLowerCase());
             if(node.tagName==="A"){
                 const url=node.getAttribute("href")||"";
-                if(/^https?:\/\//i.test(url)){
+                if(/^https?:[/][/]/i.test(url)){
                     next.setAttribute("href",url);
                     next.setAttribute("target","_blank");
                     next.setAttribute("rel","noopener noreferrer");
@@ -1460,12 +1455,14 @@ function safeRichHTML(html){
     copy(input.body,result);
     return result.innerHTML;
 }
+
 /**
  * Returns the plain-text representation for searching and CSV exports.
  * @param id Editor ID.
  * @return Plain-text content.
  */
 function richText(id){return $(id).innerText.trim();}
+
 /**
  * Loads an editor without modifying stored plain-text records.
  * @param id Editor ID.
@@ -1478,6 +1475,7 @@ function setRichText(id,text="",html=""){
     if(html)field.innerHTML=safeRichHTML(html);
     else field.textContent=text||"";
 }
+
 /**
  * Inserts speech transcription as a new paragraph without deleting a template.
  * @param field Editor.
@@ -1492,6 +1490,7 @@ function appendDictation(field,value){
     field.append(paragraph);
     field.dispatchEvent(new Event("input",{bubbles:true}));
 }
+
 /**
  * Initializes formatting actions for a self-contained contenteditable editor.
  * @param container Editor container.
@@ -1532,7 +1531,7 @@ function setupRichEditor(container){
             const selection=window.getSelection();
             const savedRange=selection?.rangeCount?selection.getRangeAt(0).cloneRange():null;
             const url=await appPrompt("Dirección del enlace (https://)","");
-            if(!url||!/^https?:\/\//i.test(url))return;
+            if(!url||!/^https?:[/][/]/i.test(url))return;
             field.focus();
             if(savedRange&&field.contains(savedRange.commonAncestorContainer)){
                 selection.removeAllRanges();selection.addRange(savedRange);
@@ -1550,8 +1549,6 @@ function setupRichEditor(container){
     });
 }
 document.querySelectorAll(".rich-editor").forEach(setupRichEditor);
-
-
 
 /**
  * Opens the entry dialog with an optional category suggestion.
@@ -2840,8 +2837,6 @@ $("about-version").textContent=versionMeta.startsWith("@")?"desarrollo":versionM
 $("about-build").textContent=buildMeta.startsWith("@")?"desarrollo":buildMeta;
 reload().catch(e=>toast("No se pudo abrir la base local: "+e.message));
 try{reminderStore.refresh()}catch(e){console.warn(e)}
-
-;
 /**
  * i18n.js - Habit register capability.
  * Summary: Provides a browser capability for the habit register.
