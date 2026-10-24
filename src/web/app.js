@@ -587,7 +587,7 @@ function timeDetails(prefix){
  */
 function createEntry(details){
     return {
-        description:details.description,occurredAt:details.occurredAt,
+        description:details.description,descriptionHtml:details.descriptionHtml||"",occurredAt:details.occurredAt,
         category:details.category||null,categorySource:details.categorySource||null,
         energy:details.energy??null,mood:details.mood??null,
         duration:details.duration??null,startedAt:details.startedAt||null,endedAt:details.endedAt||null,notes:details.notes||""
