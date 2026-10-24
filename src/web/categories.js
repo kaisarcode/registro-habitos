@@ -33,7 +33,7 @@ const DEFAULT_TEMPLATES={
     }
 };
 const DEFAULT_ICONS={
-    "Actividad física":"footprints","Alimentación":"utensils","Chequeo corporal":"activity","Estímulos":"brain","Energía":"activity",
+    "Actividad física":"footprints","Alimentación":"utensils","Chequeo corporal":"activity","Estímulos":"brain",
     "Salud":"heart-pulse","Sueño":"moon","Emociones":"cloud","Cognitivo":"brain",
     "Ocio":"book-open","Trabajo":"briefcase-business","Personal":"user-round",
     "Hidratación":"droplets","Descanso":"armchair","Salida":"footprints",

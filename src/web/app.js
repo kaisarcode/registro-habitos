@@ -16,7 +16,7 @@ import { categoryStore, ICON_NAMES } from "./categories.js";
  * @return The operation result.
  */
 const $=id=>document.getElementById(id);
-const preset=[["Alimentación","🍴","orange"],["Sueño","☾","purple"],["Chequeo corporal","◉","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Estímulos","◉","blue"],["Energía","◉","orange"],["Ir al baño","🚻","blue"],["Medicación","✚","blue"],["Cafeína","☕","orange"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Hidratación","💧","blue"],["Actividad física","🚶","green"]];
+const preset=[["Alimentación","🍴","orange"],["Sueño","☾","purple"],["Chequeo corporal","◉","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Estímulos","◉","blue"],["Ir al baño","🚻","blue"],["Medicación","✚","blue"],["Cafeína","☕","orange"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Hidratación","💧","blue"],["Actividad física","🚶","green"]];
 
 /**
  * Provides the associated interface operation.
