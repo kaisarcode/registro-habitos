@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1419"><meta name="app-build" content="demo"><meta name="app-version" content="demo"><meta name="app-version-code" content="0"><title>Registro de Hábitos</title><link rel="stylesheet" href="./style.css"></head>
+<body><svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true" width="0" height="0"><defs>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C9 4 4 9 4 16c0 3 2 4 4 4 7 0 12-5 12-16Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c2-4 6-7 11-10" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 6h2M3 12h2M3 18h2" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10ZM10 21h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
+<symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><path d="M10 2h4l1 3 3 1 3-1 2 4-2 2v3l2 2-2 4-3-1-3 1-1 3h-4l-1-3-3-1-3 1-2-4 2-2v-3L1 9l2-4 3 1 3-1z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-walk" viewBox="0 0 24 24"><circle cx="12" cy="3.5" r="2" fill="currentColor"/><path d="m11 7 4 4m-4-4-3 5-4 3m7-8 2 7-3 7m3-7 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+<symbol id="i-food" viewBox="0 0 24 24"><path d="M4 3v8m3-8v8M2 4v5q0 3 4 3v9M16 21V3q5 2 5 9v1h-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-water" viewBox="0 0 24 24"><path d="M12 2C9 7 4 12 4 16a8 8 0 0 0 16 0c0-4-5-9-8-14Z" fill="currentColor"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M20 5c-3-3-7-1-8 1C11 4 7 2 4 5c-4 4 0 9 8 16 8-7 12-12 8-16Z" fill="currentColor"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 14A9 9 0 0 1 10 3a9 9 0 1 0 11 11Z" fill="currentColor"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5Q7 2 2 4v15q5-2 10 1 5-3 10-1V4q-5-2-10 1Z" stroke="currentColor" fill="none" stroke-width="1.8"/><path d="M12 5v15" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h12a4 4 0 0 0 0-8h-1a7 7 0 0 0-13-2 5 5 0 0 0 2 10Z" fill="currentColor"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 7V4h8v3M3 13h18" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 22c0-5 3-8 8-8s8 3 8 8" fill="currentColor"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v4m-4 0h8" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v13M7 8l5-5 5 5M4 14v7h16v-7" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+<symbol id="i-toilet" viewBox="0 0 24 24"><path d="M5 3h8v8H5zM4 12h16v2c0 4-3 6-7 6v2H8v-2c-3-1-4-3-4-6zM16 4h3v6" stroke="currentColor" stroke-width="1.7" fill="none"/></symbol>
+<symbol id="i-smoke" viewBox="0 0 24 24"><path d="M3 14h14v4H3zM13 14v4M19 13c3-2-2-3 1-6M17 11c-2-2 1-3 0-6" stroke="currentColor" fill="none" stroke-width="1.8"/></symbol>
+<symbol id="i-vape" viewBox="0 0 24 24"><rect x="8" y="10" width="8" height="11" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M10 10V7h4v3M9 4c0-2 3-2 3-4m3 6c2-2 0-3 0-4" stroke="currentColor" stroke-width="1.7" fill="none"/></symbol>
+<symbol id="i-glass" viewBox="0 0 24 24"><path d="M4 3h16l-2 10a6 6 0 0 1-12 0L4 3ZM12 18v4M7 22h10" stroke="currentColor" stroke-width="1.8" fill="none"/></symbol>
+<symbol id="i-pill" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="7" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M5 12h14" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-coffee" viewBox="0 0 24 24"><path d="M4 8h14v7a7 7 0 0 1-14 0zm14 1h2a3 3 0 1 1 0 6h-2M4 22h16" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M8 5V2m5 3V2" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-shower" viewBox="0 0 24 24"><path d="M4 11V7a5 5 0 0 1 10 0v2m-3 0h6l2 4H9zM9 17v2m4-2v4m3-4v2" stroke="currentColor" stroke-width="1.8" fill="none"/></symbol>
+<symbol id="li-footprints" viewBox="0 0 24 24"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+  <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+  <path d="M16 17h4" />
+  <path d="M4 13h4" /></symbol>
+<symbol id="li-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+  <path d="M7 2v20" />
+  <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></symbol>
+<symbol id="li-heart-handshake" viewBox="0 0 24 24"><path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762" /></symbol>
+<symbol id="li-heart-pulse" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+  <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></symbol>
+<symbol id="li-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></symbol>
+<symbol id="li-brain" viewBox="0 0 24 24"><path d="M12 18V5" />
+  <path d="M15 13a4.17 4.17 0 01-3-4 4.17 4.17 0 01-3 4" />
+  <path d="M17.707 6.294A3 3 0 1012 5a3 3 0 10-5.707 1.294" />
+  <path d="M17.996 5.125a4 4 0 012.526 5.77" />
+  <path d="M18 18a4 4 0 002-7.465" />
+  <path d="M19.967 17.482a4 4 0 11-7.967.517 4 4 0 11-7.967-.517" />
+  <path d="M6 18a4 4 0 01-2-7.465" />
+  <path d="M6.004 5.125a4 4 0 00-2.526 5.77" /></symbol>
+<symbol id="li-book-open" viewBox="0 0 24 24"><path d="M12 5v16" />
+  <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></symbol>
+<symbol id="li-briefcase-business" viewBox="0 0 24 24"><path d="M12 12h.01" />
+  <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+  <path d="M22 13a18.15 18.15 0 0 1-20 0" />
+  <rect width="20" height="14" x="2" y="6" rx="2" /></symbol>
+<symbol id="li-droplets" viewBox="0 0 24 24"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" />
+  <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97" /></symbol>
+<symbol id="li-shower-head" viewBox="0 0 24 24"><path d="m4 4 2.5 2.5" />
+  <path d="M13.5 6.5a4.95 4.95 0 0 0-7 7" />
+  <path d="M15 5 5 15" />
+  <path d="M14 17v.01" />
+  <path d="M10 16v.01" />
+  <path d="M13 13v.01" />
+  <path d="M16 10v.01" />
+  <path d="M11 20v.01" />
+  <path d="M17 14v.01" />
+  <path d="M20 11v.01" /></symbol>
+<symbol id="li-cigarette" viewBox="0 0 24 24"><path d="M17 12H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h14" />
+  <path d="M18 8c0-2.5-2-2.5-2-5" />
+  <path d="M21 16a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+  <path d="M22 8c0-2.5-2-2.5-2-5" />
+  <path d="M7 12v4" /></symbol>
+<symbol id="li-wine" viewBox="0 0 24 24"><path d="M8 22h8" />
+  <path d="M7 10h10" />
+  <path d="M12 15v7" />
+  <path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z" /></symbol>
+<symbol id="li-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></symbol>
+<symbol id="li-user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" />
+  <path d="M20 21a8 8 0 0 0-16 0" /></symbol>
+<symbol id="li-coffee" viewBox="0 0 24 24"><path d="M10 2v2" />
+  <path d="M14 2v2" />
+  <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" />
+  <path d="M6 2v2" /></symbol>
+<symbol id="li-armchair" viewBox="0 0 24 24"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+  <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
+  <path d="M5 18v2" />
+  <path d="M19 18v2" /></symbol>
+<symbol id="li-users-round" viewBox="0 0 24 24"><path d="M18 21a8 8 0 0 0-16 0" />
+  <circle cx="10" cy="8" r="5" />
+  <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" /></symbol>
+<symbol id="li-toilet" viewBox="0 0 24 24"><path d="M7 12h13a1 1 0 0 1 1 1 5 5 0 0 1-5 5h-.598a.5.5 0 0 0-.424.765l1.544 2.47a.5.5 0 0 1-.424.765H5.402a.5.5 0 0 1-.424-.765L7 18" />
+  <path d="M8 18a5 5 0 0 1-5-5V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8" /></symbol>
+<symbol id="li-wind" viewBox="0 0 24 24"><path d="M12.8 19.6A2 2 0 1 0 14 16H2" />
+  <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" />
+  <path d="M9.8 4.4A2 2 0 1 1 11 8H2" /></symbol>
+<symbol id="li-pill" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+  <path d="m8.5 8.5 7 7" /></symbol>
+<symbol id="li-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol>
+<symbol id="li-camera" viewBox="0 0 24 24"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" />
+  <circle cx="12" cy="13" r="3" /></symbol>
+<symbol id="li-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+  <circle cx="9" cy="9" r="2" />
+  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></symbol>
+<symbol id="li-leaf" viewBox="0 0 24 24"><path d="M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20" />
+  <path d="M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13" /></symbol>
+</defs></svg><div class="app">
+<header class="topbar"><h1 class="app-brand"><button id="brand-home" class="brand-home" type="button" aria-label="Ir a Registro"><img class="brand-logo brand-logo-dark" src="./logo-dark.svg" alt="Registro de Hábitos"><img class="brand-logo brand-logo-light" src="./logo-light.svg" alt="" aria-hidden="true"></button></h1><button id="settings-button" class="icon-button settings-button" type="button" aria-label="Configuración" title="Configuración"><svg class="icon" aria-hidden="true"><use href="#i-gear"/></svg></button></header>
+<main>
+<section id="capture" class="screen active">
+ <div class="dashboard-heading"><h2>Nuevo registro</h2><p>Elige una categoría para completar y guardar tu entrada.</p></div>
+ <input id="category-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Filtrar categorías para registrar" autocomplete="off" autocapitalize="off" spellcheck="false">
+ <div id="quick-categories" class="category-grid" aria-label="Registrar por categoría"></div>
+ <section class="panel home-today-panel" aria-labelledby="home-today-title">
+  <div class="today-heading"><h2 id="home-today-title">Hoy</h2><span id="today-count" class="muted">0 registros</span></div>
+  <div id="today-entries" class="history-list"></div>
+ </section>
+ <section class="panel home-summary-panel" aria-labelledby="home-summary-title">
+  <div class="home-summary-heading"><h2 id="home-summary-title">Resumen</h2><span>Últimos 7 días</span></div>
+  <div class="home-summary-overview">
+   <div class="home-summary-total"><strong id="home-summary-total">0</strong><span id="home-summary-unit">registros</span></div>
+   <div id="home-summary-bars" class="home-summary-bars" aria-hidden="true"></div>
+  </div>
+  <button id="open-summary" class="home-summary-open" type="button">Ver resumen <span aria-hidden="true">›</span></button>
+ </section>
+
+</section>
+<section id="history" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Historial</h2><p>Busca y revisa tus registros.</p></div></div>
+ <details id="history-filters" class="history-filters">
+  <summary class="history-filters-toggle">
+   <span class="history-filters-title">Buscar y filtrar</span>
+   <span id="history-filter-state" class="history-filter-state">Todos los registros</span>
+   <svg class="history-filters-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </summary>
+  <div class="history-filters-content">
+   <div class="history-filter-header">
+    <span>Filtros</span>
+    <button id="history-clear" class="history-clear" type="button" hidden aria-label="Limpiar búsqueda y filtros" title="Limpiar búsqueda y filtros"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Limpiar</span></button>
+   </div>
+   <div class="search-line"><input id="search" type="search" placeholder="Buscar registros" aria-label="Buscar registros" autocomplete="off"></div>
+   <label for="history-period" class="history-period-label">Período
+    <select id="history-period"><option value="all">Todas las fechas</option><option value="year">Año</option><option value="month">Mes</option><option value="range">Rango personalizado</option></select>
+   </label>
+   <div id="history-year-fields" class="history-filter-fields" hidden><label for="history-year">Año<select id="history-year"></select></label></div>
+   <div id="history-month-fields" class="history-filter-fields" hidden><label for="history-month">Mes<input id="history-month" type="month"></label></div>
+   <div id="history-range-fields" class="history-filter-fields history-date-range" hidden>
+    <label for="history-from">Desde<input id="history-from" type="date"></label>
+    <label for="history-to">Hasta<input id="history-to" type="date"></label>
+   </div>
+  </div>
+ </details>
+ <p id="history-indicator" class="history-indicator" role="status" aria-live="polite"></p>
+ <div id="history-list" class="history-groups"></div>
+ <div id="history-sentinel" class="history-sentinel" aria-hidden="true"></div>
+ <button id="history-more" class="history-more" type="button" hidden>Mostrar más</button>
+</section>
+<section id="categories" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Categorías</h2><p>Edita nombres, palabras clave e íconos. Los registros anteriores se conservan.</p></div></div>
+ <input id="categories-search" class="category-search" type="search" placeholder="Buscar categoría" aria-label="Buscar categoría" autocomplete="off" autocapitalize="off" spellcheck="false">
+ <div id="category-list" class="history-list"></div>
+</section>
+
+<section id="summary" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Resumen</h2><p>Explora tus hábitos a lo largo del tiempo.</p></div></div><div class="segments"><button data-period="week" class="selected">Semana</button><button data-period="month">Mes</button><button data-period="year">Año</button></div><div id="period-label" class="period-label"></div><div id="chart" class="bars" aria-label="Cantidad de registros por período"></div><div id="summary-categories" class="history-list"></div><p id="summary-count" class="muted"></p></section>
+<section id="reminders" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Recordatorios</h2><p>Organiza tus avisos y sus horarios.</p></div></div><div id="reminder-list" class="history-list"></div><p id="reminder-status" class="muted" role="status"></p><dialog id="reminder-dialog"><form method="dialog"><h2 id="reminder-dialog-title">Nuevo recordatorio</h2><label>Nombre<input id="reminder-name" type="text" required></label><div class="reminder-times-section">
+ <div class="section-label">Horarios del día</div>
+ <div id="reminder-times" class="reminder-times-list" aria-label="Horarios del recordatorio"></div>
+ <button id="reminder-add-time" type="button" class="reminder-add-time">+ Agregar horario</button>
+</div><label>Frecuencia<select id="reminder-repeat"><option value="daily">Todos los días</option><option value="weekdays">Días de semana</option><option value="once">Una vez</option></select></label><div class="reminder-sound-layout">
+ <div class="reminder-sound-row">
+  <label for="reminder-sound">Sonido</label>
+  <div class="reminder-sound-controls">
+   <select id="reminder-sound"><option value="glock">Glockenspiel</option><option value="alert">Notificación suave</option><option value="none">Silencioso</option></select>
+   <button id="preview-sound" type="button" class="secondary sound-play-button" aria-label="Escuchar audio" title="Escuchar audio"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M8 5.5v13l10-6.5z"/></svg></button>
+  </div>
+ </div>
+</div><p class="muted">Android usa el volumen de notificaciones del teléfono.</p><p id="reminder-dialog-status" class="muted" role="status"></p><div class="reminder-dialog-footer"><div class="reminder-dialog-actions"><button id="reminder-cancel" type="button" class="secondary">Cancelar</button><button id="reminder-confirm" type="button" class="main-button">Guardar</button></div><button id="reminder-delete" type="button" class="reminder-delete-action hidden">Eliminar</button></div></form></dialog></section>
+<section id="backup" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Respaldo y restauración</h2><p>Guarda una copia de tus datos o recupera un respaldo.</p></div></div>
+ <article class="panel">
+  <p>El archivo permanece fuera de la aplicación, por ejemplo en Descargas, aunque la desinstales.</p>
+  <button id="backup-save" type="button" class="utility-button accent">Guardar respaldo en el teléfono</button>
+  <button id="import-json" type="button" class="utility-button">Restaurar desde un respaldo</button>
+  <input type="file" id="import-file" accept=".zip,application/zip,application/x-zip-compressed" hidden>
+  <p class="muted">Incluye hábitos, categorías, imágenes, recordatorios y preferencias. Al restaurar, los registros existentes se conservan.</p>
+ </article>
+ <p id="document-status" class="muted" role="status"></p>
+</section>
+<section id="analysis" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Exportar para análisis</h2><p>Exporta tus registros para analizarlos en otras herramientas.</p></div></div>
+ <article class="panel">
+  <p>Incluye solo hábitos, sin configuraciones ni recordatorios.</p>
+  <label class="sensory-setting analysis-filter-toggle" for="analysis-filter-enabled">
+   <span>Filtrar por fecha</span>
+   <input id="analysis-filter-enabled" type="checkbox" role="switch" aria-controls="analysis-date-fields" aria-expanded="false">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <div id="analysis-date-fields" class="analysis-date-fields" hidden>
+   <div class="form-row analysis-date-range">
+    <label for="analysis-from">Desde<input id="analysis-from" type="date"></label>
+    <label for="analysis-to">Hasta<input id="analysis-to" type="date"></label>
+   </div>
+   <p class="muted">Puedes dejar una fecha vacía. Ambos días están incluidos.</p>
+  </div>
+  <button id="export-json" type="button" class="utility-button">Exportar hábitos JSON</button>
+  <button id="export-csv" type="button" class="utility-button">Exportar hábitos CSV</button>
+ </article>
+ <p id="analysis-status" class="muted" role="status"></p>
+</section>
+<section id="settings" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Configuración</h2><p>Personaliza la aplicación y administra tus datos.</p></div></div>
+ <button class="menu-item" data-page="language">Idioma <span>›</span></button>
+ <button class="menu-item" data-page="sensory">Preferencias sensoriales <span>›</span></button>
+ <button class="menu-item" data-page="backup">Respaldo y restauración <span>›</span></button>
+ <button class="menu-item" data-page="analysis">Exportar para análisis <span>›</span></button>
+ <button class="menu-item" data-page="about">Acerca de <span>›</span></button>
+</section>
+<section id="language" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Idioma</h2><p>Elige el idioma de la aplicación.</p></div></div>
+ <article class="panel language-preferences">
+  <label for="app-language">Idioma de la aplicación</label>
+  <select id="app-language"><option value="system">Sistema operativo</option><option value="es">Español</option><option value="en">English</option></select>
+  <p class="muted">De forma predeterminada, se utiliza el idioma del dispositivo.</p>
+ </article>
+</section>
+<section id="sensory" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Preferencias sensoriales</h2><p>Ajusta la apariencia y las animaciones a tu gusto.</p></div></div>
+ <article class="panel sensory-preferences">
+  <label class="sensory-setting" for="dark-mode">
+   <span>Modo oscuro</span>
+   <input id="dark-mode" type="checkbox" role="switch" checked>
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+  <label class="sensory-setting" for="reduced-motion">
+   <span>Sin animaciones</span>
+   <input id="reduced-motion" type="checkbox" role="switch">
+   <span class="sensory-switch-track" aria-hidden="true"></span>
+  </label>
+ </article>
+</section>
+
+<section id="about" class="screen">
+ <div class="view-heading"><button type="button" class="view-back" aria-label="Volver" title="Volver"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="view-heading-copy"><h2>Acerca de</h2><p>Conoce Registro de Hábitos y sus características.</p></div></div>
+ <article class="panel about-intro-panel">
+  <h2>Un espacio para registrar tu día</h2>
+  <p>Registro de Hábitos es una forma sencilla de recordar lo que haces, cómo te sientes y cómo cambia tu energía a lo largo del tiempo.</p>
+  <h3>A tu ritmo</h3>
+  <p>Puedes escribir o hablar, y guardar una actividad en pocos momentos. No tienes que completar todos los detalles ni hacerlo de una manera perfecta.</p>
+  <h3>Comprender tus rutinas</h3>
+  <p>Tu historial y los resúmenes te ayudan a reconocer hábitos, descansos y cambios cotidianos. También puedes usar recordatorios con sonidos suaves.</p>
+  <h3>Tus registros, a tu disposición</h3>
+  <p>Los datos quedan en tu dispositivo. Puedes hacer una copia de seguridad y exportar tus registros cuando quieras utilizarlos en otras herramientas.</p>
+  <p class="about-closing">Un pequeño registro puede ayudarte a conocer mejor tus días.</p>
+ </article>
+ <article class="panel about-panel">
+  <h2>Info de aplicación</h2>
+  <dl class="about-details">
+   <div><dt>Versión</dt><dd id="about-version">—</dd></div>
+   <div><dt>Compilación</dt><dd id="about-build">—</dd></div>
+   <div><dt>Autor</dt><dd>KaisarCode</dd></div>
+  </dl>
+  <a class="about-website" href="https://kaisarcode.com" rel="external">kaisarcode.com <span aria-hidden="true">↗</span></a>
+ </article>
+</section>
+</main>
+<dialog id="edit-dialog" class="entry-dialog" aria-labelledby="edit-dialog-title"><div class="edit-modal-title"><h2 id="edit-dialog-title">Editar registro</h2><button id="edit-close" type="button" class="icon-button" aria-label="Cerrar edición">×</button></div><label for="edit-text">¿Qué hiciste o cómo te sientes?</label><div class="rich-editor"><div class="rich-toolbar" role="toolbar" aria-label="Formato de texto"><button type="button" data-rich="bold" title="Negrita"><strong>B</strong></button><button type="button" data-rich="italic" title="Cursiva"><em>I</em></button><button type="button" data-rich="h2" title="Título">H2</button><button type="button" data-rich="h3" title="Subtítulo">H3</button><button type="button" data-rich="ul" title="Lista">Lista</button><button type="button" data-rich="link" title="Enlace">Enlace</button><button type="button" data-rich="table" title="Tabla">Tabla</button><button type="button" data-rich="clear" title="Quitar formato">Formato</button><button type="button" data-rich="empty" title="Borrar contenido">Vaciar</button></div><div id="edit-text" class="rich-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Texto enriquecido"></div></div><div class="modal-voice"><button id="edit-dictate" type="button" class="mic-button" aria-label="Dictar edición"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div><p id="edit-voice-status" class="muted" role="status"></p><div class="time-editor" id="edit-time-editor">
+  <div class="section-label">Horario</div>
+  <label class="time-datetime" for="edit-start-at">Inicio
+   <input id="edit-start-at" type="datetime-local" step="60">
+  </label>
+  <div class="time-duration">
+   <div class="section-label">Duración</div>
+   <div class="duration-parts">
+    <label for="edit-hours">Horas<input id="edit-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
+    <label for="edit-minutes">Minutos<input id="edit-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+    <label class="time-end-picker" for="edit-end-at">
+     <span class="time-end-trigger">
+      <input id="edit-end-at" type="datetime-local" step="60" aria-label="Seleccionar fecha y hora de fin" title="Seleccionar fin">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M8 2v4M16 2v4M3 10h18M7 14h3M14 14h3M7 18h3"></path></svg>
+     </span>
+    </label>
+   </div>
+   <div class="time-end-caption" id="edit-end-caption" hidden>
+    <output id="edit-end-summary" aria-live="polite"></output>
+    <button id="edit-clear-time" type="button" aria-label="Borrar fin y duración" title="Borrar fin y duración">×</button>
+   </div>
+  </div>
+ </div><label>Categoría<select id="edit-category"></select></label><div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="edit-mood-value" class="wellbeing-value">—</span></div><div id="edit-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div><div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="edit-energy">Energía <output id="edit-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="edit-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="edit-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div><label>Notas<textarea id="edit-notes" rows="2" placeholder="Detalles opcionales"></textarea></label><div class="edit-modal-footer"><div class="edit-modal-actions"><button type="button" id="edit-cancel" class="secondary">Cerrar</button><button type="button" id="edit-save" class="main-button">Guardar</button></div><button type="button" id="edit-delete" class="edit-delete-action"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v7M14 11v7M6 7l1 14h10l1-14M9 7V4h6v3"/></svg><span>Eliminar registro</span></button></div></dialog>
+<dialog id="category-dialog" class="category-editor" aria-labelledby="category-dialog-title">
+ <div class="category-editor-title"><h2 id="category-dialog-title">Categoría</h2><button id="category-dialog-close" class="icon-button" type="button" aria-label="Cerrar">×</button></div>
+ <label for="cat-name">Nombre</label><input id="cat-name" type="text" maxlength="64" autocomplete="off" placeholder="Nombre de la categoría">
+ <label for="cat-keywords">Palabras clave</label><textarea id="cat-keywords" rows="3" placeholder="Separadas por comas o renglones"></textarea><p class="muted">Se utilizan para buscar y sugerir automáticamente esta categoría.</p>
+ <label for="cat-default-description">Template de registro</label><div class="rich-editor"><div class="rich-toolbar" role="toolbar" aria-label="Formato de texto"><button type="button" data-rich="bold" title="Negrita"><strong>B</strong></button><button type="button" data-rich="italic" title="Cursiva"><em>I</em></button><button type="button" data-rich="h2" title="Título">H2</button><button type="button" data-rich="h3" title="Subtítulo">H3</button><button type="button" data-rich="ul" title="Lista">Lista</button><button type="button" data-rich="link" title="Enlace">Enlace</button><button type="button" data-rich="table" title="Tabla">Tabla</button><button type="button" data-rich="clear" title="Quitar formato">Formato</button><button type="button" data-rich="empty" title="Borrar contenido">Vaciar</button></div><div id="cat-default-description" class="rich-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Texto enriquecido"></div></div><p class="muted">Aparece al registrar desde esta categoría. Podés reemplazarlo antes de guardar.</p>
+ <label for="cat-color">Color</label><select id="cat-color"><option value="green">Verde suave</option><option value="blue">Azul</option><option value="purple">Violeta</option><option value="orange">Naranja</option><option value="grey">Gris</option></select>
+ <div class="category-image-row"><div id="cat-icon-preview" class="entry-icon grey" aria-hidden="true"></div><div><span class="category-image-heading">Imagen propia o foto</span><label class="category-file-picker" for="cat-image"><input id="cat-image" type="file" accept="image/png,image/jpeg,image/webp"><span class="category-file-picker-text">Seleccionar imagen</span></label><button type="button" id="cat-image-clear" class="secondary hidden">Quitar imagen</button></div></div>
+ <p class="muted">La imagen se ajusta y guarda en este dispositivo. No se sube a internet.</p>
+ <div class="section-label">Elegir un ícono</div><div id="cat-icon-grid" class="category-icon-grid" role="group" aria-label="Íconos disponibles"></div>
+ <p id="cat-error" class="category-error" role="status"></p>
+ <div class="category-editor-actions"><button type="button" id="cat-cancel" class="secondary">Cerrar</button><button type="button" id="cat-save" class="main-button">Guardar</button></div>
+</dialog>
+<dialog id="app-action-dialog" class="app-action-dialog" aria-labelledby="app-action-title" aria-describedby="app-action-message">
+ <h2 id="app-action-title">Confirmación</h2>
+ <p id="app-action-message"></p>
+ <label id="app-action-input-label" class="hidden">Nombre<input id="app-action-input" type="text" autocomplete="off"></label>
+ <div class="app-action-buttons">
+  <button id="app-action-cancel" type="button" class="secondary">Cancelar</button>
+  <button id="app-action-ok" type="button" class="main-button">Aceptar</button>
+ </div>
+</dialog>
+<button id="add-entry" class="add-entry-fab" type="button" aria-label="Nueva entrada" title="Nueva entrada"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
+<dialog id="entry-dialog" class="entry-dialog" aria-labelledby="entry-dialog-title">
+ <div class="entry-modal-header"><h2 id="entry-dialog-title">Nueva entrada</h2><button id="entry-close" type="button" class="icon-button" aria-label="Cerrar sin guardar">×</button></div>
+ <p id="entry-category-preview" class="entry-category-preview hidden"></p>
+ <label for="capture-text">¿Qué hiciste o cómo te sientes?</label>
+ <div class="rich-editor"><div class="rich-toolbar" role="toolbar" aria-label="Formato de texto"><button type="button" data-rich="bold" title="Negrita"><strong>B</strong></button><button type="button" data-rich="italic" title="Cursiva"><em>I</em></button><button type="button" data-rich="h2" title="Título">H2</button><button type="button" data-rich="h3" title="Subtítulo">H3</button><button type="button" data-rich="ul" title="Lista">Lista</button><button type="button" data-rich="link" title="Enlace">Enlace</button><button type="button" data-rich="table" title="Tabla">Tabla</button><button type="button" data-rich="clear" title="Quitar formato">Formato</button><button type="button" data-rich="empty" title="Borrar contenido">Vaciar</button></div><div id="capture-text" class="rich-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Texto enriquecido"></div></div>
+ <div class="modal-voice"><button id="mic" class="mic-button" type="button" aria-label="Dictar"><svg class="icon"><use href="#i-mic"/></svg></button><span class="muted">Toca para dictar</span></div>
+ <p id="entry-status" class="muted" role="status"></p>
+ <details id="entry-options" class="entry-options">
+  <summary>Detalles opcionales</summary>
+  <div class="time-editor" id="entry-time-editor">
+  <div class="section-label">Horario</div>
+  <label class="time-datetime" for="entry-start-at">Inicio
+   <input id="entry-start-at" type="datetime-local" step="60">
+  </label>
+  <div class="time-duration">
+   <div class="section-label">Duración</div>
+   <div class="duration-parts">
+    <label for="entry-hours">Horas<input id="entry-hours" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></label>
+    <label for="entry-minutes">Minutos<input id="entry-minutes" type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0"></label>
+    <label class="time-end-picker" for="entry-end-at">
+     <span class="time-end-trigger">
+      <input id="entry-end-at" type="datetime-local" step="60" aria-label="Seleccionar fecha y hora de fin" title="Seleccionar fin">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M8 2v4M16 2v4M3 10h18M7 14h3M14 14h3M7 18h3"></path></svg>
+     </span>
+    </label>
+   </div>
+   <div class="time-end-caption" id="entry-end-caption" hidden>
+    <output id="entry-end-summary" aria-live="polite"></output>
+    <button id="entry-clear-time" type="button" aria-label="Borrar fin y duración" title="Borrar fin y duración">×</button>
+   </div>
+  </div>
+ </div>
+  <label for="entry-category">Categoría</label><select id="entry-category"></select>
+<div class="wellbeing-field"><div class="section-label">Estado de ánimo <span id="entry-mood-value" class="wellbeing-value">—</span></div><div id="entry-moods" class="moods" role="group" aria-label="Estado de ánimo"><button type="button" data-mood="1" title="Muy mal" aria-label="Muy mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 17q4-6 8 0"/></svg></button><button type="button" data-mood="3" title="Mal" aria-label="Mal" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16q4-3 8 0"/></svg></button><button type="button" data-mood="5" title="Neutral" aria-label="Neutral" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 16h8"/></svg></button><button type="button" data-mood="7" title="Bien" aria-label="Bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M8 15q4 4 8 0"/></svg></button><button type="button" data-mood="9" title="Muy bien" aria-label="Muy bien" aria-pressed="false"><svg class="mood-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 9h.01M16 9h.01M7 14q5 8 10 0M7 14h10"/></svg></button></div></div>
+<div class="wellbeing-energy"><div class="wellbeing-energy-heading"><label for="entry-energy">Energía <output id="entry-energy-value">—/10</output></label><label class="wellbeing-energy-toggle"><input id="entry-energy-enabled" type="checkbox" role="switch" aria-label="Registrar energía"><span class="sensory-switch-track" aria-hidden="true"></span></label></div><input id="entry-energy" type="range" min="0" max="10" value="5" aria-label="Nivel de energía"></div>
+  
+  <label for="entry-notes">Notas</label><textarea id="entry-notes" rows="2" placeholder="Opcional"></textarea>
+ </details>
+ <div class="entry-modal-actions"><button type="button" id="entry-cancel" class="secondary">Cerrar</button><button type="button" id="capture-save" class="main-button">Guardar</button></div>
+</dialog>
+<div class="save-feedback" id="quick-feedback" role="status" aria-live="polite"><span id="capture-status"></span><button type="button" id="undo-quick" class="undo-button hidden">Deshacer</button><button type="button" id="dismiss-feedback" class="dismiss-feedback" aria-label="Cerrar aviso" title="Cerrar aviso">×</button></div>
+<nav class="tabs" aria-label="Navegación principal"><div class="tabs-inner"><button data-page="capture" class="active"><span><svg class="icon"><use href="#i-leaf"/></svg></span>Registro</button><button data-page="history"><span><svg class="icon"><use href="#i-list"/></svg></span>Historial</button><button data-page="reminders"><span><svg class="icon"><use href="#i-bell"/></svg></span>Recordatorios</button><button data-page="categories"><span><svg class="icon"><use href="#i-grid"/></svg></span>Categorías</button></div></nav>
+</div><script src="../stubs.js"></script><script defer src="./app.bundle.js"></script></body></html>

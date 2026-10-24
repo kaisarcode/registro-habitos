@@ -1,42 +1,13 @@
-# Registro de Hábitos web demo
+# Registro de Hábitos demo
 
-The demo uses the same generated HTML, CSS, JavaScript, icons, and other web assets as the Android APK. The only additions are an iframe-based phone preview and browser stubs for Android capabilities.
+Open `demo/index.html` in a browser. The phone preview loads the same web interface as the Android app from `demo/app/`; no build step is needed.
 
-## Build
+The `demo/` folder is also deployable as-is: upload it to any static web server. All paths are relative, so publishing under a subdirectory works.
 
-From the repository root:
+`demo/app/` contains a snapshot of the application's web assets and a JavaScript bundle assembled from the same source modules used by `build.sh`. The only browser-specific modification to the app HTML is loading `../stubs.js` before the application bundle.
 
-```sh
-sh demo/build.sh
-```
+Records created in the demo stay in the browser's own IndexedDB. Existing Android data is not accessed or modified. Android alarms and notifications are simulated rather than actually scheduled. Dictation follows the existing browser SpeechRecognition fallback when supported.
 
-The command first runs the application's existing `build.sh --prepare-only` path, then creates a self-contained `demo/dist/` directory. It does not require an Android SDK or KCAPK checkout.
+To update the demo after changing application source files, regenerate its snapshot from the current `src/web/` modules and assets and commit the updated files. There is no runtime build requirement. For best browser storage compatibility, serve the folder over HTTP(S); `file://` restrictions can vary by browser.
 
-## Preview locally
-
-Serve the generated directory over HTTP:
-
-```sh
-cd demo/dist
-python3 -m http.server 8080
-```
-
-Open [the local demo](http://localhost:8080) in a browser.
-
-## Deploy
-
-Upload the contents of `demo/dist/` to the desired directory on your web server. The iframe and all assets use relative URLs, so the demo also works under a subdirectory.
-
-## Behavior and limitations
-
-Entry creation, categories, history, preferences, and browser-local IndexedDB storage run using the real application code. Demo data is confined to the browser's origin and may persist between visits.
-
-Android alarms and notifications are simulated in memory. They do not generate system notifications or trigger scheduled reminders. Native voice recognition is absent in the demo, so the application uses its existing browser \`SpeechRecognition\` or \`webkitSpeechRecognition\` fallback when supported. Browser dictation may require microphone permission, network access, or an available speech service. These stubs are for interface demonstration only, not for validating Android-specific behavior.
-
-The `demo/dist/` directory is generated output. Re-run the build command after changing the application sources.
-
-## License
-
-[![LGPLv3](https://www.gnu.org/graphics/lgplv3-147x51.png)](https://www.gnu.org/licenses/lgpl-3.0.html)
-
-This project is distributed under the **GNU Lesser General Public License version 3 (LGPLv3)**.
+The application is licensed under GNU LGPLv3.
