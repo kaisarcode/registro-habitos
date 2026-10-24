@@ -366,11 +366,14 @@ function drawDashboard(){
     }
 }
 
-/**
- * Provides the associated interface operation.
- * @return The operation result.
- */
 let captureFeedbackTimeout=null;
+
+/**
+ * Updates quick-capture feedback state and schedules its clearance.
+ * @param message Feedback message text.
+ * @param entry Associated entry.
+ * @return void.
+ */
 function showCaptureFeedback(message,entry=null){
     if(captureFeedbackTimeout!==null){
         clearTimeout(captureFeedbackTimeout);
