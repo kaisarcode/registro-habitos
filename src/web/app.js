@@ -291,7 +291,7 @@ function quickDescription(category){
         "Medicación":"Tomé medicación","Sueño":"Dormí","Higiene":"Higiene personal",
         "Descanso":"Descansé","Actividad física":"Hice actividad física"
     };
-    return phrases[category]||category;
+    return categoryStore.get(category).defaultDescription||phrases[category]||category;
 }
 
 /**
@@ -981,6 +981,7 @@ function openCategoryEditor(category=null){
     $("category-dialog-title").textContent=category?"Editar categoría":"Nueva categoría";
     $("cat-name").value=profile?.name||"";
     $("cat-keywords").value=(profile?.keywords||[]).join(", ");
+    $("cat-default-description").value=profile?.defaultDescription??quickDescription(category||"");
     $("cat-color").value=profile?.color||"green";
     $("cat-error").textContent="";
     $("cat-image").value="";
@@ -1022,7 +1023,7 @@ async function saveCategoryEditor(){
         if(original&&original!==name&&categoryNames().some(x=>x.toLocaleLowerCase("es-AR")===name.toLocaleLowerCase("es-AR")))
             throw Error("Ya existe una categoría con ese nombre.");
         categoryStore.save({
-            name,keywords:words,icon:categoryIcon,image:categoryImage,color:$("cat-color").value
+            name,keywords:words,defaultDescription:$("cat-default-description").value.trim(),icon:categoryIcon,image:categoryImage,color:$("cat-color").value
         },original);
         if(original&&name!==original){
             for(const entry of entries.filter(e=>canonicalCategory(e.category)===original)){
