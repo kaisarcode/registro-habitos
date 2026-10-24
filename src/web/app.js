@@ -617,6 +617,23 @@ function resetEntryOptions(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
+let untouchedEntrySuggestion=null;
+
+/**
+ * Selects the initial category suggestion only before it has been edited.
+ * @return void.
+ */
+function selectUntouchedEntrySuggestion(){
+    const field=$("capture-text");
+    if(untouchedEntrySuggestion!==null && field.value===untouchedEntrySuggestion)
+        field.select();
+}
+
+/**
+ * Opens the entry dialog with an optional category suggestion.
+ * @param category Selected category.
+ * @return void.
+ */
 function openEntryDialog(category=null){
     resetEntryOptions();
     const chosen=canonicalCategory(category);
@@ -625,7 +642,8 @@ function openEntryDialog(category=null){
     const preview=$("entry-category-preview");
     preview.classList.toggle("hidden",!chosen);
     preview.textContent=chosen?"Categoría: "+chosen:"";
-    if(chosen)$("capture-text").value=quickDescription(chosen);
+    untouchedEntrySuggestion=chosen?quickDescription(chosen):null;
+    if(untouchedEntrySuggestion!==null)$("capture-text").value=untouchedEntrySuggestion;
     $("entry-dialog").showModal();
 }
 
@@ -1670,6 +1688,8 @@ document.querySelectorAll("dialog").forEach(dialog=>{
     });
 });
 $("capture-save").onclick=saveCapture;
+$("capture-text").addEventListener("input",()=>{untouchedEntrySuggestion=null;});
+$("capture-text").addEventListener("focus",selectUntouchedEntrySuggestion);
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
 $("dismiss-feedback").onclick=()=>showCaptureFeedback("");
