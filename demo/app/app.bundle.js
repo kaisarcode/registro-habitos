@@ -1387,7 +1387,7 @@ function timeDetails(prefix){
  */
 function createEntry(details){
     return {
-        description:details.description,occurredAt:details.occurredAt,
+        description:details.description,descriptionHtml:details.descriptionHtml||"",occurredAt:details.occurredAt,
         category:details.category||null,categorySource:details.categorySource||null,
         energy:details.energy??null,mood:details.mood??null,
         duration:details.duration??null,startedAt:details.startedAt||null,endedAt:details.endedAt||null,notes:details.notes||""
@@ -1499,49 +1499,80 @@ function appendDictation(field,value){
 function setupRichEditor(container){
     const field=container.querySelector(".rich-content");
     const toolbar=container.querySelector(".rich-toolbar");
-    toolbar.addEventListener("pointerdown",event=>{
-        if(event.target.closest("button"))event.preventDefault();
-    });
-    toolbar.addEventListener("click",async event=>{
+
+    // Mobile-friendly insertion: no selected text or execCommand required.
+    function insertBlock(block, savedRange=null){
+        const selection=window.getSelection();
+        const range=savedRange&&field.contains(savedRange.commonAncestorContainer)?savedRange:(selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0):null);
+        if(range){
+            range.collapse(false);
+            range.insertNode(block);
+        }else field.append(block);
+        field.focus();
+        const cursor=document.createRange();
+        if(block.tagName==="TABLE"){
+            const first=block.querySelector("td");
+            if(first)cursor.selectNodeContents(first);
+            else cursor.selectNodeContents(block);
+        }else if(block.tagName==="UL"){
+            cursor.selectNodeContents(block.firstElementChild);
+        }else cursor.selectNodeContents(block);
+        cursor.collapse(false);
+        if(selection){selection.removeAllRanges();selection.addRange(cursor);}
+        field.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+
+    toolbar.addEventListener("click",event=>{
         const button=event.target.closest("button[data-rich]");
         if(!button)return;
         const kind=button.dataset.rich;
-        if(kind==="empty"){field.replaceChildren();field.focus();return;}
-        if(kind==="table"){
-            const table=document.createElement("table");
-            const tbody=document.createElement("tbody");
-            for(let row=0;row<3;row++){
-                const tr=document.createElement("tr");
-                for(let col=0;col<2;col++){
-                    const cell=document.createElement(row===0?"th":"td");
-                    cell.textContent=row===0?(col===0?"Campo":"Dato"):"";
-                    tr.append(cell);
-                }
-                tbody.append(tr);
-            }
-            table.append(tbody);
-            const selection=window.getSelection();
-            if(selection?.rangeCount&&field.contains(selection.anchorNode)){
-                const range=selection.getRangeAt(0);
-                range.deleteContents();range.insertNode(table);
-            }else field.append(table);
-            field.focus();return;
-        }
-        if(kind==="link"){
-            const selection=window.getSelection();
-            const savedRange=selection?.rangeCount?selection.getRangeAt(0).cloneRange():null;
-            const url=await appPrompt("Dirección del enlace (https://)","");
-            if(!url||!/^https?:[/][/]/i.test(url))return;
+        if(kind==="empty"){
+            field.replaceChildren();
+            field.dispatchEvent(new Event("input",{bubbles:true}));
             field.focus();
-            if(savedRange&&field.contains(savedRange.commonAncestorContainer)){
-                selection.removeAllRanges();selection.addRange(savedRange);
-            }
-            document.execCommand("createLink",false,url);
             return;
         }
-        const actions={h2:["formatBlock","H2"],h3:["formatBlock","H3"],ul:["insertUnorderedList",null],clear:["removeFormat",null],bold:["bold",null],italic:["italic",null]};
-        if(actions[kind])document.execCommand(actions[kind][0],false,actions[kind][1]);
-        field.focus();
+        if(kind==="heading"){
+            const heading=document.createElement("h2");
+            heading.textContent="Título";
+            insertBlock(heading);
+        }else if(kind==="ul"){
+            const list=document.createElement("ul");
+            const item=document.createElement("li");
+            item.textContent="Elemento";
+            list.append(item);
+            insertBlock(list);
+        }else if(kind==="table"){
+            const selection=window.getSelection();
+            const range=selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0).cloneRange():null;
+            const dialog=$("rich-table-dialog");
+            const rows=$("rich-table-rows"),cols=$("rich-table-cols");
+            rows.value="3";cols.value="2";
+            $("rich-table-error").textContent="";
+            $("rich-table-cancel").onclick=()=>dialog.close();
+            $("rich-table-insert").onclick=()=>{
+                const r=Number(rows.value),c=Number(cols.value);
+                if(!Number.isSafeInteger(r)||r<1||!Number.isSafeInteger(c)||c<1){
+                    $("rich-table-error").textContent="Ingresá cantidades enteras positivas de filas y columnas.";
+                    return;
+                }
+                const table=document.createElement("table");
+                const body=document.createElement("tbody");
+                for(let i=0;i<r;i++){
+                    const tr=document.createElement("tr");
+                    for(let j=0;j<c;j++){
+                        const cell=document.createElement(i===0?"th":"td");
+                        cell.textContent=i===0?"Encabezado":"";
+                        tr.append(cell);
+                    }
+                    body.append(tr);
+                }
+                table.append(body);
+                dialog.close();
+                insertBlock(table,range);
+            };
+            dialog.showModal();
+        }
     });
     field.addEventListener("paste",event=>{
         event.preventDefault();

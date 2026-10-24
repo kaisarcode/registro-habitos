@@ -700,7 +700,12 @@ function setupRichEditor(container){
     const field=container.querySelector(".rich-content");
     const toolbar=container.querySelector(".rich-toolbar");
 
-    // Mobile-friendly insertion: no selected text or execCommand required.
+    /**
+     * Inserts a block without requiring selected text or execCommand.
+     * @param block Block element to insert.
+     * @param savedRange Optional range saved before opening a dialog.
+     * @return void.
+     */
     function insertBlock(block, savedRange=null){
         const selection=window.getSelection();
         const range=savedRange&&field.contains(savedRange.commonAncestorContainer)?savedRange:(selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0):null);
