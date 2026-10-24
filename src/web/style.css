@@ -744,3 +744,15 @@ html.theme-light .rich-editor{background:#fffdfa;border-color:#c5d4dc}
 html.theme-light .rich-toolbar{background:#eaf0f3;border-color:#c5d4dc}
 html.theme-light .rich-toolbar button{background:#fffdfa;color:#263b47;border-color:#b5c8d2}
 html.theme-light .rich-content{color:#213941}html.theme-light .rich-content a{color:#245c90}
+
+/* The contenteditable surface is part of the editor, not a nested textarea. */
+.rich-editor > #capture-text.rich-content,
+.rich-editor > #edit-text.rich-content,
+.rich-editor > #cat-default-description.rich-content{
+    display:block;width:100%;height:auto;min-height:130px;max-height:45dvh;
+    margin:0;padding:14px 16px;border:0;border-radius:0;
+    box-shadow:none;resize:none;background:transparent;color:inherit;
+    font:inherit;line-height:1.5;outline:none;
+}
+.rich-editor > #cat-default-description.rich-content{min-height:100px}
+.rich-editor:focus-within{border-color:var(--accent)}
