@@ -24,11 +24,9 @@
         has:()=>true,
         request:async()=>true
     };
-    const voice={
-        recognize:async()=>{throw Error("El dictado nativo no está disponible en la demo web.");}
-    };
+    // No native voice stub: the app falls back to the browser SpeechRecognition API.
     window.NativeBridge={
-        Android:{alarms:alarmBridge,notifications,permissions,voice},
+        Android:{alarms:alarmBridge,notifications,permissions},
         showToast:message=>console.info("[Demo]",message)
     };
     window.AndroidBridge=window.NativeBridge;

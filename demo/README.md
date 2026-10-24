@@ -31,7 +31,7 @@ Upload the contents of `demo/dist/` to the desired directory on your web server.
 
 Entry creation, categories, history, preferences, and browser-local IndexedDB storage run using the real application code. Demo data is confined to the browser's origin and may persist between visits.
 
-Android alarms and notifications are simulated in memory. They do not generate system notifications or trigger scheduled reminders. Native voice recognition is unavailable and returns an explanatory error. These stubs are for interface demonstration only, not for validating Android-specific behavior.
+Android alarms and notifications are simulated in memory. They do not generate system notifications or trigger scheduled reminders. Native voice recognition is absent in the demo, so the application uses its existing browser \`SpeechRecognition\` or \`webkitSpeechRecognition\` fallback when supported. Browser dictation may require microphone permission, network access, or an available speech service. These stubs are for interface demonstration only, not for validating Android-specific behavior.
 
 The `demo/dist/` directory is generated output. Re-run the build command after changing the application sources.
 
