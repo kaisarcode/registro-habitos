@@ -10,8 +10,30 @@
 export const ICON_NAMES=["footprints","utensils","heart-handshake","heart-pulse","moon","cloud","brain","book-open","briefcase-business","user-round","droplets","coffee","armchair","users-round","shower-head","toilet","cigarette","wind","wine","pill","activity","camera","image","leaf"];
 const CATEGORY_PROFILES_KEY="rh-category-profiles-v1";
 const CATEGORY_OLD_KEY="rh-categories";
+const DEFAULT_TEMPLATES={
+    "Sueño":{
+        text:"Sueño",
+        html:'<h3>Sueño</h3><table><tbody><tr><th>Dato</th><th>Registro</th></tr><tr><td>Minutos hasta dormirme</td><td></td></tr><tr><td>Despertares</td><td></td></tr><tr><td>Siesta (min)</td><td></td></tr><tr><td>Pantalla en la última hora</td><td></td></tr><tr><td>Calidad (0-10)</td><td></td></tr></tbody></table>'
+    },
+    "Chequeo corporal":{
+        text:"Chequeo corporal",
+        html:'<h3>Chequeo corporal</h3><table><tbody><tr><th>Señal</th><th>Registro</th></tr><tr><td>Hambre</td><td></td></tr><tr><td>Sed</td><td></td></tr><tr><td>Necesidad de baño</td><td></td></tr><tr><td>Cansancio</td><td></td></tr><tr><td>Sobrecarga / tensión</td><td></td></tr><tr><td>Qué hice</td><td></td></tr></tbody></table>'
+    },
+    "Salida":{
+        text:"Salí",
+        html:'<h3>Salida</h3><table><tbody><tr><th>Dato</th><th>Registro</th></tr><tr><td>Destino</td><td></td></tr><tr><td>Con quién (si corresponde)</td><td></td></tr><tr><td>Estímulos (0-10)</td><td></td></tr><tr><td>Malestar antes (0-10)</td><td></td></tr><tr><td>Pico durante (0-10)</td><td></td></tr><tr><td>Malestar después (0-10)</td><td></td></tr><tr><td>Estrategia usada</td><td></td></tr></tbody></table>'
+    },
+    "Social":{
+        text:"Contacto social",
+        html:'<h3>Contacto social</h3><table><tbody><tr><th>Dato</th><th>Registro</th></tr><tr><td>Persona / grupo</td><td></td></tr><tr><td>Medio</td><td></td></tr><tr><td>Iniciativa propia</td><td></td></tr><tr><td>Energía antes (0-10)</td><td></td></tr><tr><td>Energía después (0-10)</td><td></td></tr><tr><td>Qué disfruté / qué costó</td><td></td></tr></tbody></table>'
+    },
+    "Estímulos":{
+        text:"Estímulo",
+        html:'<h3>Estímulo</h3><table><tbody><tr><th>Dato</th><th>Registro</th></tr><tr><td>Estímulo</td><td></td></tr><tr><td>Dónde / cuándo</td><td></td></tr><tr><td>Intensidad (0-10)</td><td></td></tr><tr><td>Señal corporal</td><td></td></tr><tr><td>Estrategia / apoyo</td><td></td></tr><tr><td>Resultado</td><td></td></tr></tbody></table>'
+    }
+};
 const DEFAULT_ICONS={
-    "Actividad física":"footprints","Alimentación":"utensils","Terapia":"heart-handshake",
+    "Actividad física":"footprints","Alimentación":"utensils","Chequeo corporal":"activity","Estímulos":"brain","Energía":"activity",
     "Salud":"heart-pulse","Sueño":"moon","Emociones":"cloud","Cognitivo":"brain",
     "Ocio":"book-open","Trabajo":"briefcase-business","Personal":"user-round",
     "Hidratación":"droplets","Descanso":"armchair","Salida":"footprints",
@@ -83,7 +105,7 @@ export const categoryStore={
             color:["green","blue","purple","orange","grey"].includes(saved.color)?saved.color:original?.[2]||"grey",
             icon:ICON_NAMES.includes(saved.icon)?saved.icon:DEFAULT_ICONS[key]||"leaf",
             image:typeof saved.image==="string"&&/^data:image\/(webp|png|jpeg);base64,/.test(saved.image)?saved.image:null,
-            keywords:profileWords(keywords),defaultDescription:typeof saved.defaultDescription==="string"?saved.defaultDescription:"",defaultHtml:typeof saved.defaultHtml==="string"?saved.defaultHtml:"",deleted:saved.deleted===true,builtin:!!original
+            suggestedDescription:DEFAULT_TEMPLATES[key]?.text||"",defaultHtml:typeof saved.defaultHtml==="string"?saved.defaultHtml:(!saved.defaultDescription?DEFAULT_TEMPLATES[key]?.html||"":"")+"",keywords:profileWords(keywords),defaultDescription:typeof saved.defaultDescription==="string"?saved.defaultDescription:"",deleted:saved.deleted===true,builtin:!!original
         };
     },
 

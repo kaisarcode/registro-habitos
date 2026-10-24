@@ -16,7 +16,7 @@ import { categoryStore, ICON_NAMES } from "./categories.js";
  * @return The operation result.
  */
 const $=id=>document.getElementById(id);
-const preset=[["Actividad física","🚶","green"],["Alimentación","🍴","orange"],["Terapia","♥","purple"],["Salud","💧","blue"],["Sueño","☾","purple"],["Emociones","☁","grey"],["Cognitivo","◉","orange"],["Ocio","▣","blue"],["Trabajo","▣","orange"],["Personal","●","grey"],["Hidratación","💧","blue"],["Descanso","☾","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Higiene","✦","blue"],["Ir al baño","🚻","blue"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Medicación","✚","blue"],["Cafeína","☕","orange"]];
+const preset=[["Alimentación","🍴","orange"],["Sueño","☾","purple"],["Chequeo corporal","◉","purple"],["Salida","🚶","green"],["Social","♥","purple"],["Estímulos","◉","blue"],["Energía","◉","orange"],["Ir al baño","🚻","blue"],["Medicación","✚","blue"],["Cafeína","☕","orange"],["Tabaco","♨","orange"],["Vapeo","≈","purple"],["Alcohol","◌","orange"],["Hidratación","💧","blue"],["Actividad física","🚶","green"]];
 
 /**
  * Provides the associated interface operation.
@@ -291,7 +291,7 @@ function quickDescription(category){
         "Medicación":"Tomé medicación","Sueño":"Dormí","Higiene":"Higiene personal",
         "Descanso":"Descansé","Actividad física":"Hice actividad física"
     };
-    return categoryStore.get(category).defaultDescription||phrases[category]||category;
+    return categoryStore.get(category).defaultDescription||phrases[category]||categoryStore.get(category).suggestedDescription||category;
 }
 
 /**
