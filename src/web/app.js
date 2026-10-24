@@ -699,34 +699,53 @@ function appendDictation(field,value){
 function setupRichEditor(container){
     const field=container.querySelector(".rich-content");
     const toolbar=container.querySelector(".rich-toolbar");
-    let savedSelection=null;
-    const rememberSelection=()=>{
+
+    // Mobile-friendly insertion: no selected text or execCommand required.
+    function insertBlock(block){
         const selection=window.getSelection();
-        if(selection?.rangeCount && field.contains(selection.getRangeAt(0).commonAncestorContainer))
-            savedSelection=selection.getRangeAt(0).cloneRange();
-    };
-    document.addEventListener("selectionchange",rememberSelection);
-    field.addEventListener("keyup",rememberSelection);
-    field.addEventListener("mouseup",rememberSelection);
-    const restoreSelection=()=>{
-        if(!savedSelection || !field.contains(savedSelection.commonAncestorContainer))return false;
-        const selection=window.getSelection();
+        if(selection?.rangeCount && field.contains(selection.anchorNode)){
+            const range=selection.getRangeAt(0);
+            range.collapse(false);
+            range.insertNode(block);
+        }else field.append(block);
+        field.focus();
+        const cursor=document.createRange();
+        if(block.tagName==="TABLE"){
+            const first=block.querySelector("td");
+            if(first)cursor.selectNodeContents(first);
+            else cursor.selectNodeContents(block);
+        }else if(block.tagName==="UL"){
+            cursor.selectNodeContents(block.firstElementChild);
+        }else cursor.selectNodeContents(block);
+        cursor.collapse(false);
         selection.removeAllRanges();
-        selection.addRange(savedSelection);
-        return true;
-    };
-    toolbar.addEventListener("pointerdown",event=>{
-        if(event.target.closest("button"))event.preventDefault();
-    });
-    toolbar.addEventListener("click",async event=>{
+        selection.addRange(cursor);
+        field.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+
+    toolbar.addEventListener("click",event=>{
         const button=event.target.closest("button[data-rich]");
         if(!button)return;
         const kind=button.dataset.rich;
-        if(kind!=="empty")restoreSelection();
-        if(kind==="empty"){field.replaceChildren();field.focus();return;}
-        if(kind==="table"){
+        if(kind==="empty"){
+            field.replaceChildren();
+            field.dispatchEvent(new Event("input",{bubbles:true}));
+            field.focus();
+            return;
+        }
+        if(kind==="heading"){
+            const heading=document.createElement("h2");
+            heading.textContent="Título";
+            insertBlock(heading);
+        }else if(kind==="ul"){
+            const list=document.createElement("ul");
+            const item=document.createElement("li");
+            item.textContent="Elemento";
+            list.append(item);
+            insertBlock(list);
+        }else if(kind==="table"){
             const table=document.createElement("table");
-            const tbody=document.createElement("tbody");
+            const body=document.createElement("tbody");
             for(let row=0;row<3;row++){
                 const tr=document.createElement("tr");
                 for(let col=0;col<2;col++){
@@ -734,37 +753,10 @@ function setupRichEditor(container){
                     cell.textContent=row===0?(col===0?"Campo":"Dato"):"";
                     tr.append(cell);
                 }
-                tbody.append(tr);
+                body.append(tr);
             }
-            table.append(tbody);
-            const selection=window.getSelection();
-            if(selection?.rangeCount&&field.contains(selection.anchorNode)){
-                const range=selection.getRangeAt(0);
-                range.deleteContents();range.insertNode(table);
-            }else field.append(table);
-            field.focus();return;
-        }
-        if(kind==="link"){
-            const selection=window.getSelection();
-            const savedRange=selection?.rangeCount?selection.getRangeAt(0).cloneRange():null;
-            const url=await appPrompt("Dirección del enlace (https://)","");
-            if(!url||!/^https?:[/][/]/i.test(url))return;
-            field.focus();
-            if(savedRange&&field.contains(savedRange.commonAncestorContainer)){
-                selection.removeAllRanges();selection.addRange(savedRange);
-            }
-            document.execCommand("createLink",false,url);
-            rememberSelection();
-            return;
-        }
-        field.focus({preventScroll:true});
-        restoreSelection();
-        const actions={h2:["formatBlock","H2"],h3:["formatBlock","H3"],ul:["insertUnorderedList",null],clear:["removeFormat",null],bold:["bold",null],italic:["italic",null]};
-        if(actions[kind]){
-            const [command,value]=actions[kind];
-            document.execCommand(command,false,value);
-            rememberSelection();
-            field.dispatchEvent(new Event("input",{bubbles:true}));
+            table.append(body);
+            insertBlock(table);
         }
     });
     field.addEventListener("paste",event=>{
