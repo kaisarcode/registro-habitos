@@ -752,8 +752,8 @@ function setupRichEditor(container){
             $("rich-table-cancel").onclick=()=>dialog.close();
             $("rich-table-insert").onclick=()=>{
                 const r=Number(rows.value),c=Number(cols.value);
-                if(!Number.isInteger(r)||r<1||r>30||!Number.isInteger(c)||c<1||c>10){
-                    $("rich-table-error").textContent="Elegí entre 1 y 30 filas y entre 1 y 10 columnas.";
+                if(!Number.isSafeInteger(r)||r<1||!Number.isSafeInteger(c)||c<1){
+                    $("rich-table-error").textContent="Ingresá cantidades enteras positivas de filas y columnas.";
                     return;
                 }
                 const table=document.createElement("table");
