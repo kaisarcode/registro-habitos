@@ -367,6 +367,7 @@ function drawDashboard(){
 }
 
 let captureFeedbackTimeout=null;
+let captureFeedbackFadeTimeout=null;
 
 /**
  * Updates quick-capture feedback state and schedules its clearance.
@@ -375,20 +376,44 @@ let captureFeedbackTimeout=null;
  * @return void.
  */
 function showCaptureFeedback(message,entry=null){
-    if(captureFeedbackTimeout!==null){
-        clearTimeout(captureFeedbackTimeout);
-        captureFeedbackTimeout=null;
+    clearTimeout(captureFeedbackTimeout);
+    clearTimeout(captureFeedbackFadeTimeout);
+    captureFeedbackTimeout=null;
+    captureFeedbackFadeTimeout=null;
+    const notice=$("quick-feedback");
+    notice.classList.remove("fading-out");
+    if(!message){
+        notice.classList.remove("has-message");
+        $("capture-status").textContent="";
+        lastQuickEntryId=null;
+        $("undo-quick").classList.add("hidden");
+        return;
     }
-    $("quick-feedback").classList.toggle("has-message",Boolean(message));
+    const wasVisible=notice.classList.contains("has-message");
     $("capture-status").textContent=message;
     lastQuickEntryId=entry?.id||null;
     $("undo-quick").classList.toggle("hidden",!entry);
-    if(message){
-        captureFeedbackTimeout=setTimeout(()=>{
-            captureFeedbackTimeout=null;
-            showCaptureFeedback("");
-        },2000);
+    notice.classList.add("has-message");
+    if(!wasVisible && animationsEnabled()){
+        notice.classList.remove("fading-in");
+        void notice.offsetWidth;
+        notice.classList.add("fading-in");
+    }else{
+        notice.classList.remove("fading-in");
     }
+    captureFeedbackTimeout=setTimeout(()=>{
+        captureFeedbackTimeout=null;
+        if(!animationsEnabled()){
+            showCaptureFeedback("");
+            return;
+        }
+        notice.classList.remove("fading-in");
+        notice.classList.add("fading-out");
+        captureFeedbackFadeTimeout=setTimeout(()=>{
+            captureFeedbackFadeTimeout=null;
+            showCaptureFeedback("");
+        },180);
+    },2000);
 }
 
 /**

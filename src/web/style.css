@@ -712,3 +712,11 @@ html.theme-light .category-grid .quick-category,html.theme-light .category-grid 
 #quick-feedback #capture-status{flex:1 1 0;display:block;min-width:0;max-width:100%;margin:0;font-size:14px;line-height:1.35;white-space:normal;overflow-wrap:break-word}
 #quick-feedback .undo-button{flex:0 0 auto;white-space:nowrap;margin:0}
 #quick-feedback .dismiss-feedback{flex:0 0 38px;margin:0}
+
+/* Respect both the app's no-animation preference and OS reduced-motion. */
+@keyframes rh-feedback-in{from{opacity:0}to{opacity:1}}
+@keyframes rh-feedback-out{from{opacity:1}to{opacity:0}}
+#quick-feedback.fading-in{animation:rh-feedback-in 180ms ease-out both}
+#quick-feedback.fading-out{animation:rh-feedback-out 180ms ease-in both;pointer-events:none}
+@media(prefers-reduced-motion:reduce){#quick-feedback.fading-in,#quick-feedback.fading-out{animation:none}}
+html.reduce-motion #quick-feedback.fading-in,html.reduce-motion #quick-feedback.fading-out{animation:none}
