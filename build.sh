@@ -61,6 +61,22 @@ printf 'APK versionCode: %s (source %s)\n' "$VERSION_CODE" "$APP_BUILD"
 sed -e "s/@APP_BUILD@/$APP_BUILD/g" -e "s/@APP_VERSION_CODE@/$VERSION_CODE/g" -e "s/@APP_VERSION@/$APP_VERSION/g" "$WEB_OUT/index.html" > "$WEB_OUT/index.versioned.html"
 mv "$WEB_OUT/index.versioned.html" "$WEB_OUT/index.html"
 printf 'Bundled app revision: %s\n' "$APP_BUILD"
+# Refresh the publishable browser demo from this exact WebView build.
+# Keep Android output unchanged: the native bridge stub exists only in demo/app.
+DEMO_OUT="$ROOT/demo/app"
+rm -rf "$DEMO_OUT"
+mkdir -p "$DEMO_OUT"
+cp -R "$WEB_OUT/." "$DEMO_OUT/"
+awk '
+    /^[[:space:]]*<script>$/ && !inserted {
+        print "  <script src=\"../stubs.js\"></script>"
+        inserted=1
+    }
+    { print }
+    END { if (!inserted) exit 1 }
+' "$DEMO_OUT/index.html" > "$DEMO_OUT/index.demo.html"
+mv "$DEMO_OUT/index.demo.html" "$DEMO_OUT/index.html"
+printf 'Browser demo refreshed: %s\n' "$ROOT/demo/index.html"
 if [ "$PREPARE_ONLY" = true ]; then
     printf 'Prepared local WebView page: %s\n' "$WEB_OUT/index.html"
     exit 0
