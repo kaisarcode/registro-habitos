@@ -699,6 +699,22 @@ function appendDictation(field,value){
 function setupRichEditor(container){
     const field=container.querySelector(".rich-content");
     const toolbar=container.querySelector(".rich-toolbar");
+    let savedSelection=null;
+    const rememberSelection=()=>{
+        const selection=window.getSelection();
+        if(selection?.rangeCount && field.contains(selection.getRangeAt(0).commonAncestorContainer))
+            savedSelection=selection.getRangeAt(0).cloneRange();
+    };
+    document.addEventListener("selectionchange",rememberSelection);
+    field.addEventListener("keyup",rememberSelection);
+    field.addEventListener("mouseup",rememberSelection);
+    const restoreSelection=()=>{
+        if(!savedSelection || !field.contains(savedSelection.commonAncestorContainer))return false;
+        const selection=window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedSelection);
+        return true;
+    };
     toolbar.addEventListener("pointerdown",event=>{
         if(event.target.closest("button"))event.preventDefault();
     });
@@ -706,6 +722,7 @@ function setupRichEditor(container){
         const button=event.target.closest("button[data-rich]");
         if(!button)return;
         const kind=button.dataset.rich;
+        if(kind!=="empty")restoreSelection();
         if(kind==="empty"){field.replaceChildren();field.focus();return;}
         if(kind==="table"){
             const table=document.createElement("table");
@@ -737,11 +754,18 @@ function setupRichEditor(container){
                 selection.removeAllRanges();selection.addRange(savedRange);
             }
             document.execCommand("createLink",false,url);
+            rememberSelection();
             return;
         }
+        field.focus({preventScroll:true});
+        restoreSelection();
         const actions={h2:["formatBlock","H2"],h3:["formatBlock","H3"],ul:["insertUnorderedList",null],clear:["removeFormat",null],bold:["bold",null],italic:["italic",null]};
-        if(actions[kind])document.execCommand(actions[kind][0],false,actions[kind][1]);
-        field.focus();
+        if(actions[kind]){
+            const [command,value]=actions[kind];
+            document.execCommand(command,false,value);
+            rememberSelection();
+            field.dispatchEvent(new Event("input",{bubbles:true}));
+        }
     });
     field.addEventListener("paste",event=>{
         event.preventDefault();
