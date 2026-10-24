@@ -727,3 +727,20 @@ html.reduce-motion #quick-feedback.fading-in,html.reduce-motion #quick-feedback.
 .category-file-picker input[type=file]{position:absolute;width:100%;height:100%;inset:0;margin:0;padding:0;opacity:0;cursor:pointer}
 .category-file-picker:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 html.theme-light .category-file-picker{background:#e5edf1;border-color:#b5c8d2;color:#263b47}
+
+/* Offline rich text editors shared by entry and category templates. */
+.rich-editor{min-width:0;width:100%;overflow:hidden;border:1px solid #405765;border-radius:14px;background:#1d2b33}
+.rich-toolbar{display:flex;flex-wrap:wrap;gap:5px;padding:8px;border-bottom:1px solid #405765;background:#20313d}
+.rich-toolbar button{min-height:35px;padding:6px 9px;border:1px solid #536879;border-radius:8px;background:#304151;color:#f1f3f2;font-size:12px}
+.rich-content{min-height:130px;max-height:45dvh;overflow:auto;overflow-wrap:anywhere;padding:14px 16px;color:#f1f3f2;outline:0;white-space:pre-wrap;line-height:1.5}
+#cat-default-description.rich-content{min-height:100px}
+.rich-content:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rich-content h2,.rich-content h3{margin:8px 0;font-weight:700}.rich-content h2{font-size:1.3em}.rich-content h3{font-size:1.12em}
+.rich-content ul,.rich-content ol{padding-left:24px}
+.rich-content table{border-collapse:collapse;width:100%;table-layout:fixed;margin:10px 0}
+.rich-content th,.rich-content td{border:1px solid #667d8d;padding:7px;vertical-align:top;overflow-wrap:anywhere}
+.rich-content a{color:#9bc9ef;text-decoration:underline}
+html.theme-light .rich-editor{background:#fffdfa;border-color:#c5d4dc}
+html.theme-light .rich-toolbar{background:#eaf0f3;border-color:#c5d4dc}
+html.theme-light .rich-toolbar button{background:#fffdfa;color:#263b47;border-color:#b5c8d2}
+html.theme-light .rich-content{color:#213941}html.theme-light .rich-content a{color:#245c90}

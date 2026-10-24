@@ -83,7 +83,7 @@ export const categoryStore={
             color:["green","blue","purple","orange","grey"].includes(saved.color)?saved.color:original?.[2]||"grey",
             icon:ICON_NAMES.includes(saved.icon)?saved.icon:DEFAULT_ICONS[key]||"leaf",
             image:typeof saved.image==="string"&&/^data:image\/(webp|png|jpeg);base64,/.test(saved.image)?saved.image:null,
-            keywords:profileWords(keywords),defaultDescription:typeof saved.defaultDescription==="string"?saved.defaultDescription:"",deleted:saved.deleted===true,builtin:!!original
+            keywords:profileWords(keywords),defaultDescription:typeof saved.defaultDescription==="string"?saved.defaultDescription:"",defaultHtml:typeof saved.defaultHtml==="string"?saved.defaultHtml:"",deleted:saved.deleted===true,builtin:!!original
         };
     },
 
@@ -109,7 +109,7 @@ export const categoryStore={
             color:["green","blue","purple","orange","grey"].includes(profile.color)?profile.color:"grey",
             icon:ICON_NAMES.includes(profile.icon)?profile.icon:"leaf",
             image:typeof profile.image==="string"&&/^data:image\/(webp|png|jpeg);base64,/.test(profile.image)?profile.image:null,
-            keywords:profileWords(profile.keywords),defaultDescription:String(profile.defaultDescription||"").trim().slice(0,240),deleted:false
+            keywords:profileWords(profile.keywords),defaultDescription:String(profile.defaultDescription||"").trim(),defaultHtml:String(profile.defaultHtml||""),deleted:false
         };
         if(saved.image?.length>240000)throw Error("La imagen es demasiado grande.");
         if(former&&former!==name)old[former]={...this.get(former),deleted:true};
@@ -148,7 +148,7 @@ export const categoryStore={
             saved[name]={
     color:["green","blue","purple","orange","grey"].includes(profile.color)?profile.color:"grey",
     icon:ICON_NAMES.includes(profile.icon)?profile.icon:"leaf",
-    keywords:profileWords(profile.keywords),defaultDescription:typeof profile.defaultDescription==="string"?profile.defaultDescription.slice(0,240):"",image,deleted:profile.deleted===true
+    keywords:profileWords(profile.keywords),defaultDescription:typeof profile.defaultDescription==="string"?profile.defaultDescription:"",defaultHtml:typeof profile.defaultHtml==="string"?profile.defaultHtml:"",image,deleted:profile.deleted===true
             };
         }
         this.write(saved);

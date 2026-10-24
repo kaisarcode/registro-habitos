@@ -599,7 +599,7 @@ function createEntry(details){
  * @return The operation result.
  */
 function resetEntryOptions(){
-    $("capture-text").value="";
+    setRichText("capture-text");
     $("entry-status").textContent="";
     populateTimeEditor("entry",new Date());
     const cats=categoryNames();
@@ -617,17 +617,128 @@ function resetEntryOptions(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
-let untouchedEntrySuggestion=null;
-
+const RICH_TAGS=new Set(["P","DIV","BR","B","STRONG","EM","I","U","H2","H3","UL","OL","LI","A","TABLE","THEAD","TBODY","TR","TD","TH","BLOCKQUOTE"]);
 /**
- * Selects the initial category suggestion only before it has been edited.
+ * Restricts HTML to harmless formatting before displaying or persisting it.
+ * @param html Arbitrary HTML string.
+ * @return Sanitized HTML.
+ */
+function safeRichHTML(html){
+    const input=new DOMParser().parseFromString(String(html||""),"text/html");
+    const result=document.createElement("div");
+    function copy(source,target){
+        for(const node of source.childNodes){
+            if(node.nodeType===3){target.append(document.createTextNode(node.nodeValue));continue;}
+            if(node.nodeType!==1)continue;
+            if(!RICH_TAGS.has(node.tagName)){copy(node,target);continue;}
+            const next=document.createElement(node.tagName.toLowerCase());
+            if(node.tagName==="A"){
+                const url=node.getAttribute("href")||"";
+                if(/^https?:\/\//i.test(url)){
+                    next.setAttribute("href",url);
+                    next.setAttribute("target","_blank");
+                    next.setAttribute("rel","noopener noreferrer");
+                }
+            }
+            copy(node,next);
+            target.append(next);
+        }
+    }
+    copy(input.body,result);
+    return result.innerHTML;
+}
+/**
+ * Returns the plain-text representation for searching and CSV exports.
+ * @param id Editor ID.
+ * @return Plain-text content.
+ */
+function richText(id){return $(id).innerText.trim();}
+/**
+ * Loads an editor without modifying stored plain-text records.
+ * @param id Editor ID.
+ * @param text Existing plain text.
+ * @param html Existing formatted text.
  * @return void.
  */
-function selectUntouchedEntrySuggestion(){
-    const field=$("capture-text");
-    if(untouchedEntrySuggestion!==null && field.value===untouchedEntrySuggestion)
-        field.select();
+function setRichText(id,text="",html=""){
+    const field=$(id);
+    if(html)field.innerHTML=safeRichHTML(html);
+    else field.textContent=text||"";
 }
+/**
+ * Inserts speech transcription as a new paragraph without deleting a template.
+ * @param field Editor.
+ * @param value Dictated text.
+ * @return void.
+ */
+function appendDictation(field,value){
+    const content=String(value||"").trim();
+    if(!content)return;
+    const paragraph=document.createElement("p");
+    paragraph.textContent=content;
+    field.append(paragraph);
+    field.dispatchEvent(new Event("input",{bubbles:true}));
+}
+/**
+ * Initializes formatting actions for a self-contained contenteditable editor.
+ * @param container Editor container.
+ * @return void.
+ */
+function setupRichEditor(container){
+    const field=container.querySelector(".rich-content");
+    const toolbar=container.querySelector(".rich-toolbar");
+    toolbar.addEventListener("pointerdown",event=>{
+        if(event.target.closest("button"))event.preventDefault();
+    });
+    toolbar.addEventListener("click",async event=>{
+        const button=event.target.closest("button[data-rich]");
+        if(!button)return;
+        const kind=button.dataset.rich;
+        if(kind==="empty"){field.replaceChildren();field.focus();return;}
+        if(kind==="table"){
+            const table=document.createElement("table");
+            const tbody=document.createElement("tbody");
+            for(let row=0;row<3;row++){
+                const tr=document.createElement("tr");
+                for(let col=0;col<2;col++){
+                    const cell=document.createElement(row===0?"th":"td");
+                    cell.textContent=row===0?(col===0?"Campo":"Dato"):"";
+                    tr.append(cell);
+                }
+                tbody.append(tr);
+            }
+            table.append(tbody);
+            const selection=window.getSelection();
+            if(selection?.rangeCount&&field.contains(selection.anchorNode)){
+                const range=selection.getRangeAt(0);
+                range.deleteContents();range.insertNode(table);
+            }else field.append(table);
+            field.focus();return;
+        }
+        if(kind==="link"){
+            const selection=window.getSelection();
+            const savedRange=selection?.rangeCount?selection.getRangeAt(0).cloneRange():null;
+            const url=await appPrompt("Dirección del enlace (https://)","");
+            if(!url||!/^https?:\/\//i.test(url))return;
+            field.focus();
+            if(savedRange&&field.contains(savedRange.commonAncestorContainer)){
+                selection.removeAllRanges();selection.addRange(savedRange);
+            }
+            document.execCommand("createLink",false,url);
+            return;
+        }
+        const actions={h2:["formatBlock","H2"],h3:["formatBlock","H3"],ul:["insertUnorderedList",null],clear:["removeFormat",null],bold:["bold",null],italic:["italic",null]};
+        if(actions[kind])document.execCommand(actions[kind][0],false,actions[kind][1]);
+        field.focus();
+    });
+    field.addEventListener("paste",event=>{
+        event.preventDefault();
+        document.execCommand("insertText",false,event.clipboardData?.getData("text/plain")||"");
+    });
+}
+document.querySelectorAll(".rich-editor").forEach(setupRichEditor);
+
+
 
 /**
  * Opens the entry dialog with an optional category suggestion.
@@ -643,7 +754,7 @@ function openEntryDialog(category=null){
     preview.classList.toggle("hidden",!chosen);
     preview.textContent=chosen?"Categoría: "+chosen:"";
     untouchedEntrySuggestion=chosen?quickDescription(chosen):null;
-    if(untouchedEntrySuggestion!==null)$("capture-text").value=untouchedEntrySuggestion;
+    if(chosen)setRichText("capture-text",untouchedEntrySuggestion,categoryStore.get(chosen).defaultHtml||"");
     $("entry-dialog").showModal();
 }
 
@@ -673,7 +784,7 @@ async function reload(){
  */
 function openEdit(e){
     current=e;mood=e.mood??null;
-    $("edit-text").value=e.description;
+    setRichText("edit-text",e.description,e.descriptionHtml||"");
     populateTimeEditor("edit",e.startedAt||e.occurredAt,e.endedAt,e.duration);
     const availableCategories=categoryOptions();
     const entryCategory=canonicalCategory(e.category);
@@ -981,7 +1092,7 @@ function openCategoryEditor(category=null){
     $("category-dialog-title").textContent=category?"Editar categoría":"Nueva categoría";
     $("cat-name").value=profile?.name||"";
     $("cat-keywords").value=(profile?.keywords||[]).join(", ");
-    $("cat-default-description").value=category?quickDescription(category):"";
+    setRichText("cat-default-description",category?quickDescription(category):"",profile?.defaultHtml||"");
     $("cat-color").value=profile?.color||"green";
     $("cat-error").textContent="";
     $("cat-image").value="";
@@ -1023,7 +1134,7 @@ async function saveCategoryEditor(){
         if(original&&original!==name&&categoryNames().some(x=>x.toLocaleLowerCase("es-AR")===name.toLocaleLowerCase("es-AR")))
             throw Error("Ya existe una categoría con ese nombre.");
         categoryStore.save({
-            name,keywords:words,defaultDescription:$("cat-default-description").value.trim(),icon:categoryIcon,image:categoryImage,color:$("cat-color").value
+            name,keywords:words,defaultDescription:richText("cat-default-description"),defaultHtml:safeRichHTML($("cat-default-description").innerHTML),icon:categoryIcon,image:categoryImage,color:$("cat-color").value
         },original);
         if(original&&name!==original){
             for(const entry of entries.filter(e=>canonicalCategory(e.category)===original)){
@@ -1155,7 +1266,7 @@ function drawSummary(){
  * @return The operation result.
  */
 async function saveCapture(){
-    const description=$("capture-text").value.trim();
+    const description=richText("capture-text");
     if(!description){$("capture-text").focus();return;}
     if(quickSaving)return;
     let timing;
@@ -1169,7 +1280,7 @@ async function saveCapture(){
     $("capture-save").disabled=true;
     try{
         const record=await storage.save(createEntry({
-            description,...timing,category,
+            description,descriptionHtml:safeRichHTML($("capture-text").innerHTML),...timing,category,
             categorySource:manual?"manual":suggested?.source||null,
             energy:$("entry-energy-enabled").checked?Number($("entry-energy").value):null,
             mood:readMood("entry"),
@@ -1490,14 +1601,11 @@ async function startVoice(targetId = "capture-text") {
         voicePending = true;
         const requestId = ++voiceRequestId;
         try {
-            field.value="";
-            field.dispatchEvent(new Event("input",{bubbles:true}));
             voiceFeedback(targetId, "Abriendo el dictado de Android…");
             const text = await native.recognize({language:currentAppLanguage()==="es"?"es-AR":"en-US"});
             if(requestId!==voiceRequestId || !field.closest("dialog")?.open)return;
             if(text){
-    field.value=String(text).trim();
-    field.dispatchEvent(new Event("input",{bubbles:true}));
+    appendDictation(field,text);
     voiceFeedback(targetId,"Texto dictado.");
             }else voiceFeedback(targetId,"Dictado cancelado.");
         }catch(error){
@@ -1526,9 +1634,7 @@ async function startVoice(targetId = "capture-text") {
         }
         if(requestId!==voiceRequestId || !field.closest("dialog")?.open ||
             document.visibilityState==="hidden")return;
-        field.value="";
-        field.dispatchEvent(new Event("input",{bubbles:true}));
-        const session = {targetId,field,active:true,committed:"",restartTimer:null};
+        const session = {targetId,field,active:true,committed:"",restartTimer:null,voiceNode:null};
         voiceSession = session;
 
 /**
@@ -1551,8 +1657,9 @@ async function startVoice(targetId = "capture-text") {
  * @return The operation result.
  */
             const updateField = () => {
-    field.value = [session.committed,finalized,interim].filter(Boolean).join(" ").trim();
-    field.dispatchEvent(new Event("input", {bubbles:true}));
+    if(!session.voiceNode){session.voiceNode=document.createElement("p");field.append(session.voiceNode);}
+    session.voiceNode.textContent=[session.committed,finalized,interim].filter(Boolean).join(" ").trim();
+    field.dispatchEvent(new Event("input",{bubbles:true}));
             };
             r.onstart = () => {
     if (session.active) {
@@ -1593,8 +1700,8 @@ async function startVoice(targetId = "capture-text") {
     if (recognition === r) recognition = null;
     if (!session.active || voiceSession !== session) return;
     session.committed = [session.committed,finalized].filter(Boolean).join(" ").trim();
-    field.value = session.committed;
-    field.dispatchEvent(new Event("input", {bubbles:true}));
+    if(session.voiceNode)session.voiceNode.textContent=session.committed;
+    field.dispatchEvent(new Event("input",{bubbles:true}));
     voiceFeedback(targetId, "Escuchando… puedes hacer pausas. Toca para detener.");
     session.restartTimer = setTimeout(run, 350);
             };
@@ -1690,7 +1797,7 @@ document.querySelectorAll("dialog").forEach(dialog=>{
 });
 $("capture-save").onclick=saveCapture;
 $("capture-text").addEventListener("input",()=>{untouchedEntrySuggestion=null;});
-$("capture-text").addEventListener("focus",selectUntouchedEntrySuggestion);
+
 $("mic").onclick=()=>startVoice("capture-text");
 $("edit-dictate").onclick=()=>startVoice("edit-text");
 $("dismiss-feedback").onclick=()=>showCaptureFeedback("");
@@ -1798,11 +1905,11 @@ for(const prefix of ["entry","edit"]){
 
 $("edit-save").onclick=async()=>{
     if(!current)return;
-    const description=$("edit-text").value.trim();if(!description){$("edit-text").focus();return;}
+    const description=richText("edit-text");if(!description){$("edit-text").focus();return;}
     try{
         const timing=timeDetails("edit");
         await storage.save({
-            ...current,...timing,description,
+            ...current,...timing,description,descriptionHtml:safeRichHTML($("edit-text").innerHTML),
             category:canonicalCategory($("edit-category").value)||null,
             categorySource:"manual",mood:readMood("edit"),
             energy:$("edit-energy-enabled").checked?Number($("edit-energy").value):null,
