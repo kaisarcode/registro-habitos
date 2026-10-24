@@ -370,11 +370,22 @@ function drawDashboard(){
  * Provides the associated interface operation.
  * @return The operation result.
  */
+let captureFeedbackTimeout=null;
 function showCaptureFeedback(message,entry=null){
+    if(captureFeedbackTimeout!==null){
+        clearTimeout(captureFeedbackTimeout);
+        captureFeedbackTimeout=null;
+    }
     $("quick-feedback").classList.toggle("has-message",Boolean(message));
     $("capture-status").textContent=message;
     lastQuickEntryId=entry?.id||null;
     $("undo-quick").classList.toggle("hidden",!entry);
+    if(message){
+        captureFeedbackTimeout=setTimeout(()=>{
+            captureFeedbackTimeout=null;
+            showCaptureFeedback("");
+        },2000);
+    }
 }
 
 /**
