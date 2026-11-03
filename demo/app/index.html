@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1419"><meta name="app-build" content="66f614e2f4"><meta name="app-version" content="0.3.3"><meta name="app-version-code" content="20261147"><title>Registro de Hábitos</title><link rel="stylesheet" href="./style.css"></head>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1419"><meta name="app-build" content="5416722289"><meta name="app-version" content="0.3.3"><meta name="app-version-code" content="20261148"><title>Registro de Hábitos</title><link rel="stylesheet" href="./style.css"></head>
 <body><svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true" width="0" height="0"><defs>
 <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C9 4 4 9 4 16c0 3 2 4 4 4 7 0 12-5 12-16Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c2-4 6-7 11-10" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
 <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 6h2M3 12h2M3 18h2" stroke="currentColor" stroke-width="2"/></symbol>
@@ -1863,7 +1863,12 @@ function setupRichEditor(container){
     const field=container.querySelector(".rich-content");
     const toolbar=container.querySelector(".rich-toolbar");
 
-    // Mobile-friendly insertion: no selected text or execCommand required.
+    /**
+     * Inserts a block without requiring selected text or execCommand.
+     * @param block Block element to insert.
+     * @param savedRange Optional range saved before opening a dialog.
+     * @return void.
+     */
     function insertBlock(block, savedRange=null){
         const selection=window.getSelection();
         const range=savedRange&&field.contains(savedRange.commonAncestorContainer)?savedRange:(selection?.rangeCount&&field.contains(selection.anchorNode)?selection.getRangeAt(0):null);
